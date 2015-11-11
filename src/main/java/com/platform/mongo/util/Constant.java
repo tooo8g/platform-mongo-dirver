@@ -7,7 +7,7 @@ import java.util.Properties;
 public class Constant {
 
 	public static String uri;
-
+	
 	static {
 		try {
 			Properties properties = new Properties();
