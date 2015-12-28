@@ -1,10 +1,10 @@
 package com.platform.mongo.s1;
 
 import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.elemMatch;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
-import static java.util.Arrays.asList;
+import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Filters.regex;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,24 +17,20 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBRef;
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Aggregates;
-import com.platform.mongo.util.Constant;
+import com.platform.io.bean.Standardization;
+import com.platform.mongo.s1.dao.MongoDao;
+import com.platform.mongo.util.TimeUtil;
 
 public class MongoDirver {
 
-	private static final int Document = 0;
-	private MongoClient client;
-	private int ArrayList;
+	private MongoDao client;
 
 	public MongoDirver() {
-		MongoClientURI uri = new MongoClientURI(Constant.uri);
-		client = new MongoClient(uri);
+		client = new MongoDao();
+	}
+
+	public void close() {
+		client.close();
 	}
 
 	public static void main(String[] args) {
@@ -43,181 +39,150 @@ public class MongoDirver {
 		// md.test3();
 		// md.test4();
 		// md.test();
-		// md.addCP("�к�ְ�", "AS-2", "15", "��ҵA");
-		// md.addCP("�к�ְ�", "AS-2", "16", "��ҵA");
-		 md.addCP("�к�ְ�", "BS-3", "150", "��ҵB");
-		 md.addCP("�к�ְ�", "BS-4", "155", "��ҵB");
-		// md.addCP("�к�ְ�", "AS-2", "16", "��ҵB");
-		// md.addCP("�к�ְ�", "AS-3", "15", "��ҵC");
+		// md.addCP("中厚钢板", "AS-2", "15", "企业A");
+		// md.addCP("中厚钢板", "AS-2", "16", "企业A");
+		// md.addCP("中厚钢板", "BS-3", "150", "企业B");
+		// md.addCP("中厚钢板", "BS-4", "155", "企业B");
+		// md.addCP("中厚钢板", "AS-2", "16", "企业B");
+		// md.addCP("中厚钢板", "AS-3", "15", "企业C");
 		// md.test5();
 		// String json = md.findCP_tree(2);
 		// System.out.println(md.queryCPMenu(2));
 		// System.out.println(md.queryNextCPMenu(3, "11"));
 		// md.queryGroupList("test", "cp_detail", new Document("group", "111"),
 		// null);
-		// System.out.println(md.queryCPDetail("111", 0, 10));
-//		System.out.println(md.queryGYSCPMenu("561e18cbdfae591f8ceae127"));
-		System.out.println(md.queryGYSCPDetail("561e18cbdfae591f8ceae127", "111", 0, 10));
+		// System.out.println(md.queryProductDetail("5620ba5d772fb525e42f2c11"));
+		// System.out.println(md.queryGYSCPMenu("561e18cbdfae591f8ceae127"));
+		// System.out.println(md.queryGYSCPDetail("561e18cbdfae591f8ceae127",
+		// "111", 0, 10));
+		// md.addSupplierWarning(
+		// "企业A",
+		// "72551051-9",
+		// "销售授权有效期弄虚作假2",
+		// "《中国铁路总公司关于公布2015年6月份供应商信用评价结果的通知2》"
+		// +
+		// "（铁总物资函〔2015〕788号）。自本通知发布之日起，暂停与绵阳市铁人电气有限公司合作关系12个月，并纳入供应商年度信用评价。暂停期限内，"
+		// +
+		// "铁路各单位不得接受其参与铁路物资设备招标及其他采购活动；对其已中标但尚未发放中标通知书的，取消中标资格；对已发放中标通知书或已签订合同的，"
+		// + "要加强质量检验和监控。在合同履行过程中，存在违约行为的追究其违约责任。", "中国铁路总公司",
+		// new Date(), new Date(), "");
+		// System.out.println(md.querySupplierWarning("2015〕", 0, 2));
+		// md.addRailWarning("河北辛集腾跃实业有限公司", "货车高摩擦系A统合成闸瓦", "不合B格",
+		// "自动摩C擦磨耗性能", "2015年第4批",
+		// "");
+		// System.out.println(md.queryRailWarning("A", 0, 10));
+		try {
+			// File f = new File("D://test//1.jpg");
+			// byte[] data = new byte[(int) f.length()];
+			// FileInputStream fin = new FileInputStream(f);
+			// fin.read(data);
+			// fin.close();
+			// md.saveFile("test", "img", "1", data);
+			// System.out.println("save image");
+			// md.writeFile("test", "img", "1", "D://test//2.jpg");
+//			System.out.println(md.queryLatestStandards("", 0, 5));
+			System.out.println(md.queryStandards("TB/T 454—1981", null, null, null, 0, 10));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		md.close();
 	}
 
-	// public void
-
-	public void test() {
-		MongoDatabase db = client.getDatabase("test");
-		MongoCollection<Document> collection = db.getCollection("cp_tree1");
-		FindIterable<Document> myDoc = collection.find();
-		for (Document d : myDoc) {
-			ArrayList<DBRef> dbref = d.get("zx", ArrayList.class);
-			for (int i = 0; i < dbref.size(); i++) {
-				DBRef dbr = dbref.get(i);
-				System.out.println(dbr.getCollectionName());
-			}
-		}
-	}
-
-	public void test2() {
-		MongoDatabase db = client.getDatabase("test");
-		MongoCollection<Document> collection = db.getCollection("info");
-		Map<String, String> value = new TreeMap<String, String>();
-		value.put("name", "���ְ�");
-		value.put("position", "gc-gzp.gb.bgb.cp");
-		collection.updateOne(
-				eq("_id", new ObjectId("55ff757384dbef18e89539ea")),
-				new Document("$push", new Document("info.context", value)));
-	}
-
-	public void test3() {
-		MongoDatabase db = client.getDatabase("test");
-		MongoCollection<Document> collection = db.getCollection("info");
-		// FindIterable<Document> myDoc = collection.find(
-		// Filters.eq("info.context.name", "���ְ�")).projection(
-		// new BasicDBObject("info.context.$", 1).append("_id", 0));
-		FindIterable<Document> myDoc = collection.find(
-				elemMatch("info.context", eq("name", "���ְ�"))).projection(
-				new BasicDBObject("info.context.name", 1).append("_id", 0));
-		for (Document d : myDoc) {
-			System.out.println(d.toJson());
-		}
-	}
-
-	public void test4() {
-		MongoDatabase db = client.getDatabase("test");
-		System.out.println(db.getName());
-		List<Document> context = new ArrayList<Document>();
-		context.add(new Document("name", "�ָֹ�").append("position",
-				"gc-gzp.gg.cgg.cp"));
-		Document doc = new Document("name", "MongDB")
-				.append("type", "database")
-				.append("count", 1)
-				.append("info",
-						new Document("x", 203).append("y", 102).append(
-								"context", context));
-		MongoCollection<Document> collection = db.getCollection("info");
-		collection.insertOne(doc);
-	}
-
-	public void test5() {
-		MongoDatabase db = client.getDatabase("test");
-		MongoCollection<Document> collection = db.getCollection("info");
-		Document doc = new Document("date", new Date());
-		collection.insertOne(doc);
-	}
-
 	/**
-	 * ���Ӳ�Ʒ��Ϣ
+	 * 增加产品信息
 	 * 
 	 * @param cpmc
-	 *            ��Ʒ����
+	 *            产品名称
 	 * @param ggxh
-	 *            ����ͺ�
+	 *            规格型号
 	 * @param jg
-	 *            �۸�
+	 *            价格
 	 * @param qymc
-	 *            ��ҵ����
+	 *            企业名称
 	 */
-	public void addCP(String cpmc, String ggxh, String jg, String qymc) {
-		// �д˲�Ʒ
-		String id = queryOne("test", "cp_tree3", eq("zwmc", cpmc), "_id",
-				String.class);
+	public void addProduct(String cpmc, String ggxh, String jg, String qymc) {
+		// 有此产品
+		String id = client.queryOne("test", "cp_tree3", eq("zwmc", cpmc),
+				"_id", String.class);
 		if (id != null) {
-			// �д˹���ͺ�
-			String zx_id = queryOne("test", "cp_tree3",
+			// 有此规格型号
+			String zx_id = client.queryOne("test", "cp_tree3",
 					and(eq("_id", id), eq("zx.zwmc", ggxh)), "_id",
 					String.class);
 			if (zx_id == null) {
-				// ���ӹ���ͺ�
+				// 增加规格型号
 				Map<String, String> value = new TreeMap<String, String>();
 				value.put("zwmc", ggxh);
-				appendOne("test", "cp_tree3", eq("_id", id), "zx", value);
+				client.appendOne("test", "cp_tree3", eq("_id", id), "zx", value);
 			}
-			// �д˹�Ӧ��
-			ObjectId gys_id = queryOne("test", "gys", eq("qymc", qymc), "_id",
-					ObjectId.class);
+			// 有此供应商
+			ObjectId gys_id = client.queryOne("test", "gys", eq("qymc", qymc),
+					"_id", ObjectId.class);
 			ObjectId cp_detail_id = new ObjectId();
 			Map<String, ObjectId> gys_cp_data = new TreeMap<String, ObjectId>();
 			gys_cp_data.put("cp_detail_id", cp_detail_id);
 			if (gys_id == null) {
 				gys_id = new ObjectId();
-				// ���ӹ�Ӧ��
+				// 增加供应商
 				List<Map<String, ObjectId>> gys_cp_datas = new ArrayList<Map<String, ObjectId>>();
 				gys_cp_datas.add(gys_cp_data);
 				Document gys_data = new Document("_id", gys_id)
 						.append("qymc", qymc).append("add_time", new Date())
 						.append("cp", gys_cp_datas);
-				addOne("test", "gys", gys_data);
+				client.addOne("test", "gys", gys_data);
 			} else {
-				// ���ӹ�Ӧ�̲�Ʒ�б�
-				appendOne("test", "gys", eq("_id", gys_id), "cp", gys_cp_data);
+				// 增加供应商产品列表
+				client.appendOne("test", "gys", eq("_id", gys_id), "cp",
+						gys_cp_data);
 			}
-			// ��ԭ��Ʒע��
-			updateOne(
+			// 将原产品注销
+			client.updateField(
 					"test",
 					"cp_detail",
 					and(eq("group", id), eq("ggxh", ggxh),
 							eq("gys_id", gys_id), eq("valid", "1")), "valid",
 					"0");
-			// ���Ӳ�Ʒ
+			// 增加产品
 			Document cp_data = new Document("_id", cp_detail_id)
 					.append("group", id).append("cpmc", cpmc)
 					.append("ggxh", ggxh).append("jg", jg)
 					.append("gys_id", gys_id).append("add_time", new Date())
 					.append("valid", "1");
-			addOne("test", "cp_detail", cp_data);
+			client.addOne("test", "cp_detail", cp_data);
 		}
 	}
 
 	/**
-	 * ��ȡ�˵�
+	 * 获取菜单
 	 * 
 	 * @param level
-	 *            �˵�����(1-3)
+	 *            菜单级别(1-3)
 	 * @return
 	 */
-	public String queryCPMenu(int level) {
-		List<Document> cp_data = queryList("test", "cp_tree" + level, null,
-				new BasicDBObject("_id", 0).append("zx", 0)).into(
+	public String queryProductMenu(int level) {
+		List<Document> cp_data = client.queryList("test", "cp_tree" + level,
+				null, new BasicDBObject("_id", 0).append("zx", 0)).into(
 				new ArrayList<Document>());
 		Document data = new Document("data", cp_data);
 		return data.toJson();
 	}
 
 	/**
-	 * ��ȡ�Ӳ˵�
+	 * 获取子菜单
 	 * 
 	 * @param level
-	 *            �˵�����(1-3)
+	 *            菜单级别(1-3)
 	 * @param id
-	 *            �����˵�ID
+	 *            父级菜单ID
 	 * @return
 	 */
-	public String queryNextCPMenu(int level, String id) {
-		Document parent_data = queryOne("test", "cp_tree" + (level - 1),
+	public String queryNextProductMenu(int level, String id) {
+		Document parent_data = client.queryOne("test", "cp_tree" + (level - 1),
 				eq("_id", id), "zx");
 		@SuppressWarnings("unchecked")
 		List<Document> parent_ids = parent_data.get("zx", ArrayList.class);
-		List<Document> child_data = queryListByArray("test", "cp_tree" + level,
-				"_id", parent_ids, "id", String.class,
+		List<Document> child_data = client.queryListByArray("test",
+				"cp_tree" + level, "_id", parent_ids, "id", String.class,
 				new BasicDBObject("_id", 0).append("zx", 0)).into(
 				new ArrayList<Document>());
 		Document data = new Document("data", child_data);
@@ -225,21 +190,22 @@ public class MongoDirver {
 	}
 
 	/**
-	 * ��ȡ�˵��²�Ʒ
+	 * 获取菜单下产品列表
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public String queryCPDetail(String id, int skip, int limit) {
-		Document tree3 = queryOne("test", "cp_tree3", eq("_id", id), null);
+	public String queryProductList(String id, int skip, int limit) {
+		Document tree3 = client.queryOne("test", "cp_tree3", eq("_id", id),
+				null);
 		Bson filters = and(eq("group", id), eq("valid", "1"));
-		int count = queryCount("test", "cp_detail", filters);
-		List<Document> cp_detail = queryList("test", "cp_detail", filters,
-				new BasicDBObject("valid", 0), skip, limit).into(
+		int count = client.queryCount("test", "cp_detail", filters);
+		List<Document> cp_detail = client.queryList("test", "cp_detail",
+				filters, new BasicDBObject("valid", 0), skip, limit).into(
 				new ArrayList<Document>());
 		for (Document cp : cp_detail) {
 			ObjectId gys_id = cp.getObjectId("gys_id");
-			Document gys = querySingle("test", "gys", eq("_id", gys_id),
+			Document gys = client.querySingle("test", "gys", eq("_id", gys_id),
 					new BasicDBObject("cp", 0));
 			cp.put("gys_id", gys);
 		}
@@ -249,32 +215,50 @@ public class MongoDirver {
 	}
 
 	/**
-	 * ��ȡ��Ӧ�̲�Ʒ��
+	 * 获取产品详情
 	 * 
 	 * @param id
 	 * @return
 	 */
-	public String queryGYSCPMenu(String id) {
-		Document gys = querySingle("test", "gys", eq("_id", new ObjectId(id)),
-				new BasicDBObject("cp", 1));
+	public String queryProductDetail(String id) {
+		Bson filters = eq("_id", new ObjectId(id));
+		Document cp = client.querySingle("test", "cp_detail", filters,
+				new BasicDBObject("group", 0).append("valid", 0));
+		ObjectId gys_id = (ObjectId) cp.remove("gys_id");
+		filters = eq("_id", gys_id);
+		Document gys = client.querySingle("test", "gys", filters,
+				new BasicDBObject("cp", 0));
+		cp.put("gys", gys.getString("qymc"));
+		return cp.toJson();
+	}
+
+	/**
+	 * 获取供应商产品树
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public String querySupplierProductMenu(String id) {
+		Document gys = client.querySingle("test", "gys",
+				eq("_id", new ObjectId(id)), new BasicDBObject("cp", 1));
 		List<Document> cps = gys.get("cp", ArrayList.class);
 		List<ObjectId> cp_detail_ids = new ArrayList<ObjectId>();
 		for (Document cp : cps)
 			cp_detail_ids.add(cp.getObjectId("cp_detail_id"));
 		Bson filters = in("_id", cp_detail_ids);
-		List<Document> tree3s = queryDistincValue("test", "cp_detail", filters,
-				"$group");
-		// ��������ϼ�Ŀ¼
+		List<Document> tree3s = client.queryDistincValue("test", "cp_detail",
+				filters, "$group");
+		// 逐个查找上级目录
 		Document tree = new Document();
 		tree.put("id", id);
 		for (Document tree3_ids : tree3s) {
 			String tree3_id = tree3_ids.getString("_id");
-			Document tree3 = querySingle("test", "cp_tree3",
+			Document tree3 = client.querySingle("test", "cp_tree3",
 					eq("_id", tree3_id), new BasicDBObject("zwmc", 1));
-			Document tree2 = querySingle("test", "cp_tree2",
+			Document tree2 = client.querySingle("test", "cp_tree2",
 					eq("zx.id", tree3_id), new BasicDBObject("zwmc", 1));
 			String tree2_id = tree2.getString("_id");
-			Document tree1 = querySingle("test", "cp_tree1",
+			Document tree1 = client.querySingle("test", "cp_tree1",
 					eq("zx.id", tree2_id), new BasicDBObject("zwmc", 1));
 
 			String tree3_zwmc = tree3.getString("zwmc");
@@ -302,19 +286,21 @@ public class MongoDirver {
 	}
 
 	/**
-	 * ��Ӧ�̲�Ʒ��ϸ
+	 * 供应商产品明细
+	 * 
 	 * @param id
 	 * @param group
 	 * @param skip
 	 * @param limit
 	 * @return
 	 */
-	public String queryGYSCPDetail(String id, String group, int skip, int limit) {
+	public String querySupplierProductDetail(String id, String group, int skip,
+			int limit) {
 		Bson filters = and(eq("group", group), eq("gys_id", new ObjectId(id)),
 				eq("valid", "1"));
-		int count = queryCount("test", "cp_detail", filters);
-		List<Document> cp_detail = queryList("test", "cp_detail", filters,
-				new BasicDBObject("valid", 0), skip, limit).into(
+		int count = client.queryCount("test", "cp_detail", filters);
+		List<Document> cp_detail = client.queryList("test", "cp_detail",
+				filters, new BasicDBObject("valid", 0), skip, limit).into(
 				new ArrayList<Document>());
 		Document data = new Document();
 		data.append("count", count);
@@ -322,23 +308,328 @@ public class MongoDirver {
 		return data.toJson();
 	}
 
+	/**
+	 * 新增供应商处理通报
+	 * 
+	 * @param gysmc
+	 *            供应商名称
+	 * @param zzjgdm
+	 *            组织机构代码
+	 * @param blxw
+	 *            不良行为
+	 * @param cljd
+	 *            处理决定
+	 * @param cljg
+	 *            处理机关
+	 * @param start_time
+	 *            开始时间
+	 * @param end_time
+	 *            结束时间
+	 * @param bz
+	 *            备注
+	 */
+	public void addSupplierWarning(String gysmc, String zzjgdm, String blxw,
+			String cljd, String cljg, Date kssj, Date jssj, String bz) {
+		Bson filters = or(eq("qymc", gysmc), eq("zzjgdm", zzjgdm));
+		ObjectId gys_id = client.queryOne("test", "gys", filters, "_id",
+				ObjectId.class);
+		ObjectId cltb_id = new ObjectId();
+		Document cltb = new Document();
+		cltb.put("_id", cltb_id);
+		cltb.put("qymc", gysmc);
+		cltb.put("zzjgdm", zzjgdm);
+		cltb.put("blxw", blxw);
+		cltb.put("cljd", cljd);
+		cltb.put("cljg", cljg);
+		cltb.put("start_time", kssj);
+		cltb.put("end_time", jssj);
+		cltb.put("bz", bz);
+		cltb.put("add_time", new Date());
+		// 添加供应商处理通报
+		client.addOne("test", "cltb", cltb);
+		List<Map<String, ObjectId>> gyscltb = new ArrayList<Map<String, ObjectId>>();
+		Map<String, ObjectId> cltb_ids = new TreeMap<String, ObjectId>();
+		cltb_ids.put("cltb_id", cltb_id);
+		gyscltb.add(cltb_ids);
+		// 有此供应商
+		if (gys_id != null) {
+			Bson append_filters = eq("_id", gys_id);
+			client.appendOne("test", "gys", append_filters, "gyscltb", cltb_ids);
+		} else {
+			Document data = new Document("qymc", gysmc)
+					.append("zzjgdm", zzjgdm).append("gyscltb", gyscltb)
+					.append("add_time", new Date());
+			client.addOne("test", "gys", data);
+		}
+	}
+
+	/**
+	 * 查询供应商处理通报
+	 * 
+	 * @param str
+	 *            关键字
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public String querySupplierWarning(String str, int skip, int limit) {
+		Bson filters = or(regex("qymc", "^.*" + str + ".*$"),
+				regex("blxw", "^.*" + str + ".*$"),
+				regex("cljd", "^.*" + str + ".*$"));
+		int count = client.queryCount("test", "cltb", filters);
+		List<Document> cltb = client.queryList("test", "cltb", filters,
+				new BasicDBObject("_id", 0).append("add_time", 0),
+				new BasicDBObject("add_time", -1), skip, limit).into(
+				new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("cltb", cltb);
+		return data.toJson();
+	}
+
+	/**
+	 * 增加铁道质量监督抽查通报
+	 * 
+	 * @param qymc
+	 *            企业名称
+	 * @param cpmc
+	 *            产品名称
+	 * @param jyjg
+	 *            检验结果
+	 * @param bhgxm
+	 *            不合格项目
+	 * @param pc
+	 *            批次
+	 * @param bz
+	 *            备注
+	 */
+	public void addRailWarning(String qymc, String cpmc, String jyjg,
+			String bhgxm, String pc, String bz) {
+		Bson filters = eq("qymc", qymc);
+		ObjectId gys_id = client.queryOne("test", "gys", filters, "_id",
+				ObjectId.class);
+		ObjectId rail_id = new ObjectId();
+		Document rail = new Document();
+		rail.put("_id", rail_id);
+		rail.put("qymc", qymc);
+		rail.put("cpmc", cpmc);
+		rail.put("jyjg", jyjg);
+		rail.put("bhgxm", bhgxm);
+		rail.put("pc", pc);
+		rail.put("bz", bz);
+		rail.put("add_time", new Date());
+		// 添加铁道质量通报
+		client.addOne("test", "tdcltb", rail);
+		List<Map<String, ObjectId>> tdcltb = new ArrayList<Map<String, ObjectId>>();
+		Map<String, ObjectId> rail_ids = new TreeMap<String, ObjectId>();
+		rail_ids.put("cltb_id", rail_id);
+		tdcltb.add(rail_ids);
+		// 有次供应商
+		if (gys_id != null) {
+			Bson append_filters = eq("_id", gys_id);
+			client.appendOne("test", "gys", append_filters, "tdcltb", rail_ids);
+		} else {
+			Document data = new Document("qymc", qymc).append("tdcltb", tdcltb)
+					.append("add_time", new Date());
+			client.addOne("test", "gys", data);
+		}
+	}
+
+	/**
+	 * 查询铁道质量监督抽查通报
+	 * 
+	 * @param str
+	 *            关键字
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public String queryRailWarning(String str, int skip, int limit) {
+		Bson filters = or(regex("qymc", "^.*" + str + ".*$"),
+				regex("cpmc", "^.*" + str + ".*$"),
+				regex("bhgxm", "^.*" + str + ".*$"),
+				regex("pc", "^.*" + str + ".*$"));
+		int count = client.queryCount("test", "tdcltb", filters);
+		List<Document> tdcltb = client.queryList("test", "tdcltb", filters,
+				new BasicDBObject("_id", 0).append("add_time", 0),
+				new BasicDBObject("add_time", -1), skip, limit).into(
+				new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("tdcltb", tdcltb);
+		return data.toJson();
+	}
+
+	/**
+	 * 增加招标采购信息
+	 * 
+	 * @param cgbh
+	 *            采购编号
+	 * @param cgmc
+	 *            采购名称
+	 * @param zzdw
+	 *            组织单位
+	 * @param gglx
+	 *            公告类型
+	 * @param cgpz
+	 *            采购品种
+	 * @param cgdq
+	 *            采购地区
+	 * @param fbsj
+	 *            发布时间
+	 * @param sjly
+	 *            数据来源
+	 */
+	public void addPurchaseBidding(String cgbh, String cgmc, String zzdw,
+			String gglx, String cgpz, String cgdq, Date fbsj, String sjly) {
+		Document pb = new Document();
+		pb.put("cgbh", cgbh);
+		pb.put("cgmc", cgmc);
+		pb.put("zzdw", zzdw);
+		pb.put("gglx", gglx);
+		pb.put("cgpz", cgpz);
+		pb.put("cgdq", cgdq);
+		pb.put("fbsj", fbsj);
+		pb.put("sjly", sjly);
+		pb.put("add_time", new Date());
+		client.addOne("test", "zbcg", pb);
+	}
+
+	/**
+	 * 查询招标采购信息
+	 * 
+	 * @param str
+	 *            关键字
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public String queryPurchaseBidding(String str, int skip, int limit) {
+		Bson filters = or(regex("cgbh", "^.*" + str + ".*$"),
+				regex("cgmc", "^.*" + str + ".*$"),
+				regex("zzdw", "^.*" + str + ".*$"),
+				regex("cgpz", "^.*" + str + ".*$"),
+				regex("cgdq", "^.*" + str + ".*$"));
+		int count = client.queryCount("test", "zbcg", filters);
+		List<Document> zbcg = client.queryList("test", "zbcg", filters,
+				new BasicDBObject("_id", 0), new BasicDBObject("add_time", -1),
+				skip, limit).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("zbcg", zbcg);
+		return data.toJson();
+	}
+
+	/**
+	 * 增加标准信息
+	 * 
+	 * @param standard
+	 */
+	public void addLatestStandards(Standardization standard) {
+		Document ls = new Document();
+		ls.put("standard_group", standard.getStandard_group());
+		ls.put("standard_id", standard.getStandard_id());
+		ls.put("standard_name", standard.getStandard_name());
+		ls.put("replace_id", standard.getReplace_id());
+		ls.append("publish_date",
+				TimeUtil.parserDate(standard.getPublish_date()));
+		ls.put("execute_date", TimeUtil.parserDate(standard.getExecute_date()));
+		ls.put("standard_status", standard.getStandard_status());
+		ls.put("special_subject", standard.getSpecial_subject());
+		ls.put("add_time", new Date());
+		ObjectId _id = client.queryOne("test", "standardization",
+				eq("standard_id", standard.getStandard_id()), "_id",
+				ObjectId.class);
+		// 如果标准编号存在，则这将这条历史记录更新。不存在则新增。
+		if (_id != null) {
+			client.updateOne("test", "standardization", eq("_id", _id), ls);
+		} else {
+			client.addOne("test", "standardization", ls);
+		}
+	}
+
+	/**
+	 * 最新发布标准信息查询
+	 * 
+	 * @param str
+	 *            关键字
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public String queryLatestStandards(String str, int skip, int limit) {
+		Bson filters = null;
+		if (str != null && !str.equals(""))
+			filters = or(regex("standard_group", "^.*" + str + ".*$"),
+					regex("standard_id", "^.*" + str + ".*$"),
+					regex("standard_name", "^.*" + str + ".*$"),
+					regex("replace_id", "^.*" + str + ".*$"));
+		int count = client.queryCount("test", "standardization", filters);
+		List<Document> bzxx = client.queryList("test", "standardization",
+				filters, new BasicDBObject("_id", 0),
+				new BasicDBObject("publish_date", -1), skip, limit).into(
+				new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("bzxx", bzxx);
+		return data.toJson();
+	}
+
+	/**
+	 * 技术标准查询
+	 * 
+	 * @param standard_id
+	 *            标准编号
+	 * @param standard_name
+	 *            标准名称
+	 * @param standard_status
+	 *            文件状态
+	 * @param special_subject
+	 *            专业分类
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public String queryStandards(String standard_id, String standard_name,
+			String standard_status, String special_subject, int skip, int limit) {
+		List<Bson> condition = new ArrayList<Bson>();
+		if (standard_id != null)
+			condition.add(eq("standard_id", standard_id));
+		if (standard_name != null)
+			condition.add(eq("standard_name", standard_name));
+		if (standard_status != null)
+			condition.add(eq("standard_status", standard_status));
+		if (special_subject != null)
+			condition.add(eq("special_subject", special_subject));
+		Bson filters = and(condition);
+		int count = client.queryCount("test", "standardization", filters);
+		List<Document> bzxx = client.queryList("test", "standardization",
+				filters, new BasicDBObject("_id", 0),
+				new BasicDBObject("add_time", -1), skip, limit).into(
+				new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("bzxx", bzxx);
+		return data.toJson();
+	}
+
 	private String findCPMenu(int deep) {
 		if (deep == 1) {
-			List<Document> tree1 = queryList("test", "cp_tree1", null,
+			List<Document> tree1 = client.queryList("test", "cp_tree1", null,
 					new BasicDBObject("_id", 0).append("zx", 0)).into(
 					new ArrayList<Document>());
 			Document data = new Document();
 			data.append("tree", tree1);
 			return data.toJson();
 		} else if (deep == 2) {
-			List<Document> tree1s = queryList("test", "cp_tree1", null,
+			List<Document> tree1s = client.queryList("test", "cp_tree1", null,
 					new BasicDBObject("_id", 0))
 					.into(new ArrayList<Document>());
 			for (Document tree1 : tree1s) {
 				@SuppressWarnings("unchecked")
 				List<Document> tree2s = tree1.get("zx", ArrayList.class);
-				List<Document> tree2 = queryListByArray("test", "cp_tree2",
-						"_id", tree2s, "id", String.class,
+				List<Document> tree2 = client.queryListByArray("test",
+						"cp_tree2", "_id", tree2s, "id", String.class,
 						new BasicDBObject("zx", 0).append("_id", 0)).into(
 						new ArrayList<Document>());
 				tree1.put("zx", tree2);
@@ -353,224 +644,6 @@ public class MongoDirver {
 		}
 
 		return null;
-	}
-
-	/**
-	 * select from where in(,,,);
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param key
-	 * @param values
-	 * @param inner_key
-	 * @param inner_value
-	 * @param projected
-	 * @return
-	 */
-	public <T> FindIterable<Document> queryListByArray(String db,
-			String collection, String key, List<Document> values,
-			String inner_key, Class<T> inner_value, Bson projected) {
-		List<T> filters = new ArrayList<T>();
-		for (Document value : values) {
-			filters.add(value.get(inner_key, inner_value));
-		}
-
-		return queryList(db, collection, in(key, filters), projected);
-	}
-
-	public List<Document> queryDistincValue(String db, String collection,
-			Bson filters, String distinct) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-
-		List<Document> cp_detail = mongocol.aggregate(
-				asList(Aggregates.match(filters), Aggregates.group(distinct)))
-				.into(new ArrayList<Document>());
-
-		return cp_detail;
-	}
-
-	/**
-	 * select from where
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @param projected
-	 * @return
-	 */
-	public FindIterable<Document> queryList(String db, String collection,
-			Bson filters, Bson projected) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		if (filters == null && projected == null)
-			return mongocol.find();
-		else if (filters == null && projected != null)
-			return mongocol.find().projection(projected);
-		else if (filters != null && projected == null)
-			return mongocol.find(filters);
-		return mongocol.find(filters).projection(projected);
-	}
-
-	/**
-	 * select from where limit
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @param projected
-	 * @param skip
-	 * @param limit
-	 * @return
-	 */
-	public FindIterable<Document> queryList(String db, String collection,
-			Bson filters, Bson projected, int skip, int limit) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		if (filters == null && projected == null)
-			return mongocol.find().skip(skip).limit(limit);
-		else if (filters == null && projected != null)
-			return mongocol.find().projection(projected).skip(skip)
-					.limit(limit);
-		else if (filters != null && projected == null)
-			return mongocol.find(filters).skip(skip).limit(limit);
-		return mongocol.find(filters).projection(projected).skip(skip)
-				.limit(limit);
-	}
-
-	/**
-	 * select count from where
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @return
-	 */
-	public int queryCount(String db, String collection, Bson filters) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		return (int) mongocol.count(filters);
-	}
-
-	private FindIterable<Document> queryGroupList(String db, String collection,
-			Document filters, Bson projected) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		List<Document> cp_detail = mongocol.aggregate(
-				asList(new Document("$match", filters),
-						new Document("$group", new Document("_id", "$ggxh")
-								.append("_id", "$gys_id").append("add_time",
-										new Document("$max", "$add_time")))))
-				.into(new ArrayList<Document>());
-		Document data = new Document("data", cp_detail);
-		System.out.println(data.toJson());
-		return null;
-	}
-
-	/**
-	 * ��ѯ������¼�ĵ����ֶ�
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @param key
-	 * @param clazz
-	 * @return
-	 */
-	public <T> T queryOne(String db, String collection, Bson filters,
-			String key, Class<T> clazz) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		Document document = mongocol.find(filters)
-				.projection(new BasicDBObject(key, 1)).first();
-		return document != null ? document.get(key, clazz) : null;
-	}
-
-	/**
-	 * ��ѯ������¼�ĵ����ֶ�
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @param key
-	 * @return
-	 */
-	public Document queryOne(String db, String collection, Bson filters,
-			String key) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		if (key != null)
-			return mongocol.find(filters).projection(new BasicDBObject(key, 1))
-					.first();
-		return mongocol.find(filters).first();
-	}
-
-	public Document querySingle(String db, String collection, Bson filters,
-			Bson projected) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		if (filters == null && projected == null)
-			return mongocol.find().first();
-		else if (filters == null && projected != null)
-			return mongocol.find().projection(projected).first();
-		else if (filters != null && projected == null)
-			return mongocol.find(filters).first();
-		return mongocol.find(filters).projection(projected).first();
-	}
-
-	/**
-	 * ׷�Ӽ�¼
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @param key
-	 * @param value
-	 */
-	@SuppressWarnings("rawtypes")
-	public void appendOne(String db, String collection, Bson filters,
-			String key, Map value) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		mongocol.updateOne(filters, new Document("$push", new Document(key,
-				value)));
-	}
-
-	/**
-	 * ������¼
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param data
-	 */
-	public void addOne(String db, String collection, Document data) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		mongocol.insertOne(data);
-	}
-
-	/**
-	 * �޸ļ�¼
-	 * 
-	 * @param db
-	 * @param collection
-	 * @param filters
-	 * @param key
-	 * @param value
-	 */
-	public void updateOne(String db, String collection, Bson filters,
-			String key, Object value) {
-		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
-		mongocol.updateOne(filters, new Document("$set", new Document(key,
-				value)));
-	}
-
-	/**
-	 * �ر����ӣ��Ż����ӳ�
-	 */
-	public void close() {
-		client.close();
 	}
 
 }
