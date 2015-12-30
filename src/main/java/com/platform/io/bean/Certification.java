@@ -1,5 +1,7 @@
 package com.platform.io.bean;
 
+import java.util.List;
+
 public class Certification {
 
 	// 采信目录产品范围
@@ -44,18 +46,40 @@ public class Certification {
 	public String cert_condition;
 	// 证书扩展
 	public String cert_expand;
+	@Override
+	public String toString() {
+		return "Certification [product_range=" + product_range
+				+ ", company_name=" + company_name + ", cert_unit=" + cert_unit
+				+ ", cert_name=" + cert_name + ", cert_num=" + cert_num
+				+ ", issue_organization=" + issue_organization
+				+ ", cert_standards=" + cert_standards + ", publish_date="
+				+ publish_date + ", valid_date=" + valid_date
+				+ ", cert_status=" + cert_status + ", cert_status_id="
+				+ cert_status_id + ", mount_code=" + mount_code
+				+ ", project_code=" + project_code + ", organization_code="
+				+ organization_code + ", reg_addr=" + reg_addr + ", post_code="
+				+ post_code + ", product_kind=" + product_kind
+				+ ", product_addr=" + product_addr + ", notification_number="
+				+ notification_number + ", cert_condition=" + cert_condition
+				+ ", cert_expand=" + cert_expand + ", remark=" + remark + "]";
+	}
+
 	// 备注
 	public String remark;
-	// 产品表示代码
-	public String product_code;
-	// 规格型号
-	public String specification;
-	// 规格型号状态
-	public String specification_status;
-	// 产品属性名
-	public String product_property_name;
-	// 扩展情况
-	public String expand;
+	// 产品详情
+	public List<Certification_Detail> cert_detail;
+
+	public List<Certification_Detail> getCert_detail() {
+		return cert_detail;
+	}
+
+	public void setCert_detail(List<Certification_Detail> cert_detail) {
+		this.cert_detail = cert_detail;
+	}
+
+	public void addCert_detail(Certification_Detail detail) {
+		this.cert_detail.add(detail);
+	}
 
 	public String getProduct_range() {
 		return product_range;
@@ -233,43 +257,4 @@ public class Certification {
 		this.remark = remark;
 	}
 
-	public String getProduct_code() {
-		return product_code;
-	}
-
-	public void setProduct_code(String product_code) {
-		this.product_code = product_code;
-	}
-
-	public String getSpecification() {
-		return specification;
-	}
-
-	public void setSpecification(String specification) {
-		this.specification = specification;
-	}
-
-	public String getSpecification_status() {
-		return specification_status;
-	}
-
-	public void setSpecification_status(String specification_status) {
-		this.specification_status = specification_status;
-	}
-
-	public String getProduct_property_name() {
-		return product_property_name;
-	}
-
-	public void setProduct_property_name(String product_property_name) {
-		this.product_property_name = product_property_name;
-	}
-
-	public String getExpand() {
-		return expand;
-	}
-
-	public void setExpand(String expand) {
-		this.expand = expand;
-	}
 }

@@ -17,6 +17,8 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.platform.io.bean.Certification;
+import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Standardization;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
@@ -80,8 +82,10 @@ public class MongoDirver {
 			// md.saveFile("test", "img", "1", data);
 			// System.out.println("save image");
 			// md.writeFile("test", "img", "1", "D://test//2.jpg");
-//			System.out.println(md.queryLatestStandards("", 0, 5));
-			System.out.println(md.queryStandards("TB/T 454—1981", null, null, null, 0, 10));
+			// System.out.println(md.queryLatestStandards("", 0, 5));
+//			System.out.println(md.queryStandards("TB/T 454—1981", null, null,
+//					null, 0, 10));
+			System.out.println(md.queryCertifications("CRCC10215P11814R0M", 0, 10));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -611,6 +615,68 @@ public class MongoDirver {
 		data.put("count", count);
 		data.put("bzxx", bzxx);
 		return data.toJson();
+	}
+
+	public String queryCertifications(String str, int skip, int limit) {
+		Bson filters = null;
+		if (str != null && !str.equals(""))
+			filters = or(regex("company_name", "^.*" + str + ".*$"),
+					regex("cert_name", "^.*" + str + ".*$"),
+					regex("cert_num", "^.*" + str + ".*$"),
+					regex("issue_organization", "^.*" + str + ".*$"));
+		int count = client.queryCount("test", "certification", filters);
+		List<Document> rzxx = client.queryList("test", "certification",
+				filters, new BasicDBObject("_id", 0), new BasicDBObject("publish_date", -1), skip,
+				limit).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("bzxx", rzxx);
+		return data.toJson();
+	}
+
+	/**
+	 * 增加资质信息
+	 * 
+	 * @param cert
+	 */
+	public void addCertification(Certification cert) {
+		Document d = new Document();
+		d.put("product_range", cert.getProduct_range());
+		d.put("company_name", cert.getCompany_name());
+		d.put("cert_unit", cert.getCert_unit());
+		d.put("cert_name", cert.getCert_name());
+		d.put("cert_num", cert.getCert_num());
+		d.put("issue_organization", cert.getIssue_organization());
+		d.put("cert_standards", cert.getCert_standards());
+		d.put("publish_date", TimeUtil.parserDate(cert.getPublish_date()));
+		d.put("valid_date", TimeUtil.parserDate(cert.getValid_date()));
+		d.put("cert_status", cert.getCert_status());
+		d.put("cert_status_id", cert.getCert_status_id());
+		d.put("mount_code", cert.getMount_code());
+		d.put("project_code", cert.getProject_code());
+		d.put("organization_code", cert.getOrganization_code());
+		d.put("reg_addr", cert.getReg_addr());
+		d.put("post_code", cert.getPost_code());
+		d.put("product_kind", cert.getProduct_kind());
+		d.put("product_addr", cert.getProduct_addr());
+		d.put("notification_number", cert.getNotification_number());
+		d.put("cert_condition", cert.getCert_condition());
+		d.put("cert_expand", cert.getCert_expand());
+		d.put("remark", cert.getRemark());
+		List<Certification_Detail> details = cert.getCert_detail();
+		List<Document> data = new ArrayList<Document>();
+		for (Certification_Detail cd : details) {
+			Document doc = new Document();
+			doc.put("product_code", cd.getProduct_code());
+			doc.put("specification", cd.getSpecification());
+			doc.put("specification_status", cd.getSpecification_status());
+			doc.put("product_property_name", cd.getProduct_property_name());
+			doc.put("expand", cd.getExpand());
+			data.add(doc);
+		}
+		d.put("cert_detail", data);
+		d.put("add_time", new Date());
+		client.addOne("test", "certification", d);
 	}
 
 	private String findCPMenu(int deep) {

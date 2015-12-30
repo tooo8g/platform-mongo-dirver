@@ -12,6 +12,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.platform.io.bean.Certification;
+import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Standardization;
 
 public class MSIO {
@@ -35,10 +36,76 @@ public class MSIO {
 			for (int i = 0; i < numberOfSheets; i++) {
 				Sheet sheet = workbook.getSheetAt(i);
 				Iterator<Row> rowIterator = sheet.iterator();
+				Certification cert = null;
+				if (rowIterator.hasNext())
+					rowIterator.next();
 				while (rowIterator.hasNext()) {
 					Row row = rowIterator.next();
-					Certification cert = new Certification();
-					System.out.println(row.getCell(23).getRowIndex());
+					if (row.getCell(4) != null
+							&& !row.getCell(4).getStringCellValue().equals("")) {
+						cert = new Certification();
+						cert.setProduct_range(row.getCell(0)
+								.getStringCellValue());
+						cert.setCompany_name(row.getCell(1)
+								.getStringCellValue());
+						cert.setCert_unit(row.getCell(2).getStringCellValue());
+						cert.setCert_name(row.getCell(3).getStringCellValue());
+						cert.setCert_num(row.getCell(4).getStringCellValue());
+						cert.setIssue_organization(row.getCell(5)
+								.getStringCellValue());
+						cert.setCert_standards(row.getCell(6)
+								.getStringCellValue());
+						cert.setPublish_date(row.getCell(7)
+								.getStringCellValue());
+						cert.setValid_date(row.getCell(8).getStringCellValue());
+						cert.setCert_status(row.getCell(9).getStringCellValue());
+						cert.setCert_status_id(row.getCell(10)
+								.getStringCellValue());
+						cert.setMount_code(row.getCell(11).getStringCellValue());
+						cert.setProject_code(row.getCell(12)
+								.getStringCellValue());
+						cert.setOrganization_code(row.getCell(13)
+								.getStringCellValue());
+						cert.setReg_addr(row.getCell(14).getStringCellValue());
+						cert.setPost_code(row.getCell(15).getStringCellValue());
+						cert.setProduct_kind(row.getCell(16)
+								.getStringCellValue());
+						cert.setProduct_addr(row.getCell(17)
+								.getStringCellValue());
+						cert.setNotification_number(row.getCell(18)
+								.getStringCellValue());
+						cert.setCert_condition(row.getCell(19)
+								.getStringCellValue());
+						cert.setCert_expand(row.getCell(20)
+								.getStringCellValue());
+						cert.setRemark(row.getCell(21).getStringCellValue());
+						List<Certification_Detail> details = new ArrayList<Certification_Detail>();
+						Certification_Detail detail = new Certification_Detail();
+						detail.setProduct_code(row.getCell(22)
+								.getStringCellValue());
+						detail.setSpecification(row.getCell(23)
+								.getStringCellValue());
+						detail.setSpecification_status(row.getCell(24)
+								.getStringCellValue());
+						detail.setProduct_property_name(row.getCell(25)
+								.getStringCellValue());
+						detail.setExpand(row.getCell(26).getStringCellValue());
+						details.add(detail);
+						cert.setCert_detail(details);
+						certification.add(cert);
+					} else {
+						Certification_Detail detail = new Certification_Detail();
+						detail.setProduct_code(row.getCell(22)
+								.getStringCellValue());
+						detail.setSpecification(row.getCell(23)
+								.getStringCellValue());
+						detail.setSpecification_status(row.getCell(24)
+								.getStringCellValue());
+						detail.setProduct_property_name(row.getCell(25)
+								.getStringCellValue());
+						detail.setExpand(row.getCell(26).getStringCellValue());
+						cert.addCert_detail(detail);
+					}
 				}
 			}
 			fis.close();
@@ -67,6 +134,8 @@ public class MSIO {
 			for (int i = 0; i < numberOfSheets; i++) {
 				Sheet sheet = workbook.getSheetAt(i);
 				Iterator<Row> rowIterator = sheet.iterator();
+				if (rowIterator.hasNext())
+					rowIterator.next();
 				while (rowIterator.hasNext()) {
 					Row row = rowIterator.next();
 					Standardization standard = new Standardization();
@@ -97,7 +166,13 @@ public class MSIO {
 	}
 
 	public static void main(String[] args) {
-		MSIO.readCertification("d://test//certification.xls");
+		List<Certification> certs = MSIO
+				.readCertification("d://test//certification.xls");
+		Certification cert = certs.get(certs.size()-1);
+		System.out.println(cert);
+		for (Certification_Detail d : cert.getCert_detail()) {
+			System.out.println(d);
+		}
 		// List<Standardization> stands = MSIO
 		// .readStandardizations("d://test//standards.xls");
 		// for (Standardization stand : stands) {
