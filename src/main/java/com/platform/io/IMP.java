@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Standardization;
+import com.platform.io.bean.SteelPrice;
 import com.platform.mongo.s1.MongoDirver;
 
 public class IMP {
@@ -21,6 +22,14 @@ public class IMP {
 		MongoDirver md = new MongoDirver();
 		for (Certification cert : certs) {
 			md.addCertification(cert);
+		}
+	}
+
+	public void impSteelPrice(String fileName) {
+		List<SteelPrice> steelprices = CSVIO.readSteelPrice(fileName);
+		MongoDirver md = new MongoDirver();
+		for (SteelPrice sp : steelprices) {
+			md.addSteelPrice(sp);
 		}
 	}
 

@@ -20,6 +20,7 @@ import com.mongodb.BasicDBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Standardization;
+import com.platform.io.bean.SteelPrice;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
 
@@ -83,9 +84,13 @@ public class MongoDirver {
 			// System.out.println("save image");
 			// md.writeFile("test", "img", "1", "D://test//2.jpg");
 			// System.out.println(md.queryLatestStandards("", 0, 5));
-//			System.out.println(md.queryStandards("TB/T 454—1981", null, null,
-//					null, 0, 10));
-			System.out.println(md.queryCertifications("CRCC10215P11814R0M", 0, 10));
+			// System.out.println(md.queryStandards("TB/T 454—1981", null, null,
+			// null, 0, 10));
+			 System.out.println(md.queryCertifications("250",
+			 0,
+			 10));
+//			System.out.println(md.querySteelPrice("盘螺", null, null, null, null,
+//					0, 10));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -617,6 +622,14 @@ public class MongoDirver {
 		return data.toJson();
 	}
 
+	/**
+	 * 查询资质信息
+	 * 
+	 * @param str
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
 	public String queryCertifications(String str, int skip, int limit) {
 		Bson filters = null;
 		if (str != null && !str.equals(""))
@@ -626,7 +639,7 @@ public class MongoDirver {
 					regex("issue_organization", "^.*" + str + ".*$"));
 		int count = client.queryCount("test", "certification", filters);
 		List<Document> rzxx = client.queryList("test", "certification",
-				filters, new BasicDBObject("_id", 0), new BasicDBObject("publish_date", -1), skip,
+				filters, null, new BasicDBObject("publish_date", -1), skip,
 				limit).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
@@ -677,6 +690,67 @@ public class MongoDirver {
 		d.put("cert_detail", data);
 		d.put("add_time", new Date());
 		client.addOne("test", "certification", d);
+	}
+
+	/**
+	 * 增加钢材价格
+	 * 
+	 * @param steelPrice
+	 */
+	public void addSteelPrice(SteelPrice steelPrice) {
+		Document d = new Document();
+		d.put("name", steelPrice.getName());
+		d.put("specification", steelPrice.getSpecification());
+		d.put("texture", steelPrice.getTexture());
+		d.put("company", steelPrice.getCompany());
+		d.put("area", steelPrice.getArea());
+		d.put("city", steelPrice.getCity());
+		d.put("date", TimeUtil.parserDate(steelPrice.getDate()));
+		d.put("price", steelPrice.getPrice());
+		d.put("expand", steelPrice.getExpand());
+		d.put("add_time", new Date());
+		client.addOne("test", "steelprice", d);
+	}
+
+	/**
+	 * 查询钢材价格
+	 * 
+	 * @param name
+	 *            物资名称
+	 * @param date
+	 *            价格日期
+	 * @param specification
+	 *            规格型号
+	 * @param area
+	 *            区域
+	 * @param city
+	 *            城市
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public String querySteelPrice(String name, String date,
+			String specification, String area, String city, int skip, int limit) {
+		List<Bson> condition = new ArrayList<Bson>();
+		if (name != null)
+			condition.add(eq("name", name));
+		if (date != null)
+			condition.add(eq("date", TimeUtil.parserDate(date)));
+		if (specification != null)
+			condition.add(eq("specification", specification));
+		if (area != null)
+			condition.add(eq("area", area));
+		if (city != null)
+			condition.add(eq("city", city));
+		Bson filters = and(condition);
+		int count = client.queryCount("test", "steelprice", filters);
+		List<Document> jgxx = client.queryList("test", "steelprice", filters,
+				new BasicDBObject("_id", 0), new BasicDBObject("add_time", -1),
+				skip, limit).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("jgxx", jgxx);
+		return data.toJson();
 	}
 
 	private String findCPMenu(int deep) {

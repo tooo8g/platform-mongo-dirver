@@ -2,6 +2,7 @@ package com.platform.mongo.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class TimeUtil {
@@ -27,6 +28,20 @@ public class TimeUtil {
 		return null;
 	}
 
+	public static Date parserTime(String date) {
+		if (date != null && !date.equals("")) {
+			Date r = null;
+			try {
+				r = new Date(ymd_format2.parse(date).getTime());
+			} catch (ParseException e) {
+				r = new Date(0l);
+			}
+			return r;
+		}
+
+		return null;
+	}
+
 	// public static Date now() {
 	// return new Date(Calendar.getInstance().getTimeInMillis());
 	// }
@@ -39,8 +54,14 @@ public class TimeUtil {
 
 	public static void main(String[] args) {
 		// System.out.println(TimeUtil.pointDay(16));
-		for (int i = 0; i < 100; i++) {
-			System.out.println(((i * 1000) + 1) + "|" + ((i * 1000) + 1000));
-		}
+		// for (int i = 0; i < 100; i++) {
+		// System.out.println(((i * 1000) + 1) + "|" + ((i * 1000) + 1000));
+		// }
+		long a = 1430323200000l;
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(a);
+		SimpleDateFormat ymd_format2 = new SimpleDateFormat(
+				"yyyy/MM/dd HH:mm:ss");
+		System.out.println(ymd_format2.format(c.getTime()));
 	}
 }
