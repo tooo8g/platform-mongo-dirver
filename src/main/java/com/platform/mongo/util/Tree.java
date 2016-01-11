@@ -34,7 +34,6 @@ public class Tree {
 		TreeStruct[] t = tree.toArray(new TreeStruct[tree.size()]);
 		Arrays.sort(t, new Comparator<TreeStruct>() {
 
-			@Override
 			public int compare(TreeStruct o1, TreeStruct o2) {
 				int cp = 0;
 				if (o1.getPy_char() > o2.getPy_char())
@@ -51,7 +50,7 @@ public class Tree {
 			if (ts.getPy_char() != title) {
 				title = ts.getPy_char();
 				data.add(new TreeStruct("title",
-						String.valueOf(ts.getPy_char())));
+						String.valueOf(ts.getPy_char()).toUpperCase()));
 			}
 			data.add(ts);
 		}

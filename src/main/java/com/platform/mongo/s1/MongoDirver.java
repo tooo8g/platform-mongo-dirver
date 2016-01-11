@@ -86,11 +86,10 @@ public class MongoDirver {
 			// System.out.println(md.queryLatestStandards("", 0, 5));
 			// System.out.println(md.queryStandards("TB/T 454—1981", null, null,
 			// null, 0, 10));
-			 System.out.println(md.queryCertifications("250",
-			 0,
-			 10));
-//			System.out.println(md.querySteelPrice("盘螺", null, null, null, null,
-//					0, 10));
+			System.out.println(md.queryCertifications("250", 0, 10));
+			// System.out.println(md.querySteelPrice("盘螺", null, null, null,
+			// null,
+			// 0, 10));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -633,10 +632,8 @@ public class MongoDirver {
 	public String queryCertifications(String str, int skip, int limit) {
 		Bson filters = null;
 		if (str != null && !str.equals(""))
-			filters = or(regex("company_name", "^.*" + str + ".*$"),
-					regex("cert_name", "^.*" + str + ".*$"),
-					regex("cert_num", "^.*" + str + ".*$"),
-					regex("issue_organization", "^.*" + str + ".*$"));
+			filters = or(regex("product_range", "^.*" + str + ".*$"),
+					regex("cert_name", "^.*" + str + ".*$"));
 		int count = client.queryCount("test", "certification", filters);
 		List<Document> rzxx = client.queryList("test", "certification",
 				filters, null, new BasicDBObject("publish_date", -1), skip,
