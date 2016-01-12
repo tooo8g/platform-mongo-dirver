@@ -60,9 +60,10 @@ public class CSVIO {
 			while (r.readRecord()) {
 				TreeStruct cert = new TreeStruct();
 				cert.setId(r.get("ID"));
-				cert.setName(r.get("VAL"));
+				cert.setName("name");
+				cert.setValue(r.get("VAL"));
 				cert.setPid(r.get("PID"));
-				cert.setPy_char(PinYin.getPinYinHeadChar(cert.getName())
+				cert.setPy_char(PinYin.getPinYinHeadChar(cert.getValue())
 						.charAt(0));
 				certs.add(cert);
 			}

@@ -17,7 +17,7 @@ public class Tree {
 		certs = sortTree(certs);
 		for (TreeStruct cert : certs) {
 			Document v = new Document();
-			v.put("name", cert.getName());
+			v.put(cert.getName(), cert.getValue());
 			List<Document> c = root.get("childs", List.class);
 			if (c == null) {
 				c = new ArrayList<Document>();
@@ -49,8 +49,8 @@ public class Tree {
 		for (TreeStruct ts : t) {
 			if (ts.getPy_char() != title) {
 				title = ts.getPy_char();
-				data.add(new TreeStruct("title",
-						String.valueOf(ts.getPy_char()).toUpperCase()));
+				data.add(new TreeStruct("", "name_title", String.valueOf(
+						ts.getPy_char()).toUpperCase()));
 			}
 			data.add(ts);
 		}

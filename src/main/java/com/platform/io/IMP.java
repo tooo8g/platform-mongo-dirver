@@ -74,7 +74,7 @@ public class IMP {
 
 		TreeStruct c = pids.get("0").get(0);
 		Document root = new Document();
-		root.put("name", c.getName());
+		root.put(c.getName(), c.getValue());
 		Tree.findChild(root, pids.get(c.getId()), pids);
 		System.out.println(root.toJson());
 	}

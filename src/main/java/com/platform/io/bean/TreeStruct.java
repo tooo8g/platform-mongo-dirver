@@ -12,6 +12,8 @@ public class TreeStruct {
 
 	public String name;
 
+	public String value;
+
 	public String pid;
 
 	public char py_char;
@@ -20,9 +22,18 @@ public class TreeStruct {
 
 	}
 
-	public TreeStruct(String id, String name) {
+	public TreeStruct(String id, String name, String value) {
 		this.id = id;
 		this.name = name;
+		this.value = value;
+	}
+	
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	public char getPy_char() {
