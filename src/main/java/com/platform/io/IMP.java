@@ -27,6 +27,7 @@ public class IMP {
 		for (Standardization stand : stands) {
 			md.addLatestStandards(stand);
 		}
+		md.close();
 	}
 
 	/**
@@ -40,6 +41,7 @@ public class IMP {
 		for (Certification cert : certs) {
 			md.addCertification(cert);
 		}
+		md.close();
 	}
 
 	/**
@@ -53,14 +55,15 @@ public class IMP {
 		for (SteelPrice sp : steelprices) {
 			md.addSteelPrice(sp);
 		}
+		md.close();
 	}
 
 	/**
-	 * 资质-铁路总公司铁路专用产品认证采信
+	 * 资质-铁路总公司铁路专用产品认证采信菜单
 	 * 
 	 * @param fileName
 	 */
-	public void impCertification_TZ(String fileName) {
+	public void impCertification_menu_tz(String fileName) {
 		List<TreeStruct> certs = CSVIO.readCertification_TZ(fileName);
 		Map<String, List<TreeStruct>> pids = new HashMap<String, List<TreeStruct>>();
 		for (TreeStruct cert : certs) {
@@ -76,7 +79,9 @@ public class IMP {
 		Document root = new Document();
 		root.put(c.getName(), c.getValue());
 		Tree.findChild(root, pids.get(c.getId()), pids);
-		System.out.println(root.toJson());
+		MongoDirver md = new MongoDirver();
+		md.addCertification_menu_tz(root);
+		md.close();
 	}
 
 	/**
@@ -84,7 +89,7 @@ public class IMP {
 	 */
 	public static void main(String[] args) {
 		IMP imp = new IMP();
-		imp.impCertification_TZ("d://test//TZ.csv");
+		imp.impCertification_menu_tz("d://test//TZ.csv");
 
 	}
 

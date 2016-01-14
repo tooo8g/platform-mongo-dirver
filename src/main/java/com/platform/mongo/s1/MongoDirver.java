@@ -83,13 +83,14 @@ public class MongoDirver {
 			// md.saveFile("test", "img", "1", data);
 			// System.out.println("save image");
 			// md.writeFile("test", "img", "1", "D://test//2.jpg");
-			// System.out.println(md.queryLatestStandards("", 0, 5));
+			 System.out.println(md.queryLatestStandards("", 0, 5));
 			// System.out.println(md.queryStandards("TB/T 454—1981", null, null,
 			// null, 0, 10));
-			System.out.println(md.queryCertifications("250", 0, 10));
+			// System.out.println(md.queryCertifications("250", 0, 10));
 			// System.out.println(md.querySteelPrice("盘螺", null, null, null,
 			// null,
 			// 0, 10));
+//			System.out.println(md.queryCertification_menu_tz());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -630,6 +631,7 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryCertifications(String str, int skip, int limit) {
+		System.out.println(str);
 		Bson filters = null;
 		if (str != null && !str.equals(""))
 			filters = or(regex("product_range", "^.*" + str + ".*$"),
@@ -641,7 +643,30 @@ public class MongoDirver {
 		Document data = new Document();
 		data.put("count", count);
 		data.put("bzxx", rzxx);
+		System.out.println(data.toJson());
 		return data.toJson();
+	}
+
+	/**
+	 * 增加铁路总公司铁路专用产品认证采信树形菜单
+	 * 
+	 * @param data
+	 */
+	public void addCertification_menu_tz(Document data) {
+		client.addOne("test", "certification_menu_tz", data);
+	}
+
+	/**
+	 * 查询铁路总公司铁路专用产品认证采信树形菜单
+	 * 
+	 * @return
+	 */
+	public String queryCertification_menu_tz() {
+		Document result = client.querySingle("test", "certification_menu_tz",
+				null, new BasicDBObject("_id", 0));
+		if (result != null)
+			return result.toJson();
+		return "";
 	}
 
 	/**
