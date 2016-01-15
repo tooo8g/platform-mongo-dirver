@@ -38,7 +38,7 @@ public class MongoDao {
 		MongoClientURI uri = new MongoClientURI(Constant.uri);
 		client = new MongoClient(uri);
 	}
-	
+
 	public void test() {
 		MongoDatabase db = client.getDatabase("test");
 		MongoCollection<Document> collection = db.getCollection("cp_tree1");
@@ -99,7 +99,7 @@ public class MongoDao {
 		Document doc = new Document("date", new Date());
 		collection.insertOne(doc);
 	}
-	
+
 	/**
 	 * select from where in(,,,);
 	 * 
@@ -231,7 +231,10 @@ public class MongoDao {
 	public int queryCount(String db, String collection, Bson filters) {
 		MongoDatabase database = client.getDatabase(db);
 		MongoCollection<Document> mongocol = database.getCollection(collection);
-		return (int) mongocol.count(filters);
+		if (filters != null)
+			return (int) mongocol.count(filters);
+		else
+			return (int) mongocol.count();
 	}
 
 	private FindIterable<Document> queryGroupList(String db, String collection,

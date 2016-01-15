@@ -83,14 +83,14 @@ public class MongoDirver {
 			// md.saveFile("test", "img", "1", data);
 			// System.out.println("save image");
 			// md.writeFile("test", "img", "1", "D://test//2.jpg");
-			 System.out.println(md.queryLatestStandards("", 0, 5));
-			// System.out.println(md.queryStandards("TB/T 454—1981", null, null,
-			// null, 0, 10));
+			// System.out.println(md.queryLatestStandards("", 0, 5));
+			System.out.println(md.queryStandards(null, null, null, null, null,
+					0, 10));
 			// System.out.println(md.queryCertifications("250", 0, 10));
 			// System.out.println(md.querySteelPrice("盘螺", null, null, null,
 			// null,
 			// 0, 10));
-//			System.out.println(md.queryCertification_menu_tz());
+			// System.out.println(md.queryCertification_menu_tz());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -599,18 +599,23 @@ public class MongoDirver {
 	 * @param limit
 	 * @return
 	 */
-	public String queryStandards(String standard_id, String standard_name,
-			String standard_status, String special_subject, int skip, int limit) {
+	public String queryStandards(String standard_group, String standard_id,
+			String standard_name, String standard_status,
+			String special_subject, int skip, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
-		if (standard_id != null)
+		if (standard_group != null && !standard_group.equals(""))
+			condition.add(eq("standard_group", standard_group));
+		if (standard_id != null && !standard_id.equals(""))
 			condition.add(eq("standard_id", standard_id));
-		if (standard_name != null)
+		if (standard_name != null && !standard_name.equals(""))
 			condition.add(eq("standard_name", standard_name));
-		if (standard_status != null)
+		if (standard_status != null && !standard_status.equals(""))
 			condition.add(eq("standard_status", standard_status));
-		if (special_subject != null)
+		if (special_subject != null && !special_subject.equals(""))
 			condition.add(eq("special_subject", special_subject));
-		Bson filters = and(condition);
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
 		int count = client.queryCount("test", "standardization", filters);
 		List<Document> bzxx = client.queryList("test", "standardization",
 				filters, new BasicDBObject("_id", 0),
