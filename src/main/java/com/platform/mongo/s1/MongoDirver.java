@@ -20,7 +20,7 @@ import com.mongodb.BasicDBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Standardization;
-import com.platform.io.bean.SteelPrice;
+import com.platform.io.bean.Price;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
 
@@ -120,7 +120,7 @@ public class MongoDirver {
 					String.class);
 			if (zx_id == null) {
 				// 增加规格型号
-				Map<String, String> value = new TreeMap<String, String>();
+				Document value = new Document();
 				value.put("zwmc", ggxh);
 				client.appendOne("test", "cp_tree3", eq("_id", id), "zx", value);
 			}
@@ -128,12 +128,12 @@ public class MongoDirver {
 			ObjectId gys_id = client.queryOne("test", "gys", eq("qymc", qymc),
 					"_id", ObjectId.class);
 			ObjectId cp_detail_id = new ObjectId();
-			Map<String, ObjectId> gys_cp_data = new TreeMap<String, ObjectId>();
+			Document gys_cp_data = new Document();
 			gys_cp_data.put("cp_detail_id", cp_detail_id);
 			if (gys_id == null) {
 				gys_id = new ObjectId();
 				// 增加供应商
-				List<Map<String, ObjectId>> gys_cp_datas = new ArrayList<Map<String, ObjectId>>();
+				List<Document> gys_cp_datas = new ArrayList<Document>();
 				gys_cp_datas.add(gys_cp_data);
 				Document gys_data = new Document("_id", gys_id)
 						.append("qymc", qymc).append("add_time", new Date())
@@ -356,8 +356,8 @@ public class MongoDirver {
 		cltb.put("add_time", new Date());
 		// 添加供应商处理通报
 		client.addOne("test", "cltb", cltb);
-		List<Map<String, ObjectId>> gyscltb = new ArrayList<Map<String, ObjectId>>();
-		Map<String, ObjectId> cltb_ids = new TreeMap<String, ObjectId>();
+		List<Document> gyscltb = new ArrayList<Document>();
+		Document cltb_ids = new Document();
 		cltb_ids.put("cltb_id", cltb_id);
 		gyscltb.add(cltb_ids);
 		// 有此供应商
@@ -429,8 +429,8 @@ public class MongoDirver {
 		rail.put("add_time", new Date());
 		// 添加铁道质量通报
 		client.addOne("test", "tdcltb", rail);
-		List<Map<String, ObjectId>> tdcltb = new ArrayList<Map<String, ObjectId>>();
-		Map<String, ObjectId> rail_ids = new TreeMap<String, ObjectId>();
+		List<Document> tdcltb = new ArrayList<Document>();
+		Document rail_ids = new Document();
 		rail_ids.put("cltb_id", rail_id);
 		tdcltb.add(rail_ids);
 		// 有次供应商
@@ -587,6 +587,8 @@ public class MongoDirver {
 	/**
 	 * 技术标准查询
 	 * 
+	 * @param standard_group
+	 *            标准类型
 	 * @param standard_id
 	 *            标准编号
 	 * @param standard_name
@@ -720,27 +722,62 @@ public class MongoDirver {
 	}
 
 	/**
-	 * 增加钢材价格
+	 * 增加价格
 	 * 
-	 * @param steelPrice
+	 * @param price
 	 */
-	public void addSteelPrice(SteelPrice steelPrice) {
-		Document d = new Document();
-		d.put("name", steelPrice.getName());
-		d.put("specification", steelPrice.getSpecification());
-		d.put("texture", steelPrice.getTexture());
-		d.put("company", steelPrice.getCompany());
-		d.put("area", steelPrice.getArea());
-		d.put("city", steelPrice.getCity());
-		d.put("date", TimeUtil.parserDate(steelPrice.getDate()));
-		d.put("price", steelPrice.getPrice());
-		d.put("expand", steelPrice.getExpand());
-		d.put("add_time", new Date());
-		client.addOne("test", "steelprice", d);
+	public void addPrice(Price price) {
+		// 按照 品名+规格型号+厂家+供应地区 的唯一性查询是否已有记录
+		Bson filters = and(eq("name", price.getName()),
+				eq("specification", price.getSpecification()),
+				eq("company", price.getCompany()), eq("city", price.getCity()));
+		ObjectId _id = client.queryOne("test", "price", filters, "_id",
+				ObjectId.class);
+		if (_id != null) {
+			Document history = new Document();
+			history.put("p_id", _id);
+			history.put("price", price.getPrice());
+			history.put("date", TimeUtil.parserDate(price.getDate()));
+			// 增加一条价格详情
+			client.addOne("test", "price_history", history);
+			// 修改更新时间、价格涨幅
+			Document d = client.querySingle("test", "price_history",
+					new BasicDBObject("p_id", _id), new BasicDBObject("price",
+							1), new BasicDBObject("date", -1));
+			// 历史数据中最新的一条价格记录
+			int price_history = d.getInteger("price", 0);
+			int price_range = price.getPrice() - price_history;
+			BasicDBObject newData = new BasicDBObject("update_time", new Date())
+					.append("price_range", price_range);
+			client.updateOne("test", "price", eq("_id", _id), newData);
+		} else {
+			Document d = new Document();
+			_id = new ObjectId();
+			d.put("_id", _id);
+			d.put("name", price.getName());
+			d.put("specification", price.getSpecification());
+			d.put("texture", price.getTexture());
+			d.put("company", price.getCompany());
+			d.put("area", price.getArea());
+			d.put("city", price.getCity());
+			d.put("priceType", price.getPriceType());
+			d.put("price_range", 0);
+			d.put("expand", price.getExpand());
+			d.put("add_time", new Date());
+			d.put("update_time", new Date());
+			// 增加一条主记录
+			client.addOne("test", "price", d);
+			// 增加一条价格详情
+			Document history = new Document();
+			history.put("p_id", _id);
+			history.put("price", price.getPrice());
+			history.put("date", TimeUtil.parserDate(price.getDate()));
+			client.addOne("test", "price_history", history);
+		}
 	}
 
 	/**
-	 * 查询钢材价格
+	 * 查询价格
 	 * 
 	 * @param name
 	 *            物资名称
@@ -748,35 +785,82 @@ public class MongoDirver {
 	 *            价格日期
 	 * @param specification
 	 *            规格型号
-	 * @param area
-	 *            区域
 	 * @param city
 	 *            城市
 	 * @param skip
 	 * @param limit
 	 * @return
 	 */
-	public String querySteelPrice(String name, String date,
-			String specification, String area, String city, int skip, int limit) {
+	public String queryPrice(String name, String date, String specification,
+			String city, int skip, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (name != null)
 			condition.add(eq("name", name));
 		if (date != null)
-			condition.add(eq("date", TimeUtil.parserDate(date)));
+			condition.add(eq("update_time", TimeUtil.parserDate(date)));
 		if (specification != null)
 			condition.add(eq("specification", specification));
-		if (area != null)
-			condition.add(eq("area", area));
 		if (city != null)
 			condition.add(eq("city", city));
 		Bson filters = and(condition);
-		int count = client.queryCount("test", "steelprice", filters);
-		List<Document> jgxx = client.queryList("test", "steelprice", filters,
-				new BasicDBObject("_id", 0), new BasicDBObject("add_time", -1),
-				skip, limit).into(new ArrayList<Document>());
+		int count = client.queryCount("test", "price", filters);
+		List<Document> jgxx = client.queryList("test", "price", filters, null,
+				new BasicDBObject("update_time", -1), skip, limit).into(
+				new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
 		data.put("jgxx", jgxx);
+		return data.toJson();
+	}
+
+	/**
+	 * 查询历史价格
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public String queryPriceHistory(String id) {
+		ObjectId _id = new ObjectId(id);
+		// 得到价格主信息
+		Document data = client.querySingle("test", "price", eq("_id", _id),
+				new BasicDBObject("_id", "0"));
+		// 得到历史价格数据
+		List<Document> price_history = client.queryList("test",
+				"price_history", eq("p_id", _id), null,
+				new BasicDBObject("update_time", -1), 0, 100).into(
+				new ArrayList<Document>());
+		data.put("history", price_history);
+		return data.toJson();
+	}
+
+	/**
+	 * 查询历史价格
+	 * 
+	 * @param name
+	 *            物资名称
+	 * @param specification
+	 *            规格型号
+	 * @param company
+	 *            厂家
+	 * @param city
+	 *            城市
+	 * @return
+	 */
+	public String queryPriceHistory(String name, String specification,
+			String company, String city) {
+		// 得到价格主信息
+		Document data = client.querySingle(
+				"test",
+				"price",
+				and(eq("name", name), eq("specification", specification),
+						eq("company", company), eq("city", city)), null);
+		ObjectId _id = data.getObjectId("_id");
+		// 得到历史价格数据
+		List<Document> price_history = client.queryList("test",
+				"price_history", eq("p_id", _id), null,
+				new BasicDBObject("update_time", -1), 0, 100).into(
+				new ArrayList<Document>());
+		data.put("history", price_history);
 		return data.toJson();
 	}
 

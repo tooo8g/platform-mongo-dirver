@@ -1,6 +1,6 @@
 package com.platform.io.bean;
 
-public class SteelPrice {
+public class Price {
 
 	// 物资名称
 	public String name;
@@ -8,7 +8,7 @@ public class SteelPrice {
 	public String specification;
 	// 材质
 	public String texture;
-	// 钢厂
+	// 厂家
 	public String company;
 	// 地区
 	public String area;
@@ -18,16 +18,10 @@ public class SteelPrice {
 	public String date;
 	// 价格
 	public int price;
+	// 计价方式
+	public String priceType;
 	// 备注
 	public String expand;
-
-	@Override
-	public String toString() {
-		return "SteelPrice [name=" + name + ", specification=" + specification
-				+ ", texture=" + texture + ", company=" + company + ", area="
-				+ area + ", city=" + city + ", date=" + date + ", price="
-				+ price + ", expand=" + expand + "]";
-	}
 
 	public String getName() {
 		return name;
@@ -105,6 +99,18 @@ public class SteelPrice {
 
 	public void setExpand(String expand) {
 		this.expand = expand;
+	}
+
+	public String getPriceType() {
+		return priceType;
+	}
+
+	public void setPriceType(String priceType) {
+		this.priceType = priceType;
+	}
+
+	public void setPrice(int price) {
+		this.price = price;
 	}
 
 }

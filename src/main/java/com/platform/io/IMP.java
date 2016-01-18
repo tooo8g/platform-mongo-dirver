@@ -9,7 +9,7 @@ import org.bson.Document;
 
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Standardization;
-import com.platform.io.bean.SteelPrice;
+import com.platform.io.bean.Price;
 import com.platform.io.bean.TreeStruct;
 import com.platform.mongo.s1.MongoDirver;
 import com.platform.mongo.util.Tree;
@@ -45,15 +45,15 @@ public class IMP {
 	}
 
 	/**
-	 * 钢价格
+	 * 价格
 	 * 
 	 * @param fileName
 	 */
-	public void impSteelPrice(String fileName) {
-		List<SteelPrice> steelprices = CSVIO.readSteelPrice(fileName);
+	public void impPrice(String fileName) {
+		List<Price> prices = CSVIO.readPrice(fileName);
 		MongoDirver md = new MongoDirver();
-		for (SteelPrice sp : steelprices) {
-			md.addSteelPrice(sp);
+		for (Price sp : prices) {
+			md.addPrice(sp);
 		}
 		md.close();
 	}

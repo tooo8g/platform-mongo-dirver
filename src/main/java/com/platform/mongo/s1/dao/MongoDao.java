@@ -312,6 +312,37 @@ public class MongoDao {
 	}
 
 	/**
+	 * 查询单行记录 排序
+	 * 
+	 * @param db
+	 * @param collection
+	 * @param filters
+	 * @param projected
+	 * @param sort
+	 * @return
+	 */
+	public Document querySingle(String db, String collection, Bson filters,
+			Bson projected, Bson sort) {
+		MongoDatabase database = client.getDatabase(db);
+		MongoCollection<Document> mongocol = database.getCollection(collection);
+		if (filters == null && projected == null && sort == null)
+			return mongocol.find().first();
+		else if (filters == null && projected == null && sort != null)
+			return mongocol.find().sort(sort).first();
+		else if (filters == null && projected != null && sort == null)
+			return mongocol.find().projection(projected).first();
+		else if (filters == null && projected != null && sort != null)
+			return mongocol.find().projection(projected).sort(sort).first();
+		else if (filters != null && projected == null && sort == null)
+			return mongocol.find(filters).first();
+		else if (filters != null && projected == null && sort != null)
+			return mongocol.find(filters).sort(sort).first();
+		else if (filters != null && projected != null && sort == null)
+			return mongocol.find(filters).projection(projected).first();
+		return mongocol.find(filters).projection(projected).sort(sort).first();
+	}
+
+	/**
 	 * 追加记录
 	 * 
 	 * @param db
@@ -320,9 +351,8 @@ public class MongoDao {
 	 * @param key
 	 * @param value
 	 */
-	@SuppressWarnings("rawtypes")
 	public void appendOne(String db, String collection, Bson filters,
-			String key, Map value) {
+			String key, Document value) {
 		MongoDatabase database = client.getDatabase(db);
 		MongoCollection<Document> mongocol = database.getCollection(collection);
 		mongocol.updateOne(filters, new Document("$push", new Document(key,
