@@ -2,15 +2,16 @@ package com.platform.mongo.s1;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.lte;
 import static com.mongodb.client.model.Filters.or;
 import static com.mongodb.client.model.Filters.regex;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -19,8 +20,8 @@ import org.bson.types.ObjectId;
 import com.mongodb.BasicDBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
-import com.platform.io.bean.Standardization;
 import com.platform.io.bean.Price;
+import com.platform.io.bean.Standardization;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
 
@@ -84,13 +85,17 @@ public class MongoDirver {
 			// System.out.println("save image");
 			// md.writeFile("test", "img", "1", "D://test//2.jpg");
 			// System.out.println(md.queryLatestStandards("", 0, 5));
-			System.out.println(md.queryStandards(null, null, null, null, null,
-					0, 10));
+			// System.out.println(md.queryStandards(null, null, null, null,
+			// null,
+			// 0, 10));
 			// System.out.println(md.queryCertifications("250", 0, 10));
 			// System.out.println(md.querySteelPrice("盘螺", null, null, null,
 			// null,
 			// 0, 10));
 			// System.out.println(md.queryCertification_menu_tz());
+			// System.out.println(md.queryPrice(null, null, null, null, 0, 20));
+			// System.out.println(md.queryCompanyForPrice("高线", "Φ6.5"));
+			md.queryPriceHistory("56a1d82e4d462a2b1476acfc");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -541,8 +546,8 @@ public class MongoDirver {
 		ls.put("standard_name", standard.getStandard_name());
 		ls.put("replace_id", standard.getReplace_id());
 		ls.append("publish_date",
-				TimeUtil.parserDate(standard.getPublish_date()));
-		ls.put("execute_date", TimeUtil.parserDate(standard.getExecute_date()));
+				TimeUtil.parserTime(standard.getPublish_date()));
+		ls.put("execute_date", TimeUtil.parserTime(standard.getExecute_date()));
 		ls.put("standard_status", standard.getStandard_status());
 		ls.put("special_subject", standard.getSpecial_subject());
 		ls.put("add_time", new Date());
@@ -690,8 +695,8 @@ public class MongoDirver {
 		d.put("cert_num", cert.getCert_num());
 		d.put("issue_organization", cert.getIssue_organization());
 		d.put("cert_standards", cert.getCert_standards());
-		d.put("publish_date", TimeUtil.parserDate(cert.getPublish_date()));
-		d.put("valid_date", TimeUtil.parserDate(cert.getValid_date()));
+		d.put("publish_date", TimeUtil.parserTime(cert.getPublish_date()));
+		d.put("valid_date", TimeUtil.parserTime(cert.getValid_date()));
 		d.put("cert_status", cert.getCert_status());
 		d.put("cert_status_id", cert.getCert_status_id());
 		d.put("mount_code", cert.getMount_code());
@@ -737,9 +742,7 @@ public class MongoDirver {
 			Document history = new Document();
 			history.put("p_id", _id);
 			history.put("price", price.getPrice());
-			history.put("date", TimeUtil.parserDate(price.getDate()));
-			// 增加一条价格详情
-			client.addOne("test", "price_history", history);
+			history.put("date", TimeUtil.parserTime(price.getDate()));
 			// 修改更新时间、价格涨幅
 			Document d = client.querySingle("test", "price_history",
 					new BasicDBObject("p_id", _id), new BasicDBObject("price",
@@ -747,9 +750,12 @@ public class MongoDirver {
 			// 历史数据中最新的一条价格记录
 			int price_history = d.getInteger("price", 0);
 			int price_range = price.getPrice() - price_history;
-			BasicDBObject newData = new BasicDBObject("update_time", new Date())
-					.append("price_range", price_range);
+			Document newData = new Document("update_time",
+					TimeUtil.parserTime(price.getDate())).append("price_range",
+					price_range).append("price", price.getPrice());
 			client.updateOne("test", "price", eq("_id", _id), newData);
+			// 增加一条价格详情
+			client.addOne("test", "price_history", history);
 		} else {
 			Document d = new Document();
 			_id = new ObjectId();
@@ -760,18 +766,19 @@ public class MongoDirver {
 			d.put("company", price.getCompany());
 			d.put("area", price.getArea());
 			d.put("city", price.getCity());
+			d.put("price", price.getPrice());
 			d.put("priceType", price.getPriceType());
 			d.put("price_range", 0);
 			d.put("expand", price.getExpand());
 			d.put("add_time", new Date());
-			d.put("update_time", new Date());
+			d.put("update_time", TimeUtil.parserTime(price.getDate()));
 			// 增加一条主记录
 			client.addOne("test", "price", d);
 			// 增加一条价格详情
 			Document history = new Document();
 			history.put("p_id", _id);
 			history.put("price", price.getPrice());
-			history.put("date", TimeUtil.parserDate(price.getDate()));
+			history.put("date", TimeUtil.parserTime(price.getDate()));
 			client.addOne("test", "price_history", history);
 		}
 	}
@@ -794,15 +801,17 @@ public class MongoDirver {
 	public String queryPrice(String name, String date, String specification,
 			String city, int skip, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
-		if (name != null)
+		if (name != null && !name.equals(""))
 			condition.add(eq("name", name));
-		if (date != null)
-			condition.add(eq("update_time", TimeUtil.parserDate(date)));
-		if (specification != null)
+		if (date != null && !date.equals(""))
+			condition.add(eq("update_time", TimeUtil.parserTime(date)));
+		if (specification != null && !specification.equals(""))
 			condition.add(eq("specification", specification));
-		if (city != null)
+		if (city != null && !city.equals(""))
 			condition.add(eq("city", city));
-		Bson filters = and(condition);
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
 		int count = client.queryCount("test", "price", filters);
 		List<Document> jgxx = client.queryList("test", "price", filters, null,
 				new BasicDBObject("update_time", -1), skip, limit).into(
@@ -819,18 +828,21 @@ public class MongoDirver {
 	 * @param id
 	 * @return
 	 */
-	public String queryPriceHistory(String id) {
+	public List<Document> queryPriceHistory(String id) {
 		ObjectId _id = new ObjectId(id);
-		// 得到价格主信息
-		Document data = client.querySingle("test", "price", eq("_id", _id),
-				new BasicDBObject("_id", "0"));
-		// 得到历史价格数据
-		List<Document> price_history = client.queryList("test",
-				"price_history", eq("p_id", _id), null,
-				new BasicDBObject("update_time", -1), 0, 100).into(
-				new ArrayList<Document>());
-		data.put("history", price_history);
-		return data.toJson();
+		Calendar now = Calendar.getInstance();
+		Calendar month_ago = Calendar.getInstance();
+		month_ago.add(Calendar.MONTH, -1);
+		// 得到一个月前的最新的价格数据
+		Document d1 = client.querySingle("test", "price_history",
+				and(eq("p_id", _id), lte("date", month_ago)),
+				new BasicDBObject("_id", 0), new BasicDBObject("date", -1));
+		// 得到近一个月的价格数据
+		List<Document> d2 = client.queryList("test", "price_history",
+				and(gte("date", month_ago), lte("date", now)),
+				new BasicDBObject("_id", 0)).into(new ArrayList<Document>());
+		d2.add(0, d1);
+		return d2;
 	}
 
 	/**
@@ -861,6 +873,29 @@ public class MongoDirver {
 				new BasicDBObject("update_time", -1), 0, 100).into(
 				new ArrayList<Document>());
 		data.put("history", price_history);
+		return data.toJson();
+	}
+
+	/**
+	 * 查询厂家/产地
+	 * 
+	 * @param name
+	 *            物资名称
+	 * @param specification
+	 *            规格型号
+	 * @return
+	 */
+	public String queryCompanyForPrice(String name, String specification) {
+		List<Document> d = client.queryDistincValue("test", "price",
+				and(eq("name", name), eq("specification", specification)),
+				"$company");
+		List<String> companys = new ArrayList<String>();
+		for (Document c : d) {
+			System.out.println(c.toJson());
+			companys.add(c.getString("_id"));
+		}
+		Document data = new Document();
+		data.put("companys", companys);
 		return data.toJson();
 	}
 

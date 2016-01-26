@@ -14,7 +14,7 @@ public class Price {
 	public String area;
 	// 城市
 	public String city;
-	// 价格日期
+	// 价格日期 updateTime
 	public String date;
 	// 价格
 	public int price;
@@ -72,7 +72,7 @@ public class Price {
 	}
 
 	public String getDate() {
-		return date;
+		return date+" 00:00:00";
 	}
 
 	public void setDate(String date) {
@@ -111,6 +111,12 @@ public class Price {
 
 	public void setPrice(int price) {
 		this.price = price;
+	}
+
+	@Override
+	public String toString() {
+		return "Price [name=" + name + ", specification=" + specification
+				+ ", company=" + company + "]";
 	}
 
 }
