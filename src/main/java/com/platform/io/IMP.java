@@ -89,8 +89,9 @@ public class IMP {
 	 */
 	public static void main(String[] args) {
 		IMP imp = new IMP();
-		imp.impCertification_menu_tz("d://test//TZ.csv");
-
+//		imp.impCertification_menu_tz("d://test//TZ.csv");
+		imp.impPrice("d://test//price2.csv");
+//		imp.impPrice("d://test//shuini.csv");
 	}
 
 }
