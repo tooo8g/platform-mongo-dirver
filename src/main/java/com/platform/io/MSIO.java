@@ -14,8 +14,48 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Standardization;
+import com.platform.io.bean.TreeStruct;
 
 public class MSIO {
+	
+
+	public static List<TreeStruct> readSuppliers(String fileName) {
+		List<TreeStruct> treeStructs = new ArrayList<TreeStruct>();
+		TreeStruct root = new TreeStruct();
+		root.setPid("");
+		root.setId("0");
+		root.setValue("物资类别 ");
+		root.setName("name");
+		treeStructs.add(root);
+		try {
+			FileInputStream fis = new FileInputStream(fileName);
+			Workbook workbook = new XSSFWorkbook(fis);
+			
+			for (int i = 0; i < 1; i++) {
+				Sheet sheet = workbook.getSheetAt(i);
+				Iterator<Row> rowIterator = sheet.iterator();
+				if (rowIterator.hasNext())
+					rowIterator.next();
+				while (rowIterator.hasNext()) {
+					Row row = rowIterator.next();
+					TreeStruct treeStruct = new TreeStruct();
+					treeStruct.setId(row.getCell(0).getStringCellValue().trim());
+					treeStruct.setValue(row.getCell(1).getStringCellValue().trim());
+					treeStruct.setName("name");
+					if(treeStruct.getId().length() == 1){
+						treeStruct.setPid("0");
+					}else{
+						treeStruct.setPid(treeStruct.getId().substring(0, treeStruct.getId().length()-1));
+					}
+					treeStructs.add(treeStruct);
+				}
+			}
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return treeStructs;
+	}
 
 	public static List<Certification> readCertification(String fileName) {
 		List<Certification> certification = new ArrayList<Certification>();
@@ -165,14 +205,13 @@ public class MSIO {
 		return standardizations;
 	}
 
+	
 	public static void main(String[] args) {
-		List<Certification> certs = MSIO
-				.readCertification("d://test//certification.xls");
-		Certification cert = certs.get(certs.size()-1);
+		List<TreeStruct> certs = MSIO
+				.readSuppliers("d://test//supplier.xlsx");
+		TreeStruct cert = certs.get(certs.size()-1);
 		System.out.println(cert);
-		for (Certification_Detail d : cert.getCert_detail()) {
-			System.out.println(d);
-		}
+		
 		// List<Standardization> stands = MSIO
 		// .readStandardizations("d://test//standards.xls");
 		// for (Standardization stand : stands) {

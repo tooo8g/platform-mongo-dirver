@@ -14,7 +14,13 @@ public class Tree {
 
 	public static void findChild(Document root, List<TreeStruct> certs,
 			Map<String, List<TreeStruct>> pids) {
-		certs = sortTree(certs);
+		findChild(root, certs, pids, true);
+	}
+
+	public static void findChild(Document root, List<TreeStruct> certs,
+			Map<String, List<TreeStruct>> pids, boolean sort) {
+		if (sort)
+			certs = sortTree(certs);
 		for (TreeStruct cert : certs) {
 			Document v = new Document();
 			v.put(cert.getName(), cert.getValue());
