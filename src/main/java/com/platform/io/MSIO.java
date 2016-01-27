@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,6 +14,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
+import com.platform.io.bean.Product;
 import com.platform.io.bean.Standardization;
 
 public class MSIO {
@@ -165,19 +167,100 @@ public class MSIO {
 		return standardizations;
 	}
 
-	public static void main(String[] args) {
-		List<Certification> certs = MSIO
-				.readCertification("d://test//certification.xls");
-		Certification cert = certs.get(certs.size()-1);
-		System.out.println(cert);
-		for (Certification_Detail d : cert.getCert_detail()) {
-			System.out.println(d);
+	public static List<Certification> readCompany_name(String fileName) {
+		List<Certification> list = new ArrayList<Certification>();
+		try {
+			FileInputStream fis = new FileInputStream(fileName);
+			Workbook workbook = null;
+			if (fileName.toLowerCase().endsWith("xlsx")) {
+				workbook = new XSSFWorkbook(fis);
+			} else if (fileName.toLowerCase().endsWith("xls")) {
+				workbook = new HSSFWorkbook(fis);
+			} else {
+				fis.close();
+				return list;
+			}
+
+			// int numberOfSheets = workbook.getNumberOfSheets();
+
+			// for (int i = 0; i < numberOfSheets; i++) {
+			Sheet sheet = workbook.getSheetAt(1);
+			Iterator<Row> rowIterator = sheet.iterator();
+			if (rowIterator.hasNext())
+				rowIterator.next();
+			while (rowIterator.hasNext()) {
+				Row row = rowIterator.next();
+				Certification certification = new Certification();
+				String name = row.getCell(0).getStringCellValue().trim();
+				certification.setCompany_name(name);
+				list.add(certification);
+			}
+			// }
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		// List<Standardization> stands = MSIO
-		// .readStandardizations("d://test//standards.xls");
-		// for (Standardization stand : stands) {
-		// System.out.println(stand);
+		return list;
+	}
+
+	public static List<Product> readProduct(String fileName) {
+		List<Product> list = new ArrayList<Product>();
+		try {
+			FileInputStream fis = new FileInputStream(fileName);
+			Workbook workbook = null;
+			if (fileName.toLowerCase().endsWith("xlsx")) {
+				workbook = new XSSFWorkbook(fis);
+			} else if (fileName.toLowerCase().endsWith("xls")) {
+				workbook = new HSSFWorkbook(fis);
+			} else {
+				fis.close();
+				return list;
+			}
+
+			Sheet sheet = workbook.getSheetAt(1);
+			Iterator<Row> rowIterator = sheet.iterator();
+			if (rowIterator.hasNext())
+				rowIterator.next();
+			while (rowIterator.hasNext()) {
+				Row row = rowIterator.next();
+				Product product = new Product();
+//				Cell cell = row.getCell(0);
+//				// if(cell!=null){
+				String company = row.getCell(0).getStringCellValue().trim();
+				product.setCompany(company);// 供应商
+				String cert_num = row.getCell(1).getStringCellValue().trim();
+				product.setCert_num(cert_num);// 证书编号
+				String product_name = row.getCell(9).getStringCellValue()
+						.trim();
+				product.setProduct_name(product_name);// 产品名称
+				String specification = row.getCell(10).getStringCellValue()
+						.trim();
+				product.setSpecification(specification);// 规格型号
+				String cert_standards = row.getCell(11).getStringCellValue()
+						.trim();
+				product.setCert_standards(cert_standards);// 执行标准
+				// }
+
+				list.add(product);
+			}
+			fis.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	public static void main(String[] args) {
+		// List<Certification> certs = MSIO
+		// .readCertification("d://test//certification.xls");
+		// Certification cert = certs.get(certs.size()-1);
+		// System.out.println(cert);
+		// for (Certification_Detail d : cert.getCert_detail()) {
+		// System.out.println(d);
 		// }
+		List<Certification> stands = MSIO
+				.readCompany_name("d://test//供应商综合信息.xlsx");
+
 	}
 
 }
