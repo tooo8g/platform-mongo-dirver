@@ -15,6 +15,35 @@ import com.platform.mongo.s1.MongoDirver;
 import com.platform.mongo.util.Tree;
 
 public class IMP {
+	
+	/**
+	 * 供应商菜单录入
+	 * 
+	 * @param fileName
+	 */
+	public void impSuppliers_menu_tzs(String fileName) {
+		List<TreeStruct> certs = MSIO.readSuppliers(fileName);
+		Map<String, List<TreeStruct>> pids = new HashMap<String, List<TreeStruct>>();
+		Document root = new Document();
+		for (TreeStruct cert : certs) {
+			if(cert.getId().equals("0")){
+				root.put(cert.getName(), cert.getValue());
+			}
+			List<TreeStruct> col = pids.get(cert.getPid());
+			if (col == null) {
+				col = new ArrayList<TreeStruct>();
+				pids.put(cert.getPid(), col);
+			}
+			col.add(cert);
+		}
+
+		List<TreeStruct> list = pids.get("0");
+		Tree.findChild(root, list, pids, false);
+		MongoDirver md = new MongoDirver();
+		md.addSuppliers_menu_tz(root);
+		System.out.println(root.toJson());
+		md.close();
+	}
 
 	/**
 	 * 认证
@@ -90,7 +119,6 @@ public class IMP {
 	public static void main(String[] args) {
 		IMP imp = new IMP();
 //		imp.impCertification_menu_tz("d://test//TZ.csv");
-		imp.impPrice("d://test//price2.csv");
 		imp.impPrice("d://test//price2.csv");
 //		imp.impPrice("d://test//shuini.csv");
 	}

@@ -667,6 +667,15 @@ public class MongoDirver {
 	public void addCertification_menu_tz(Document data) {
 		client.addOne("test", "certification_menu_tz", data);
 	}
+	
+	/**
+	 * 增加供应商树形菜单
+	 * 
+	 * @param data
+	 */
+	public void addSuppliers_menu_tz(Document data) {
+		client.addOne("test", "suppliers_menu_tz", data);
+	}
 
 	/**
 	 * 查询铁路总公司铁路专用产品认证采信树形菜单
