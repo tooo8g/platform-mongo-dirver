@@ -8,8 +8,9 @@ import java.util.Map;
 import org.bson.Document;
 
 import com.platform.io.bean.Certification;
-import com.platform.io.bean.Standardization;
 import com.platform.io.bean.Price;
+import com.platform.io.bean.Product;
+import com.platform.io.bean.Standardization;
 import com.platform.io.bean.TreeStruct;
 import com.platform.mongo.s1.MongoDirver;
 import com.platform.mongo.util.Tree;
@@ -114,13 +115,39 @@ public class IMP {
 	}
 
 	/**
+	 * 增加企业名称
+	 * 
+	 * @param fileName
+	 */
+	public void impCompany_name(String fileName) {
+		List<Certification> list = MSIO.readCompany_name(fileName);
+		MongoDirver md = new MongoDirver();
+		for (int i = 0; i < list.size(); i++) {
+			md.addCompany_name(list.get(i));
+		}
+
+		md.close();
+	}
+
+	/**
+	 * 增加产品
+	 * 
+	 * @param fileName
+	 */
+	public void impProduct(String fileName) {
+		List<Product> list = MSIO.readProduct(fileName);		
+		MongoDirver md = new MongoDirver();
+		for (int i = 0; i < list.size(); i++) {
+			md.addProduct(list.get(i));
+		}
+
+		md.close();
+	}
+
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		IMP imp = new IMP();
-//		imp.impCertification_menu_tz("d://test//TZ.csv");
-		imp.impPrice("d://test//price.csv");
-//		imp.impPrice("d://test//shuini.csv");
 	}
 
 }

@@ -18,6 +18,7 @@ import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCursor;
 import com.mongodb.DBRef;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -144,6 +145,16 @@ public class MongoDao {
 		return cp_detail;
 	}
 
+	public List<Document> queryBysTandard(String db, String table,
+			Bson filters, String string) {
+		// TODO Auto-generated method stub
+		MongoDatabase database = client.getDatabase(db);
+		MongoCollection<Document> mongocol = database.getCollection(table);
+		List<Document> cp_detail = mongocol.aggregate(
+				asList(Aggregates.match(filters), Aggregates.group(string)))
+				.into(new ArrayList<Document>());
+		return cp_detail;
+	}
 	/**
 	 * select from where
 	 * 
@@ -472,4 +483,8 @@ public class MongoDao {
 	public void close() {
 		client.close();
 	}
+
+	
+
+	
 }
