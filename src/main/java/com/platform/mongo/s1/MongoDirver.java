@@ -93,9 +93,10 @@ public class MongoDirver {
 			// null,
 			// 0, 10));
 			// System.out.println(md.queryCertification_menu_tz());
-			// System.out.println(md.queryPrice(null, null, null, null, 0, 20));
+			System.out.println(md
+					.queryPrice("普通硅酸盐水泥", null, null, null, 0, 20));
 			// System.out.println(md.queryCompanyForPrice("高线", "Φ6.5"));
-			md.queryPriceHistory("56a1d82e4d462a2b1476acfc");
+			// md.queryPriceHistory("56a1d82e4d462a2b1476acfc");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -594,10 +595,8 @@ public class MongoDirver {
 	 * 
 	 * @param standard_group
 	 *            标准类型
-	 * @param standard_id
-	 *            标准编号
-	 * @param standard_name
-	 *            标准名称
+	 * @param str
+	 *            标准编号、标准名称
 	 * @param standard_status
 	 *            文件状态
 	 * @param special_subject
@@ -606,16 +605,14 @@ public class MongoDirver {
 	 * @param limit
 	 * @return
 	 */
-	public String queryStandards(String standard_group, String standard_id,
-			String standard_name, String standard_status,
-			String special_subject, int skip, int limit) {
+	public String queryStandards(String str, String standard_group,
+			String standard_status, String special_subject, int skip, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (standard_group != null && !standard_group.equals(""))
 			condition.add(eq("standard_group", standard_group));
-		if (standard_id != null && !standard_id.equals(""))
-			condition.add(eq("standard_id", standard_id));
-		if (standard_name != null && !standard_name.equals(""))
-			condition.add(eq("standard_name", standard_name));
+		if (str != null && !str.equals(""))
+			condition.add(or(regex("standard_name", "^.*" + str + ".*$"),
+					regex("standard_id", "^.*" + str + ".*$")));
 		if (standard_status != null && !standard_status.equals(""))
 			condition.add(eq("standard_status", standard_status));
 		if (special_subject != null && !special_subject.equals(""))
@@ -823,6 +820,18 @@ public class MongoDirver {
 	}
 
 	/**
+	 * 查询价格
+	 * 
+	 * @param id
+	 *            价格ID
+	 * @return
+	 */
+	public Document queryPrice(String id) {
+		return client.querySingle("test", "price", eq("_id", new ObjectId(id)),
+				new BasicDBObject("_id", 0));
+	}
+
+	/**
 	 * 查询历史价格
 	 * 
 	 * @param id
@@ -830,17 +839,22 @@ public class MongoDirver {
 	 */
 	public List<Document> queryPriceHistory(String id) {
 		ObjectId _id = new ObjectId(id);
-		Calendar now = Calendar.getInstance();
-		Calendar month_ago = Calendar.getInstance();
-		month_ago.add(Calendar.MONTH, -1);
+		Date now = TimeUtil.getToday().getTime();
+		Date month_ago = TimeUtil.getDay(Calendar.MONTH, -1).getTime();
 		// 得到一个月前的最新的价格数据
 		Document d1 = client.querySingle("test", "price_history",
 				and(eq("p_id", _id), lte("date", month_ago)),
-				new BasicDBObject("_id", 0), new BasicDBObject("date", -1));
+				new BasicDBObject("price", 1).append("date", 1),
+				new BasicDBObject("date", -1));
+		if (d1 == null)
+			d1 = new Document("price", 0);
 		// 得到近一个月的价格数据
-		List<Document> d2 = client.queryList("test", "price_history",
-				and(gte("date", month_ago), lte("date", now)),
-				new BasicDBObject("_id", 0)).into(new ArrayList<Document>());
+		List<Document> d2 = client.queryList(
+				"test",
+				"price_history",
+				and(eq("p_id", new ObjectId(id)), gte("date", month_ago),
+						lte("date", now)), new BasicDBObject("_id", 0)).into(
+				new ArrayList<Document>());
 		d2.add(0, d1);
 		return d2;
 	}
@@ -858,22 +872,37 @@ public class MongoDirver {
 	 *            城市
 	 * @return
 	 */
-	public String queryPriceHistory(String name, String specification,
+	public List<Document> queryPriceHistory(String name, String specification,
 			String company, String city) {
-		// 得到价格主信息
-		Document data = client.querySingle(
+		Date now = TimeUtil.getToday().getTime();
+		Date month_ago = TimeUtil.getDay(Calendar.MONTH, -1).getTime();
+		// 得到价格主ID
+		ObjectId _id = client.queryOne(
 				"test",
 				"price",
 				and(eq("name", name), eq("specification", specification),
-						eq("company", company), eq("city", city)), null);
-		ObjectId _id = data.getObjectId("_id");
-		// 得到历史价格数据
-		List<Document> price_history = client.queryList("test",
-				"price_history", eq("p_id", _id), null,
-				new BasicDBObject("update_time", -1), 0, 100).into(
-				new ArrayList<Document>());
-		data.put("history", price_history);
-		return data.toJson();
+						eq("company", company), eq("city", city)), "_id",
+				ObjectId.class);
+		if (_id == null) {
+			Document d = new Document();
+			d.put("price", 0);
+			List<Document> result = new ArrayList<Document>();
+			result.add(d);
+			return result;
+		}
+		// 得到一个月前的最新的价格数据
+		Document d1 = client.querySingle("test", "price_history",
+				and(eq("p_id", _id), lte("date", month_ago)),
+				new BasicDBObject("price", 1).append("date", 1),
+				new BasicDBObject("date", -1));
+		if (d1 == null)
+			d1 = new Document("price", 0);
+		// 得到近一个月的价格数据
+		List<Document> d2 = client.queryList("test", "price_history",
+				and(eq("p_id", _id), gte("date", month_ago), lte("date", now)),
+				new BasicDBObject("_id", 0)).into(new ArrayList<Document>());
+		d2.add(0, d1);
+		return d2;
 	}
 
 	/**

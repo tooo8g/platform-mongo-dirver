@@ -2,6 +2,7 @@ package com.platform.mongo.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -74,6 +75,23 @@ public class TimeUtil {
 
 	public static String parserStringYMD(Date date) {
 		return ymd_format1.format(date);
+	}
+
+	public static Calendar getToday() {
+		Calendar now = Calendar.getInstance();
+		now.set(Calendar.HOUR_OF_DAY, 0);
+		now.set(Calendar.MINUTE, 0);
+		now.set(Calendar.SECOND, 0);
+		return now;
+	}
+
+	public static Calendar getDay(int type, int value) {
+		Calendar now = Calendar.getInstance();
+		now.set(Calendar.HOUR_OF_DAY, 0);
+		now.set(Calendar.MINUTE, 0);
+		now.set(Calendar.SECOND, 0);
+		now.add(type, value);
+		return now;
 	}
 
 	// public static Date now() {
