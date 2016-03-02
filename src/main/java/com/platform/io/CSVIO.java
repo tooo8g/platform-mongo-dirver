@@ -5,12 +5,47 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.csvreader.CsvReader;
-import com.platform.io.bean.ProductInfo;
-import com.platform.io.bean.TreeStruct;
 import com.platform.io.bean.Price;
+import com.platform.io.bean.ProductInfo;
+import com.platform.io.bean.PurchaseBidding;
+import com.platform.io.bean.TreeStruct;
 import com.platform.mongo.util.PinYin;
 
 public class CSVIO {
+
+	/**
+	 * 读取招标信息csv
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static List<PurchaseBidding> readPurchaseBidding(String fileName) {
+		CsvReader r = null;
+		List<PurchaseBidding> pb = new ArrayList<PurchaseBidding>();
+		try {
+			r = new CsvReader(fileName, ',', Charset.forName("UTF-8"));
+			r.readHeaders();
+			while (r.readRecord()) {
+				PurchaseBidding purchaseBidding = new PurchaseBidding();
+				purchaseBidding.setPurchaseOrderNo(r.get("PONO"));
+				purchaseBidding.setPurchaserName(r.get("PNAME"));
+				purchaseBidding.setPurchaserCompany(r.get("PCOMPY"));
+				purchaseBidding.setAnnouncementType(r.get("ATYPE"));
+				purchaseBidding.setPurchaserVariety(r.get("PVATY"));
+				purchaseBidding.setPurchaserArea(r.get("PAREA"));
+				purchaseBidding.setPurchaserFileGetTime(r.get("PFGTIME"));
+				purchaseBidding.setPublishTime(r.get("PTIME"));
+				purchaseBidding.setDataSource(r.get("DSOURCE"));
+				pb.add(purchaseBidding);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (r != null)
+				r.close();
+		}
+		return pb;
+	}
 
 	/**
 	 * 读取价格csv
@@ -77,13 +112,15 @@ public class CSVIO {
 		}
 		return certs;
 	}
+
 	/**
 	 * 读取产品
+	 * 
 	 * @param fileName
 	 * @return
 	 * @author zhangyb
 	 */
-	public static List<ProductInfo> readProductInfo(String fileName){
+	public static List<ProductInfo> readProductInfo(String fileName) {
 		CsvReader r = null;
 		List<ProductInfo> productInfos = new ArrayList<ProductInfo>();
 		try {

@@ -24,6 +24,7 @@ import com.platform.io.bean.Code;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
 import com.platform.io.bean.ProductInfo;
+import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Standardization;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
@@ -96,10 +97,12 @@ public class MongoDirver {
 			// null,
 			// 0, 10));
 			// System.out.println(md.queryCertification_menu_tz());
-			System.out.println(md
-					.queryPrice("普通硅酸盐水泥", null, null, null, 0, 20));
+			// System.out.println(md
+			// .queryPrice("普通硅酸盐水泥", null, null, null, 0, 20));
 			// System.out.println(md.queryCompanyForPrice("高线", "Φ6.5"));
 			// md.queryPriceHistory("56a1d82e4d462a2b1476acfc");
+			String s = md.queryPurchaseBidding("", 0, 3);
+			System.out.println(s);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -497,20 +500,23 @@ public class MongoDirver {
 	 *            发布时间
 	 * @param sjly
 	 *            数据来源
+	 * 
 	 */
-	public void addPurchaseBidding(String cgbh, String cgmc, String zzdw,
-			String gglx, String cgpz, String cgdq, Date fbsj, String sjly) {
-		Document pb = new Document();
-		pb.put("cgbh", cgbh);
-		pb.put("cgmc", cgmc);
-		pb.put("zzdw", zzdw);
-		pb.put("gglx", gglx);
-		pb.put("cgpz", cgpz);
-		pb.put("cgdq", cgdq);
-		pb.put("fbsj", fbsj);
-		pb.put("sjly", sjly);
-		pb.put("add_time", new Date());
-		client.addOne("test", "zbcg", pb);
+	public void addPurchaseBidding(PurchaseBidding pb) {
+		Document doc = new Document();
+		doc.put("purchaseOrderNo", pb.getPurchaseOrderNo());
+		doc.put("purchaserName", pb.getPurchaserName());
+		doc.put("purchaserCompany", pb.getPurchaserCompany());
+		doc.put("announcementType", pb.getAnnouncementType());
+		doc.put("purchaserVariety", pb.getPurchaserVariety());
+		doc.put("purchaserArea", pb.getPurchaserArea());
+		doc.put("purchaserFileGetTime",
+				TimeUtil.parserTime(pb.getPurchaserFileGetTime()));
+		doc.put("dataSource", pb.getDataSource());
+		doc.put("publishTime", TimeUtil.parserTime(pb.getPublishTime()));
+		doc.put("add_time", new Date());
+		doc.put("edit_time", TimeUtil.parserTime(pb.getEditTime()));
+		client.addOne("test", "purchase_bidding", doc);
 	}
 
 	/**
@@ -523,18 +529,26 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryPurchaseBidding(String str, int skip, int limit) {
-		Bson filters = or(regex("cgbh", "^.*" + str + ".*$"),
-				regex("cgmc", "^.*" + str + ".*$"),
-				regex("zzdw", "^.*" + str + ".*$"),
-				regex("cgpz", "^.*" + str + ".*$"),
-				regex("cgdq", "^.*" + str + ".*$"));
-		int count = client.queryCount("test", "zbcg", filters);
-		List<Document> zbcg = client.queryList("test", "zbcg", filters,
-				new BasicDBObject("_id", 0), new BasicDBObject("add_time", -1),
-				skip, limit).into(new ArrayList<Document>());
+		Bson filters = null;
+		if (str != null && !str.equals(""))
+			filters = or(regex("purchaseOrderNo", "^.*" + str + ".*$"),
+					regex("purchaserName", "^.*" + str + ".*$"),
+					regex("purchaserCompany", "^.*" + str + ".*$"),
+					regex("purchaserVariety", "^.*" + str + ".*$"),
+					regex("purchaserArea", "^.*" + str + ".*$"),
+					regex("announcementType", "^.*" + str + ".*$"),
+					regex("purchaserFileGetTime", "^.*" + str + ".*$"),
+					regex("publishTime", "^.*" + str + ".*$"),
+					regex("dataSource", "^.*" + str + ".*$"));
+
+		int count = client.queryCount("test", "purchase_bidding", filters);
+		List<Document> zbcg = client.queryList("test", "purchase_bidding",
+				filters, new BasicDBObject("_id", 0),
+				new BasicDBObject("publishTime", -1), skip, limit).into(
+				new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
-		data.put("zbcg", zbcg);
+		data.put("bzxx", zbcg);
 		return data.toJson();
 	}
 
@@ -667,7 +681,7 @@ public class MongoDirver {
 	public void addCertification_menu_tz(Document data) {
 		client.addOne("test", "certification_menu_tz", data);
 	}
-	
+
 	/**
 	 * 增加供应商树形菜单
 	 * 
@@ -1096,14 +1110,20 @@ public class MongoDirver {
 
 	/**
 	 * 按条件查询产品
-	 * @param company_name 企业名称
-	 * @param product_identify 产品标识代码
-	 * @param product_name 产品名称
-	 * @param specification specification
+	 * 
+	 * @param company_name
+	 *            企业名称
+	 * @param product_identify
+	 *            产品标识代码
+	 * @param product_name
+	 *            产品名称
+	 * @param specification
+	 *            specification
 	 * @return
 	 * @author zhangyb
 	 */
-	public String queryProductInfo(String company_name,String product_identify,String product_name,String specification){
+	public String queryProductInfo(String company_name,
+			String product_identify, String product_name, String specification) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
@@ -1117,7 +1137,8 @@ public class MongoDirver {
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
-		productInfos = client.queryList("test", "productInfo", filters,new BasicDBObject()).into(new ArrayList<Document>());
+		productInfos = client.queryList("test", "productInfo", filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
 		int count = client.queryCount("test", "productInfo", filters);
 		Document data = new Document();
 		data.put("count", count);
@@ -1125,15 +1146,15 @@ public class MongoDirver {
 		return data.toJson();
 	}
 
-	public String  addCode(Code c) {
+	public String addCode(Code c) {
 		// TODO Auto-generated method stub
 		Document d = new Document();
 		d.put("code", c.getCode());
 		d.put("inner_id", c.getInner_id());
-		d.put("program_time",c.getProgram_time());
+		d.put("program_time", c.getProgram_time());
 		d.put("purchasing_company", c.getPurchasing_company());
 		d.put("contract_id", c.getContract_id());
-		d.put("product_code",c.getProduct_code() );
+		d.put("product_code", c.getProduct_code());
 		d.put("materials_name", c.materials_name);
 		d.put("specifications_model", c.specifications_model);
 		d.put("materials_code", c.materials_code);
@@ -1141,4 +1162,5 @@ public class MongoDirver {
 		client.addOne("test", "code", d);
 		return d.toJson();
 	}
+
 }

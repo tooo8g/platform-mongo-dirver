@@ -11,6 +11,7 @@ import com.platform.io.bean.Certification;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
 import com.platform.io.bean.ProductInfo;
+import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.TreeStruct;
 import com.platform.mongo.s1.MongoDirver;
@@ -158,6 +159,21 @@ public class IMP {
 			md.addProductInfo(list.get(i));
 		}
 
+		md.close();
+	}
+	
+	/**
+	 * 招标信息
+	 * 
+	 * @param fileName
+	 */
+	public void impPurchaseBidding(String fileName) {
+		List<PurchaseBidding> purchaseBiddings = CSVIO
+				.readPurchaseBidding(fileName);
+		MongoDirver md = new MongoDirver();
+		for (PurchaseBidding pb : purchaseBiddings) {
+			md.addPurchaseBidding(pb);
+		}
 		md.close();
 	}
 
