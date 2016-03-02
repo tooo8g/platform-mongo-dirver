@@ -17,7 +17,7 @@ import com.platform.mongo.s1.MongoDirver;
 import com.platform.mongo.util.Tree;
 
 public class IMP {
-	
+
 	/**
 	 * 供应商菜单录入
 	 * 
@@ -28,7 +28,7 @@ public class IMP {
 		Map<String, List<TreeStruct>> pids = new HashMap<String, List<TreeStruct>>();
 		Document root = new Document();
 		for (TreeStruct cert : certs) {
-			if(cert.getId().equals("0")){
+			if (cert.getId().equals("0")) {
 				root.put(cert.getName(), cert.getValue());
 			}
 			List<TreeStruct> col = pids.get(cert.getPid());
@@ -75,15 +75,14 @@ public class IMP {
 		md.close();
 	}
 
-	
-	
 	/**
 	 * 招标信息
 	 * 
 	 * @param fileName
 	 */
 	public void impPurchaseBidding(String fileName) {
-		List<PurchaseBidding> purchaseBiddings = CSVIO.readPurchaseBidding(fileName);
+		List<PurchaseBidding> purchaseBiddings = CSVIO
+				.readPurchaseBidding(fileName);
 		MongoDirver md = new MongoDirver();
 		for (PurchaseBidding pb : purchaseBiddings) {
 			md.addPurchaseBidding(pb);
@@ -91,13 +90,6 @@ public class IMP {
 		md.close();
 	}
 
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * 价格
 	 * 
@@ -159,7 +151,7 @@ public class IMP {
 	 * @param fileName
 	 */
 	public void impProduct(String fileName) {
-		List<Product> list = MSIO.readProduct(fileName);		
+		List<Product> list = MSIO.readProduct(fileName);
 		MongoDirver md = new MongoDirver();
 		for (int i = 0; i < list.size(); i++) {
 			md.addProduct(list.get(i));
@@ -172,8 +164,12 @@ public class IMP {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		IMP imp = new IMP();
-		imp.impPurchaseBidding("e://test//b2.csv");
+		if (args[0] != null && args[0].equals("imp")) {
+			if (args[1] != null && args[1].equals("pb")) {
+				IMP imp = new IMP();
+				imp.impPurchaseBidding(args[2]);
+			}
+		}
 	}
 
 }
