@@ -20,9 +20,10 @@ import org.bson.types.ObjectId;
 import com.mongodb.BasicDBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
+import com.platform.io.bean.Code;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
-import com.platform.io.bean.PurchaseBidding;
+import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.Standardization;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
@@ -95,12 +96,10 @@ public class MongoDirver {
 			// null,
 			// 0, 10));
 			// System.out.println(md.queryCertification_menu_tz());
-//			System.out.println(md
-//					.queryPrice("普通硅酸盐水泥", null, null, null, 0, 20));
+			System.out.println(md
+					.queryPrice("普通硅酸盐水泥", null, null, null, 0, 20));
 			// System.out.println(md.queryCompanyForPrice("高线", "Φ6.5"));
 			// md.queryPriceHistory("56a1d82e4d462a2b1476acfc");
-			String s =md.queryPurchaseBidding("", 0, 3);
-			System.out.println(s);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -498,22 +497,20 @@ public class MongoDirver {
 	 *            发布时间
 	 * @param sjly
 	 *            数据来源
-	 *           
-		 */        
-	public void addPurchaseBidding(PurchaseBidding pb) {
-		Document doc = new Document();
-		doc.put("purchaseOrderNo", pb.getPurchaseOrderNo());
-		doc.put("purchaserName", pb.getPurchaserName());
-		doc.put("purchaserCompany", pb.getPurchaserCompany());
-		doc.put("announcementType", pb.getAnnouncementType());
-		doc.put("purchaserVariety", pb.getPurchaserVariety());
-		doc.put("purchaserArea", pb.getPurchaserArea());
-		doc.put("purchaserFileGetTime", TimeUtil.parserTime(pb.getPurchaserFileGetTime()));
-		doc.put("dataSource", pb.getDataSource());
-		doc.put("publishTime", TimeUtil.parserTime(pb.getPublishTime()));
-		doc.put("add_time", new Date());
-		doc.put("edit_time",TimeUtil.parserTime(pb.getEditTime()));
-		client.addOne("test", "purchase_bidding", doc);
+	 */
+	public void addPurchaseBidding(String cgbh, String cgmc, String zzdw,
+			String gglx, String cgpz, String cgdq, Date fbsj, String sjly) {
+		Document pb = new Document();
+		pb.put("cgbh", cgbh);
+		pb.put("cgmc", cgmc);
+		pb.put("zzdw", zzdw);
+		pb.put("gglx", gglx);
+		pb.put("cgpz", cgpz);
+		pb.put("cgdq", cgdq);
+		pb.put("fbsj", fbsj);
+		pb.put("sjly", sjly);
+		pb.put("add_time", new Date());
+		client.addOne("test", "zbcg", pb);
 	}
 
 	/**
@@ -526,29 +523,18 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryPurchaseBidding(String str, int skip, int limit) {
-		Bson filters = null;
-		if (str != null && !str.equals(""))
-			filters = or(
-					regex("purchaseOrderNo", "^.*" + str + ".*$"),
-					regex("purchaserName", "^.*" + str + ".*$"),
-					regex("purchaserCompany", "^.*" + str + ".*$"),
-					regex("purchaserVariety", "^.*" + str + ".*$"),
-					regex("purchaserArea", "^.*" + str + ".*$"),
-					regex("announcementType", "^.*" + str + ".*$"),
-					regex("purchaserFileGetTime", "^.*" + str + ".*$"),
-					regex("publishTime", "^.*" + str + ".*$"),
-					regex("dataSource", "^.*" + str + ".*$")
-					);
-		
-		int count = client.queryCount("test", "purchase_bidding", filters);
-		List<Document> zbcg = client.queryList("test", "purchase_bidding", 
-				filters,	
-				new BasicDBObject("_id", 0),
-				new BasicDBObject("publishTime", -1),skip, limit)
-				.into(new ArrayList<Document>());
+		Bson filters = or(regex("cgbh", "^.*" + str + ".*$"),
+				regex("cgmc", "^.*" + str + ".*$"),
+				regex("zzdw", "^.*" + str + ".*$"),
+				regex("cgpz", "^.*" + str + ".*$"),
+				regex("cgdq", "^.*" + str + ".*$"));
+		int count = client.queryCount("test", "zbcg", filters);
+		List<Document> zbcg = client.queryList("test", "zbcg", filters,
+				new BasicDBObject("_id", 0), new BasicDBObject("add_time", -1),
+				skip, limit).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
-		data.put("bzxx", zbcg);
+		data.put("zbcg", zbcg);
 		return data.toJson();
 	}
 
@@ -998,18 +984,19 @@ public class MongoDirver {
 		return null;
 	}
 
-	public String queryBysTandard(String db,String table, String cert_standard) {
+	public String queryBysTandard(String db, String table, String cert_standard) {
 		// TODO Auto-generated method stub
-//		Bson filters = in("_id", cp_detail_ids);
-//		List<Document> tree3s = client.queryDistincValue("test", "cp_detail",
-//				filters, "$group");
-//		BasicDBObject queryObject =new BasicDBObject().append(  
-//                "standard_name", cert_standard); 
+		// Bson filters = in("_id", cp_detail_ids);
+		// List<Document> tree3s = client.queryDistincValue("test", "cp_detail",
+		// filters, "$group");
+		// BasicDBObject queryObject =new BasicDBObject().append(
+		// "standard_name", cert_standard);
 		Bson filters = eq("standard_id", cert_standard);
 
-//		List<Document> standard_names = client.queryBysTandard(db, table, filters,"$group");
-		List<Document> standard_names = client.queryList(db, table,
-				filters, new BasicDBObject()).into(new ArrayList<Document>());
+		// List<Document> standard_names = client.queryBysTandard(db, table,
+		// filters,"$group");
+		List<Document> standard_names = client.queryList(db, table, filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
 
 		Document data = new Document();
 		data.put("standard_names", standard_names);
@@ -1019,8 +1006,8 @@ public class MongoDirver {
 	public String queryByNum(String db, String table, String cert_num) {
 		Bson filters = eq("cert_num", cert_num);
 		// TODO Auto-generated method stub
-		List<Document> standard_names = client.queryList(db, table,
-				filters, new BasicDBObject()).into(new ArrayList<Document>());
+		List<Document> standard_names = client.queryList(db, table, filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("standard_names", standard_names);
 		return data.toJson();
@@ -1028,47 +1015,49 @@ public class MongoDirver {
 
 	public void addProduct(Product product) {
 		// TODO Auto-generated method stub
-		//判断供应商是否存在
+		// 判断供应商是否存在
 		String company = product.getCompany();
-		ObjectId id = client.queryOne("test", "company", eq("company_name", company),
-				"_id", ObjectId.class);
+		ObjectId id = client.queryOne("test", "company",
+				eq("company_name", company), "_id", ObjectId.class);
 		ObjectId company_id_new = new ObjectId();
-		if(id == null){//如果供应商不存在  则保存此供应商到数据库
+		if (id == null) {// 如果供应商不存在 则保存此供应商到数据库
 			Document d = new Document();
 			d.put("_id", company_id_new);
-			d.put("company_name",company );
+			d.put("company_name", company);
 			client.addOne("test", "company", d);
 		}
-		//判断产品是否存在
-		String product_name = product.getProduct_name();//获得产品名称
-		String specification = product.getSpecification();//获取产品规格型号
-		
-		Bson specification_filter = eq("specification",specification);
-		Bson product_name_filter = eq("product_name",product_name);
+		// 判断产品是否存在
+		String product_name = product.getProduct_name();// 获得产品名称
+		String specification = product.getSpecification();// 获取产品规格型号
+
+		Bson specification_filter = eq("specification", specification);
+		Bson product_name_filter = eq("product_name", product_name);
 		ObjectId product_id = client.queryOne("test", "product",
 				and(specification_filter, product_name_filter), "_id",
 				ObjectId.class);
-//		ObjectId product_id =null;
-		//如果数据库中不存在  插入数据
-		List<Document>  certifications = new ArrayList<Document>();
+		// ObjectId product_id =null;
+		// 如果数据库中不存在 插入数据
+		List<Document> certifications = new ArrayList<Document>();
 		ObjectId product_id_new = new ObjectId();
-		if(product_id==null){
-			//首先查询出资质
+		if (product_id == null) {
+			// 首先查询出资质
 			String cert_num = product.getCert_num();
 			Bson filters = eq("cert_num", cert_num);
-			certifications = client.queryList("test", "certification",
-					filters, new BasicDBObject()).into(new ArrayList<Document>());
-			//根据执行标准编号查询出标准名称  
+			certifications = client.queryList("test", "certification", filters,
+					new BasicDBObject()).into(new ArrayList<Document>());
+			// 根据执行标准编号查询出标准名称
 			List<String> standard_names = new ArrayList<String>();
 			String cert_standards = product.getCert_standards();
 			String[] strs = cert_standards.split("；");
 			for (int j = 0; j < strs.length; j++) {
 				String cert_standard = strs[j];
-				Bson cert_standard_filters = eq("standard_id", cert_standard);			
-				String standard_name  = client.queryOne("test", "standardization", cert_standard_filters, "standard_name", String.class);
+				Bson cert_standard_filters = eq("standard_id", cert_standard);
+				String standard_name = client.queryOne("test",
+						"standardization", cert_standard_filters,
+						"standard_name", String.class);
 				standard_names.add(standard_name);
 			}
-			//保存产品到数据库
+			// 保存产品到数据库
 			Document d = new Document();
 			d.put("_id", product_id_new);
 			d.put("product_name", product.getProduct_name());
@@ -1076,17 +1065,80 @@ public class MongoDirver {
 			d.put("cert_standards_ku", standard_names);
 			d.put("certification", certifications);
 			client.addOne("test", "product", d);
-			//保存供应商和产品的id关联映射
+			// 保存供应商和产品的id关联映射
 			Document document = new Document();
 			document.put("gId", company_id_new);
 			document.put("pId", product_id_new);
 			client.addOne("test", "relation", document);
 		}
-			
-		
+
 	}
 
-	
-	
-	
+	/**
+	 * 增加产品
+	 * 
+	 * @param productInfo
+	 * @author zhangyb
+	 */
+	public void addProductInfo(ProductInfo productInfo) {
+		// TODO Auto-generated method stub
+		Document d = new Document();
+		d.put("company_name", productInfo.getCompany_name());
+		d.put("product_identify", productInfo.getProduct_identify());
+		d.put("product_name", productInfo.getProduct_name());
+		d.put("specification", productInfo.getSpecification());
+		d.put("measurement", productInfo.getMeasurement());
+		d.put("material_code", productInfo.getMaterial_code());
+		d.put("business", productInfo.getBusiness());
+
+		client.addOne("test", "productInfo", d);
+	}
+
+	/**
+	 * 按条件查询产品
+	 * @param company_name 企业名称
+	 * @param product_identify 产品标识代码
+	 * @param product_name 产品名称
+	 * @param specification specification
+	 * @return
+	 * @author zhangyb
+	 */
+	public String queryProductInfo(String company_name,String product_identify,String product_name,String specification){
+		List<Bson> condition = new ArrayList<Bson>();
+		if (company_name != null && !company_name.equals(""))
+			condition.add(eq("company_name", company_name));
+		if (product_identify != null && !product_identify.equals(""))
+			condition.add(eq("product_identify", product_identify));
+		if (product_name != null && !product_name.equals(""))
+			condition.add(eq("product_name", product_name));
+		if (specification != null && !specification.equals(""))
+			condition.add(eq("specification", specification));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		List<Document> productInfos = new ArrayList<Document>();
+		productInfos = client.queryList("test", "productInfo", filters,new BasicDBObject()).into(new ArrayList<Document>());
+		int count = client.queryCount("test", "productInfo", filters);
+		Document data = new Document();
+		data.put("count", count);
+		data.put("productInfos", productInfos);
+		return data.toJson();
+	}
+
+	public String  addCode(Code c) {
+		// TODO Auto-generated method stub
+		Document d = new Document();
+		d.put("code", c.getCode());
+		d.put("inner_id", c.getInner_id());
+		d.put("program_time",c.getProgram_time());
+		d.put("purchasing_company", c.getPurchasing_company());
+		d.put("contract_id", c.getContract_id());
+		d.put("product_code",c.getProduct_code() );
+		d.put("materials_name", c.materials_name);
+		d.put("specifications_model", c.specifications_model);
+		d.put("materials_code", c.materials_code);
+		d.put("company", c.company);
+		client.addOne("test", "code", d);
+		return d.toJson();
+	}
 }
