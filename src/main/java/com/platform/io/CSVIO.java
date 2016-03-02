@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.csvreader.CsvReader;
+import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.TreeStruct;
 import com.platform.io.bean.Price;
 import com.platform.mongo.util.PinYin;
@@ -75,5 +76,36 @@ public class CSVIO {
 				r.close();
 		}
 		return certs;
+	}
+	/**
+	 * 读取产品
+	 * @param fileName
+	 * @return
+	 * @author zhangyb
+	 */
+	public static List<ProductInfo> readProductInfo(String fileName){
+		CsvReader r = null;
+		List<ProductInfo> productInfos = new ArrayList<ProductInfo>();
+		try {
+			r = new CsvReader(fileName, ',', Charset.forName("UTF-8"));
+			r.readHeaders();
+			while (r.readRecord()) {
+				ProductInfo productInfo = new ProductInfo();
+				productInfo.setCompany_name(r.get("VAL"));
+				productInfo.setProduct_identify(r.get("PID"));
+				productInfo.setProduct_name(r.get("DIV"));
+				productInfo.setSpecification(r.get("DIV"));
+				productInfo.setMeasurement(r.get("DIV"));
+				productInfo.setMaterial_code(r.get("DIV"));
+				productInfo.setBusiness(r.get("DIV"));
+				productInfos.add(productInfo);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (r != null)
+				r.close();
+		}
+		return productInfos;
 	}
 }

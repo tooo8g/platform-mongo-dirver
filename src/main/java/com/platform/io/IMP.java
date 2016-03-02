@@ -9,6 +9,7 @@ import org.bson.Document;
 
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Product;
+import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.Standard;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.Price;
@@ -107,7 +108,7 @@ public class IMP {
 	 * @param fileName
 	 */
 	public void impProduct(String fileName) {
-		List<Product> list = MSIO.readProduct(fileName);		
+		List<Product> list = MSIO.readProduct(fileName);
 		MongoDirver md = new MongoDirver();
 		for (int i = 0; i < list.size(); i++) {
 			md.addProduct(list.get(i));
@@ -117,13 +118,28 @@ public class IMP {
 	}
 
 	/**
+	 * 产品标识代码
+	 * @param fileName
+	 * @author zhangyb
+	 */
+	public void impProductInfo(String fileName) {
+		List<ProductInfo> list = CSVIO.readProductInfo(fileName);
+		MongoDirver md = new MongoDirver();
+		for (int i = 0; i < list.size(); i++) {
+			md.addProductInfo(list.get(i));
+		}
+		
+		md.close();
+	}
+
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		IMP imp = new IMP();
-		// imp.impCompany_name("d://test//供应商综合信息.xlsx");
-		// imp.impStandard("d://test//standards.xls");
-		imp.impProduct("d://test//1111.xlsx");
+//		IMP imp = new IMP();
+//		imp.impProductInfo("d://test//company.csv");
+		MongoDirver md = new MongoDirver();
+		String s = md.queryProductInfo("", "", "", "");
 	}
 
 }

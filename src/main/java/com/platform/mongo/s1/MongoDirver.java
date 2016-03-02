@@ -9,21 +9,19 @@ import static com.mongodb.client.model.Filters.regex;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.QueryOperators;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
-import com.platform.io.bean.Product;
-import com.platform.io.bean.Standard;
-import com.platform.io.bean.Standardization;
+import com.platform.io.bean.Code;
 import com.platform.io.bean.Price;
+import com.platform.io.bean.Product;
+import com.platform.io.bean.ProductInfo;
+import com.platform.io.bean.Standardization;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
 
@@ -911,18 +909,19 @@ public class MongoDirver {
 		return null;
 	}
 
-	public String queryBysTandard(String db,String table, String cert_standard) {
+	public String queryBysTandard(String db, String table, String cert_standard) {
 		// TODO Auto-generated method stub
-//		Bson filters = in("_id", cp_detail_ids);
-//		List<Document> tree3s = client.queryDistincValue("test", "cp_detail",
-//				filters, "$group");
-//		BasicDBObject queryObject =new BasicDBObject().append(  
-//                "standard_name", cert_standard); 
+		// Bson filters = in("_id", cp_detail_ids);
+		// List<Document> tree3s = client.queryDistincValue("test", "cp_detail",
+		// filters, "$group");
+		// BasicDBObject queryObject =new BasicDBObject().append(
+		// "standard_name", cert_standard);
 		Bson filters = eq("standard_id", cert_standard);
 
-//		List<Document> standard_names = client.queryBysTandard(db, table, filters,"$group");
-		List<Document> standard_names = client.queryList(db, table,
-				filters, new BasicDBObject()).into(new ArrayList<Document>());
+		// List<Document> standard_names = client.queryBysTandard(db, table,
+		// filters,"$group");
+		List<Document> standard_names = client.queryList(db, table, filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
 
 		Document data = new Document();
 		data.put("standard_names", standard_names);
@@ -932,8 +931,8 @@ public class MongoDirver {
 	public String queryByNum(String db, String table, String cert_num) {
 		Bson filters = eq("cert_num", cert_num);
 		// TODO Auto-generated method stub
-		List<Document> standard_names = client.queryList(db, table,
-				filters, new BasicDBObject()).into(new ArrayList<Document>());
+		List<Document> standard_names = client.queryList(db, table, filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("standard_names", standard_names);
 		return data.toJson();
@@ -941,47 +940,49 @@ public class MongoDirver {
 
 	public void addProduct(Product product) {
 		// TODO Auto-generated method stub
-		//判断供应商是否存在
+		// 判断供应商是否存在
 		String company = product.getCompany();
-		ObjectId id = client.queryOne("test", "company", eq("company_name", company),
-				"_id", ObjectId.class);
+		ObjectId id = client.queryOne("test", "company",
+				eq("company_name", company), "_id", ObjectId.class);
 		ObjectId company_id_new = new ObjectId();
-		if(id == null){//如果供应商不存在  则保存此供应商到数据库
+		if (id == null) {// 如果供应商不存在 则保存此供应商到数据库
 			Document d = new Document();
 			d.put("_id", company_id_new);
-			d.put("company_name",company );
+			d.put("company_name", company);
 			client.addOne("test", "company", d);
 		}
-		//判断产品是否存在
-		String product_name = product.getProduct_name();//获得产品名称
-		String specification = product.getSpecification();//获取产品规格型号
-		
-		Bson specification_filter = eq("specification",specification);
-		Bson product_name_filter = eq("product_name",product_name);
+		// 判断产品是否存在
+		String product_name = product.getProduct_name();// 获得产品名称
+		String specification = product.getSpecification();// 获取产品规格型号
+
+		Bson specification_filter = eq("specification", specification);
+		Bson product_name_filter = eq("product_name", product_name);
 		ObjectId product_id = client.queryOne("test", "product",
 				and(specification_filter, product_name_filter), "_id",
 				ObjectId.class);
-//		ObjectId product_id =null;
-		//如果数据库中不存在  插入数据
-		List<Document>  certifications = new ArrayList<Document>();
+		// ObjectId product_id =null;
+		// 如果数据库中不存在 插入数据
+		List<Document> certifications = new ArrayList<Document>();
 		ObjectId product_id_new = new ObjectId();
-		if(product_id==null){
-			//首先查询出资质
+		if (product_id == null) {
+			// 首先查询出资质
 			String cert_num = product.getCert_num();
 			Bson filters = eq("cert_num", cert_num);
-			certifications = client.queryList("test", "certification",
-					filters, new BasicDBObject()).into(new ArrayList<Document>());
-			//根据执行标准编号查询出标准名称  
+			certifications = client.queryList("test", "certification", filters,
+					new BasicDBObject()).into(new ArrayList<Document>());
+			// 根据执行标准编号查询出标准名称
 			List<String> standard_names = new ArrayList<String>();
 			String cert_standards = product.getCert_standards();
 			String[] strs = cert_standards.split("；");
 			for (int j = 0; j < strs.length; j++) {
 				String cert_standard = strs[j];
-				Bson cert_standard_filters = eq("standard_id", cert_standard);			
-				String standard_name  = client.queryOne("test", "standardization", cert_standard_filters, "standard_name", String.class);
+				Bson cert_standard_filters = eq("standard_id", cert_standard);
+				String standard_name = client.queryOne("test",
+						"standardization", cert_standard_filters,
+						"standard_name", String.class);
 				standard_names.add(standard_name);
 			}
-			//保存产品到数据库
+			// 保存产品到数据库
 			Document d = new Document();
 			d.put("_id", product_id_new);
 			d.put("product_name", product.getProduct_name());
@@ -989,14 +990,80 @@ public class MongoDirver {
 			d.put("cert_standards_ku", standard_names);
 			d.put("certification", certifications);
 			client.addOne("test", "product", d);
-			//保存供应商和产品的id关联映射
+			// 保存供应商和产品的id关联映射
 			Document document = new Document();
 			document.put("gId", company_id_new);
 			document.put("pId", product_id_new);
 			client.addOne("test", "relation", document);
 		}
-			
-		
+
 	}
 
+	/**
+	 * 增加产品
+	 * 
+	 * @param productInfo
+	 * @author zhangyb
+	 */
+	public void addProductInfo(ProductInfo productInfo) {
+		// TODO Auto-generated method stub
+		Document d = new Document();
+		d.put("company_name", productInfo.getCompany_name());
+		d.put("product_identify", productInfo.getProduct_identify());
+		d.put("product_name", productInfo.getProduct_name());
+		d.put("specification", productInfo.getSpecification());
+		d.put("measurement", productInfo.getMeasurement());
+		d.put("material_code", productInfo.getMaterial_code());
+		d.put("business", productInfo.getBusiness());
+
+		client.addOne("test", "productInfo", d);
+	}
+
+	/**
+	 * 按条件查询产品
+	 * @param company_name 企业名称
+	 * @param product_identify 产品标识代码
+	 * @param product_name 产品名称
+	 * @param specification specification
+	 * @return
+	 * @author zhangyb
+	 */
+	public String queryProductInfo(String company_name,String product_identify,String product_name,String specification){
+		List<Bson> condition = new ArrayList<Bson>();
+		if (company_name != null && !company_name.equals(""))
+			condition.add(eq("company_name", company_name));
+		if (product_identify != null && !product_identify.equals(""))
+			condition.add(eq("product_identify", product_identify));
+		if (product_name != null && !product_name.equals(""))
+			condition.add(eq("product_name", product_name));
+		if (specification != null && !specification.equals(""))
+			condition.add(eq("specification", specification));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		List<Document> productInfos = new ArrayList<Document>();
+		productInfos = client.queryList("test", "productInfo", filters,new BasicDBObject()).into(new ArrayList<Document>());
+		int count = client.queryCount("test", "productInfo", filters);
+		Document data = new Document();
+		data.put("count", count);
+		data.put("productInfos", productInfos);
+		return data.toJson();
+	}
+
+	public String  addCode(Code c) {
+		// TODO Auto-generated method stub
+		Document d = new Document();
+		d.put("code", c.getCode());
+		d.put("inner_id", c.getInner_id());
+		d.put("program_time",c.getProgram_time());
+		d.put("purchasing_company", c.getPurchasing_company());
+		d.put("contract_id", c.getContract_id());
+		d.put("product_code",c.getProduct_code() );
+		d.put("materials_name", c.materials_name);
+		d.put("specifications_model", c.specifications_model);
+		d.put("materials_code", c.materials_code);
+		d.put("company", c.company);
+		client.addOne("test", "code", d);
+		return d.toJson();
+	}
 }
