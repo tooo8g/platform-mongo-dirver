@@ -155,6 +155,7 @@ public class MongoDao {
 				.into(new ArrayList<Document>());
 		return cp_detail;
 	}
+
 	/**
 	 * select from where
 	 * 
@@ -478,13 +479,23 @@ public class MongoDao {
 	}
 
 	/**
+	 * 删除多个
+	 * @author zhangyb
+	 * @param db
+	 * @param collection
+	 * @param groupId
+	 */
+	public void deleteMany(String db, String collection,Bson filters) {
+		MongoDatabase database = client.getDatabase(db);
+		MongoCollection<Document> mongocol = database.getCollection(collection);
+		mongocol.deleteMany(filters);		
+	}
+
+	/**
 	 * 关闭连接，放回连接池
 	 */
 	public void close() {
 		client.close();
 	}
 
-	
-
-	
 }

@@ -667,7 +667,7 @@ public class MongoDirver {
 	public void addCertification_menu_tz(Document data) {
 		client.addOne("test", "certification_menu_tz", data);
 	}
-	
+
 	/**
 	 * 增加供应商树形菜单
 	 * 
@@ -1089,21 +1089,27 @@ public class MongoDirver {
 		d.put("specification", productInfo.getSpecification());
 		d.put("measurement", productInfo.getMeasurement());
 		d.put("material_code", productInfo.getMaterial_code());
-		d.put("business", productInfo.getBusiness());
+		d.put("purchasing_company", productInfo.getPurchasing_company());
 
 		client.addOne("test", "productInfo", d);
 	}
 
 	/**
 	 * 按条件查询产品
-	 * @param company_name 企业名称
-	 * @param product_identify 产品标识代码
-	 * @param product_name 产品名称
-	 * @param specification specification
+	 * 
+	 * @param company_name
+	 *            企业名称
+	 * @param product_identify
+	 *            产品标识代码
+	 * @param product_name
+	 *            产品名称
+	 * @param specification
+	 *            specification
 	 * @return
 	 * @author zhangyb
 	 */
-	public String queryProductInfo(String company_name,String product_identify,String product_name,String specification){
+	public String queryProductInfo(String company_name,
+			String product_identify, String product_name, String specification) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
@@ -1117,7 +1123,8 @@ public class MongoDirver {
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
-		productInfos = client.queryList("test", "productInfo", filters,new BasicDBObject()).into(new ArrayList<Document>());
+		productInfos = client.queryList("test", "productInfo", filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
 		int count = client.queryCount("test", "productInfo", filters);
 		Document data = new Document();
 		data.put("count", count);
@@ -1125,20 +1132,82 @@ public class MongoDirver {
 		return data.toJson();
 	}
 
-	public String  addCode(Code c) {
+	/**
+	 * 存库
+	 * 
+	 * @author zhangyb
+	 * @param c
+	 */
+	public void addCode(Code c) {
 		// TODO Auto-generated method stub
 		Document d = new Document();
 		d.put("code", c.getCode());
 		d.put("inner_id", c.getInner_id());
-		d.put("program_time",c.getProgram_time());
+		d.put("program_time", c.getProgram_time());
 		d.put("purchasing_company", c.getPurchasing_company());
 		d.put("contract_id", c.getContract_id());
-		d.put("product_code",c.getProduct_code() );
-		d.put("materials_name", c.materials_name);
-		d.put("specifications_model", c.specifications_model);
-		d.put("materials_code", c.materials_code);
-		d.put("company", c.company);
+		d.put("product_identify", c.getProduct_identify());
+		d.put("product_name", c.getProduct_name());
+		d.put("specification", c.getSpecification());
+		d.put("material_code", c.getMaterial_code());
+		d.put("company_name", c.getCompany_name());
+		d.put("groupId", c.getGroupId());
+		d.put("branchId", c.getBranchId());
 		client.addOne("test", "code", d);
+	}
+
+	/**
+	 * 根据组id(groupId)查询code集合
+	 * 
+	 * @author zhangyb
+	 * @param groupId
+	 * @return
+	 */
+	public String queryCodes(ObjectId groupId, int start, int limit) {
+		// TODO Auto-generated method stub
+		Bson filters = eq("groupId", groupId.toString());
+		List<Document> codes = new ArrayList<Document>();
+		codes = client.queryList("test", "code", filters, null,
+				new BasicDBObject(), start, limit).into(
+				new ArrayList<Document>());
+
+		int count = client.queryCount("test", "code", filters);
+		Document d = new Document();
+		d.put("count", count);
+		d.put("codes", codes);
 		return d.toJson();
 	}
+
+	/**
+	 * 根据组id(groupId)清空数据
+	 * 
+	 * @author zhangyb
+	 * @param groupId
+	 */
+	public void deleteByGroupId(String groupId) {
+		// TODO Auto-generated method stub
+		Bson filters = eq("groupId", groupId);
+		client.deleteMany("test", "code", filters);
+	}
+
+	/**
+	 * 查询code
+	 * @author zhangyb
+	 * @param branchId
+	 * @return
+	 */
+	public String querySingleCode(String branchId) {
+		// TODO Auto-generated method stub
+		ObjectId _id = new ObjectId(branchId);
+		Bson filter = eq("_id",_id);
+		Document d = client.querySingle("test", "productInfo",
+				filter, new BasicDBObject());
+//		List<Document> d = new ArrayList<Document>();
+//		d = client.queryList("test", "productInfo", filter,
+//				new BasicDBObject()).into(new ArrayList<Document>());
+//		Document data = new Document();
+//		data.put("productInfo", d);
+		return d.toJson();
+	}
+
 }

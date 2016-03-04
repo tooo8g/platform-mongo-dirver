@@ -97,7 +97,7 @@ public class CSVIO {
 				productInfo.setSpecification(r.get("DIV"));
 				productInfo.setMeasurement(r.get("DIV"));
 				productInfo.setMaterial_code(r.get("DIV"));
-				productInfo.setBusiness(r.get("DIV"));
+				productInfo.setPurchasing_company(r.get("DIV"));
 				productInfos.add(productInfo);
 			}
 		} catch (Exception e) {
