@@ -165,6 +165,8 @@ public class IMP {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		IMP imp = new IMP();
+		imp.impProductInfo("d://test//company.csv");
 	}
 
 }

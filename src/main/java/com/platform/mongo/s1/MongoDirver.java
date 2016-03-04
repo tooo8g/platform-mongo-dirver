@@ -1109,7 +1109,8 @@ public class MongoDirver {
 	 * @author zhangyb
 	 */
 	public String queryProductInfo(String company_name,
-			String product_identify, String product_name, String specification) {
+			String product_identify, String product_name, String specification,
+			int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
@@ -1123,8 +1124,10 @@ public class MongoDirver {
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
-		productInfos = client.queryList("test", "productInfo", filters,
-				new BasicDBObject()).into(new ArrayList<Document>());
+		productInfos = client.queryList("test", "productInfo", filters, null,
+				new BasicDBObject(), start, limit).into(
+				new ArrayList<Document>());
+
 		int count = client.queryCount("test", "productInfo", filters);
 		Document data = new Document();
 		data.put("count", count);
@@ -1192,6 +1195,7 @@ public class MongoDirver {
 
 	/**
 	 * 查询code
+	 * 
 	 * @author zhangyb
 	 * @param branchId
 	 * @return
@@ -1199,14 +1203,14 @@ public class MongoDirver {
 	public String querySingleCode(String branchId) {
 		// TODO Auto-generated method stub
 		ObjectId _id = new ObjectId(branchId);
-		Bson filter = eq("_id",_id);
-		Document d = client.querySingle("test", "productInfo",
-				filter, new BasicDBObject());
-//		List<Document> d = new ArrayList<Document>();
-//		d = client.queryList("test", "productInfo", filter,
-//				new BasicDBObject()).into(new ArrayList<Document>());
-//		Document data = new Document();
-//		data.put("productInfo", d);
+		Bson filter = eq("_id", _id);
+		Document d = client.querySingle("test", "productInfo", filter,
+				new BasicDBObject());
+		// List<Document> d = new ArrayList<Document>();
+		// d = client.queryList("test", "productInfo", filter,
+		// new BasicDBObject()).into(new ArrayList<Document>());
+		// Document data = new Document();
+		// data.put("productInfo", d);
 		return d.toJson();
 	}
 
