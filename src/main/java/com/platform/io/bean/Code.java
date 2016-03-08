@@ -1,6 +1,6 @@
 package com.platform.io.bean;
 
-import org.bson.types.ObjectId;
+import java.util.Date;
 
 public class Code {
 
@@ -16,6 +16,8 @@ public class Code {
 	public String company_name;// 企业名称.
 	public String groupId;// 组Id
 	public String branchId;// 关联Id
+	public String state;// 状态
+	public Date add_time;
 
 	public String getCode() {
 		return code;
@@ -111,6 +113,22 @@ public class Code {
 
 	public void setBranchId(String branchId) {
 		this.branchId = branchId;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public Date getAdd_time() {
+		return add_time;
+	}
+
+	public void setAdd_time(Date add_time) {
+		this.add_time = add_time;
 	}
 
 	@Override

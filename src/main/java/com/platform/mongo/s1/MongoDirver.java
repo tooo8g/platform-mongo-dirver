@@ -1090,7 +1090,7 @@ public class MongoDirver {
 		d.put("measurement", productInfo.getMeasurement());
 		d.put("material_code", productInfo.getMaterial_code());
 		d.put("purchasing_company", productInfo.getPurchasing_company());
-
+		d.put("add_time", productInfo.getAdd_time());
 		client.addOne("test", "productInfo", d);
 	}
 
@@ -1125,7 +1125,7 @@ public class MongoDirver {
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
 		productInfos = client.queryList("test", "productInfo", filters, null,
-				new BasicDBObject(), start, limit).into(
+				new BasicDBObject("add_time",-1), start, limit).into(
 				new ArrayList<Document>());
 
 		int count = client.queryCount("test", "productInfo", filters);
@@ -1156,6 +1156,7 @@ public class MongoDirver {
 		d.put("company_name", c.getCompany_name());
 		d.put("groupId", c.getGroupId());
 		d.put("branchId", c.getBranchId());
+		d.put("add_time", c.getAdd_time());
 		client.addOne("test", "code", d);
 	}
 
@@ -1171,7 +1172,7 @@ public class MongoDirver {
 		Bson filters = eq("groupId", groupId.toString());
 		List<Document> codes = new ArrayList<Document>();
 		codes = client.queryList("test", "code", filters, null,
-				new BasicDBObject(), start, limit).into(
+				new BasicDBObject("add_time",-1), start, limit).into(
 				new ArrayList<Document>());
 
 		int count = client.queryCount("test", "code", filters);
@@ -1211,6 +1212,48 @@ public class MongoDirver {
 		// new BasicDBObject()).into(new ArrayList<Document>());
 		// Document data = new Document();
 		// data.put("productInfo", d);
+		return d.toJson();
+	}
+
+	/**
+	 * 序列号信息查询
+	 * 
+	 * @author zhangyb
+	 * @param contract_id
+	 * @param state
+	 * @param program_time
+	 * @param purchasing_company
+	 * @param company_name
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	public String queryAllCode(String contract_id, String state,
+			String program_time, String purchasing_company,
+			String company_name, int start, int limit) {
+		// TODO Auto-generated method stub
+		List<Bson> condition = new ArrayList<Bson>();
+		if (contract_id != null && !contract_id.equals(""))
+			condition.add(eq("contract_id", contract_id));
+		if (state != null && !state.equals(""))
+			condition.add(eq("state", state));
+		if (program_time != null && !program_time.equals(""))
+			condition.add(eq("program_time", program_time));
+		if (purchasing_company != null && !purchasing_company.equals(""))
+			condition.add(eq("purchasing_company", purchasing_company));
+		if (company_name != null && !company_name.equals(""))
+			condition.add(eq("company_name", company_name));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		List<Document> codes = new ArrayList<Document>();
+		codes = client.queryList("test", "code", filters, null,
+				new BasicDBObject("add_time",-1), start, limit).into(
+				new ArrayList<Document>());
+		int count = client.queryCount("test", "code", filters);
+		Document d = new Document();
+		d.put("count", count);
+		d.put("codes", codes);
 		return d.toJson();
 	}
 

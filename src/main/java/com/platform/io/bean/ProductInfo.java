@@ -1,5 +1,7 @@
 package com.platform.io.bean;
 
+import java.util.Date;
+
 /**
  * 
  * @author zhangyb
@@ -20,6 +22,8 @@ public class ProductInfo {
 	public String material_code;
 	// 所属路局/所属采购单位
 	public String purchasing_company;
+	// 添加时间
+	public Date add_time;
 
 	public String getCompany_name() {
 		return company_name;
@@ -75,6 +79,14 @@ public class ProductInfo {
 
 	public void setPurchasing_company(String purchasing_company) {
 		this.purchasing_company = purchasing_company;
+	}
+
+	public Date getAdd_time() {
+		return add_time;
+	}
+
+	public void setAdd_time(Date add_time) {
+		this.add_time = add_time;
 	}
 
 	@Override
