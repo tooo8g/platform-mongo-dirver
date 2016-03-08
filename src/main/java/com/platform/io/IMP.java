@@ -173,7 +173,7 @@ public class IMP {
 	 */
 	public static void main(String[] args) {
 		IMP imp = new IMP();
-		imp.impPurchaseBidding("e://test//b2.csv");
+		imp.impPurchaseBidding("e://test//b3.csv");//招标采购信息
 	}
 
 }
