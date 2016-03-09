@@ -21,9 +21,11 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
+import com.platform.io.bean.Code;
 import com.platform.io.bean.OrderOrContract;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
+import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Purchasing;
 import com.platform.io.bean.Standardization;
@@ -1174,6 +1176,184 @@ public class MongoDirver {
 		 client.deleteOne("test","supply", paramFilters);
 		 addOrderOrContract(contract,null);
 	}
-	
+	/**
+	 * 增加产品
+	 * 
+	 * @param productInfo
+	 * @author zhangyb
+	 */
+	public void addProductInfo(ProductInfo productInfo) {
+		// TODO Auto-generated method stub
+		Document d = new Document();
+		d.put("company_name", productInfo.getCompany_name());
+		d.put("product_identify", productInfo.getProduct_identify());
+		d.put("product_name", productInfo.getProduct_name());
+		d.put("specification", productInfo.getSpecification());
+		d.put("measurement", productInfo.getMeasurement());
+		d.put("material_code", productInfo.getMaterial_code());
+		d.put("purchasing_company", productInfo.getPurchasing_company());
+		d.put("add_time", productInfo.getAdd_time());
+		client.addOne("test", "productInfo", d);
+	}
+
+	/**
+	 * 按条件查询产品
+	 * 
+	 * @param company_name
+	 *            企业名称
+	 * @param product_identify
+	 *            产品标识代码
+	 * @param product_name
+	 *            产品名称
+	 * @param specification
+	 *            specification
+	 * @return
+	 * @author zhangyb
+	 */
+	public String queryProductInfo(String company_name, String product_identify, String product_name,
+			String specification, int start, int limit) {
+		List<Bson> condition = new ArrayList<Bson>();
+		if (company_name != null && !company_name.equals(""))
+			condition.add(eq("company_name", company_name));
+		if (product_identify != null && !product_identify.equals(""))
+			condition.add(eq("product_identify", product_identify));
+		if (product_name != null && !product_name.equals(""))
+			condition.add(eq("product_name", product_name));
+		if (specification != null && !specification.equals(""))
+			condition.add(eq("specification", specification));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		List<Document> productInfos = new ArrayList<Document>();
+		productInfos = client
+				.queryList("test", "productInfo", filters, null, new BasicDBObject("add_time", -1), start, limit)
+				.into(new ArrayList<Document>());
+
+		int count = client.queryCount("test", "productInfo", filters);
+		Document data = new Document();
+		data.put("count", count);
+		data.put("productInfos", productInfos);
+		return data.toJson();
+	}
+
+	/**
+	 * 存库
+	 * 
+	 * @author zhangyb
+	 * @param c
+	 */
+	public void addCode(Code c) {
+		// TODO Auto-generated method stub
+		Document d = new Document();
+		d.put("code", c.getCode());
+		d.put("inner_id", c.getInner_id());
+		d.put("program_time", c.getProgram_time());
+		d.put("purchasing_company", c.getPurchasing_company());
+		d.put("contract_id", c.getContract_id());
+		d.put("product_identify", c.getProduct_identify());
+		d.put("product_name", c.getProduct_name());
+		d.put("specification", c.getSpecification());
+		d.put("material_code", c.getMaterial_code());
+		d.put("company_name", c.getCompany_name());
+		d.put("groupId", c.getGroupId());
+		d.put("branchId", c.getBranchId());
+		d.put("add_time", c.getAdd_time());
+		client.addOne("test", "code", d);
+	}
+
+	/**
+	 * 根据组id(groupId)查询code集合
+	 * 
+	 * @author zhangyb
+	 * @param groupId
+	 * @return
+	 */
+	public String queryCodes(ObjectId groupId, int start, int limit) {
+		// TODO Auto-generated method stub
+		Bson filters = eq("groupId", groupId.toString());
+		List<Document> codes = new ArrayList<Document>();
+		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
+				.into(new ArrayList<Document>());
+
+		int count = client.queryCount("test", "code", filters);
+		Document d = new Document();
+		d.put("count", count);
+		d.put("codes", codes);
+		return d.toJson();
+	}
+
+	/**
+	 * 根据组id(groupId)清空数据
+	 * 
+	 * @author zhangyb
+	 * @param groupId
+	 */
+	public void deleteByGroupId(String groupId) {
+		// TODO Auto-generated method stub
+		Bson filters = eq("groupId", groupId);
+		client.deleteMany("test", "code", filters);
+	}
+
+	/**
+	 * 查询code
+	 * 
+	 * @author zhangyb
+	 * @param branchId
+	 * @return
+	 */
+	public String querySingleCode(String branchId) {
+		// TODO Auto-generated method stub
+		ObjectId _id = new ObjectId(branchId);
+		Bson filter = eq("_id", _id);
+		Document d = client.querySingle("test", "productInfo", filter, new BasicDBObject());
+		// List<Document> d = new ArrayList<Document>();
+		// d = client.queryList("test", "productInfo", filter,
+		// new BasicDBObject()).into(new ArrayList<Document>());
+		// Document data = new Document();
+		// data.put("productInfo", d);
+		return d.toJson();
+	}
+
+	/**
+	 * 序列号信息查询
+	 * 
+	 * @author zhangyb
+	 * @param contract_id
+	 * @param state
+	 * @param program_time
+	 * @param purchasing_company
+	 * @param company_name
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	public String queryAllCode(String contract_id, String state, String program_time, String purchasing_company,
+			String company_name, int start, int limit) {
+		// TODO Auto-generated method stub
+		List<Bson> condition = new ArrayList<Bson>();
+		if (contract_id != null && !contract_id.equals(""))
+			condition.add(eq("contract_id", contract_id));
+		if (state != null && !state.equals(""))
+			condition.add(eq("state", state));
+		if (program_time != null && !program_time.equals(""))
+			condition.add(eq("program_time", program_time));
+		if (purchasing_company != null && !purchasing_company.equals(""))
+			condition.add(eq("purchasing_company", purchasing_company));
+		if (company_name != null && !company_name.equals(""))
+			condition.add(eq("company_name", company_name));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		List<Document> codes = new ArrayList<Document>();
+		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
+				.into(new ArrayList<Document>());
+		int count = client.queryCount("test", "code", filters);
+		Document d = new Document();
+		d.put("count", count);
+		d.put("codes", codes);
+		return d.toJson();
+	}
 
 }
+
+

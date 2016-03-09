@@ -10,6 +10,7 @@ import org.bson.Document;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
+import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.TreeStruct;
@@ -91,13 +92,6 @@ public class IMP {
 		md.close();
 	}
 
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * 价格
 	 * 
@@ -169,11 +163,26 @@ public class IMP {
 	}
 
 	/**
+	 * 产品标识代码
+	 * 
+	 * @param fileName
+	 * @author zhangyb
+	 */
+	public void impProductInfo(String fileName) {
+		List<ProductInfo> list = CSVIO.readProductInfo(fileName);
+		MongoDirver md = new MongoDirver();
+		for (int i = 0; i < list.size(); i++) {
+			md.addProductInfo(list.get(i));
+		}
+
+		md.close();
+	}
+
+	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		IMP imp = new IMP();
-		imp.impPurchaseBidding("e://test//b3.csv");//招标采购信息
+		imp.impProductInfo("d://test//company.csv");
 	}
-
 }
