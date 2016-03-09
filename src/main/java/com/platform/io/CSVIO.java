@@ -2,6 +2,7 @@ package com.platform.io;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.csvreader.CsvReader;
@@ -134,7 +135,8 @@ public class CSVIO {
 				productInfo.setSpecification(r.get("DIV"));
 				productInfo.setMeasurement(r.get("DIV"));
 				productInfo.setMaterial_code(r.get("DIV"));
-				productInfo.setBusiness(r.get("DIV"));
+				productInfo.setPurchasing_company(r.get("DIV"));
+				productInfo.setAdd_time(new Date());
 				productInfos.add(productInfo);
 			}
 		} catch (Exception e) {

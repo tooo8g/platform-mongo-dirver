@@ -1,5 +1,7 @@
 package com.platform.io.bean;
 
+import java.util.Date;
+
 public class Code {
 
 	public String code;// 编码
@@ -7,11 +9,15 @@ public class Code {
 	public String program_time;// 编制时间
 	public String purchasing_company;// 采购单位
 	public String contract_id;// 订单合同编号
-	public String product_code;// 产品标示代码
-	public String materials_name;// 产品名称
-	public String specifications_model;// 规格型号
-	public String materials_code;// 物资编码
-	public String company;// 企业名称
+	public String product_identify;// 产品标示代码
+	public String product_name;// 产品名称
+	public String specification;// 规格型号.
+	public String material_code;// 物资编码
+	public String company_name;// 企业名称.
+	public String groupId;// 组Id
+	public String branchId;// 关联Id
+	public String state;// 状态
+	public Date add_time;
 
 	public String getCode() {
 		return code;
@@ -53,44 +59,76 @@ public class Code {
 		this.contract_id = contract_id;
 	}
 
-	public String getProduct_code() {
-		return product_code;
+	public String getProduct_identify() {
+		return product_identify;
 	}
 
-	public void setProduct_code(String product_code) {
-		this.product_code = product_code;
+	public void setProduct_identify(String product_identify) {
+		this.product_identify = product_identify;
 	}
 
-	public String getMaterials_name() {
-		return materials_name;
+	public String getProduct_name() {
+		return product_name;
 	}
 
-	public void setMaterials_name(String materials_name) {
-		this.materials_name = materials_name;
+	public void setProduct_name(String product_name) {
+		this.product_name = product_name;
 	}
 
-	public String getSpecifications_model() {
-		return specifications_model;
+	public String getSpecification() {
+		return specification;
 	}
 
-	public void setSpecifications_model(String specifications_model) {
-		this.specifications_model = specifications_model;
+	public void setSpecification(String specification) {
+		this.specification = specification;
 	}
 
-	public String getMaterials_code() {
-		return materials_code;
+	public String getMaterial_code() {
+		return material_code;
 	}
 
-	public void setMaterials_code(String materials_code) {
-		this.materials_code = materials_code;
+	public void setMaterial_code(String material_code) {
+		this.material_code = material_code;
 	}
 
-	public String getCompany() {
-		return company;
+	public String getCompany_name() {
+		return company_name;
 	}
 
-	public void setCompany(String company) {
-		this.company = company;
+	public void setCompany_name(String company_name) {
+		this.company_name = company_name;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public String getBranchId() {
+		return branchId;
+	}
+
+	public void setBranchId(String branchId) {
+		this.branchId = branchId;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public Date getAdd_time() {
+		return add_time;
+	}
+
+	public void setAdd_time(Date add_time) {
+		this.add_time = add_time;
 	}
 
 	@Override
