@@ -26,6 +26,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -414,7 +416,6 @@ public class MongoDao {
 		MongoCollection<Document> mongocol = database.getCollection(collection);
 		mongocol.updateOne(filters, new Document("$set", values));
 	}
-
 	/**
 	 * 存储文件
 	 * 
@@ -476,6 +477,20 @@ public class MongoDao {
 		// e.printStackTrace();
 		// }
 	}
+	
+	/**
+	 * 删除数据
+	 * @author niyn
+	 * @param db
+	 * @param collection
+	 * @param filters
+	 */
+	public void deleteOne(String db,String collection,Bson filters){
+		MongoDatabase database = client.getDatabase(db);
+		MongoCollection<Document> mongocol = database.getCollection(collection);
+		mongocol.deleteOne(filters);
+	}
+	
 
 	/**
 	 * 关闭连接，放回连接池

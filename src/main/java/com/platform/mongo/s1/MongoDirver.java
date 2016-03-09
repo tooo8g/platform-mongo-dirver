@@ -18,14 +18,18 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Code;
+import com.platform.io.bean.OrderOrContract;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
 import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.PurchaseBidding;
+import com.platform.io.bean.Purchasing;
 import com.platform.io.bean.Standardization;
+import com.platform.io.bean.Supply;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
 
@@ -484,6 +488,7 @@ public class MongoDirver {
 	/**
 	 * 增加招标采购信息
 	 * 
+	 * @author niyn
 	 * @param cgbh
 	 *            采购编号
 	 * @param cgmc
@@ -522,8 +527,8 @@ public class MongoDirver {
 	/**
 	 * 查询招标采购信息
 	 * 
+	 * @author niyn
 	 * @param str
-	 *            关键字
 	 * @param skip
 	 * @param limit
 	 * @return
@@ -1089,78 +1094,183 @@ public class MongoDirver {
 	}
 
 	/**
-	 * 增加产品
+	 * 新增合同/订单
 	 * 
-	 * @param productInfo
-	 * @author zhangyb
+	 * @author niyn
+	 * @param orderContracts
 	 */
-	public void addProductInfo(ProductInfo productInfo) {
-		// TODO Auto-generated method stub
+	public void addOrderOrContract(OrderOrContract orderOrContracts,
+			String user_id) {
 		Document d = new Document();
-		d.put("company_name", productInfo.getCompany_name());
-		d.put("product_identify", productInfo.getProduct_identify());
-		d.put("product_name", productInfo.getProduct_name());
-		d.put("specification", productInfo.getSpecification());
-		d.put("measurement", productInfo.getMeasurement());
-		d.put("material_code", productInfo.getMaterial_code());
-		d.put("business", productInfo.getBusiness());
+		List<Purchasing> purchasingList = null;
+		List<Supply> supplyList = null;
+		Bson _idfilters = and(eq("contract_id",
+				orderOrContracts.getContract_id()));
+		ObjectId objectId = client.queryOne("test", "contract", _idfilters,
+				"_id", ObjectId.class);
+		// if(objectId!=null){
+		// return ;
+		// }
+		ObjectId _id = new ObjectId();
+		d.put("_id", _id);
+		d.put("contract_id", orderOrContracts.getContract_id());
+		d.put("company_name", orderOrContracts.getCompany_name());
+		d.put("purchasing_company", orderOrContracts.getPurchasing_company());
+		d.put("user_id", user_id);
+		d.put("add_time", new Date());
+		d.put("edit_time", new Date());
+		client.addOne("test", "contract", d);
 
-		client.addOne("test", "productInfo", d);
+		// 订货明细
+		purchasingList = orderOrContracts.getPurchasing();
+		for (Purchasing purchasing : purchasingList) {
+			Document p = new Document();
+			p.put("p_id", _id);
+			p.put("material_code", purchasing.getMaterial_code());
+			p.put("material_name", purchasing.getMaterial_name());
+			p.put("specification", purchasing.getSpecification());
+			p.put("measurement", purchasing.getMeasurement());
+			p.put("num", purchasing.getNum());
+			p.put("price", purchasing.getPrice());
+			p.put("total_price", purchasing.getTotal_price());
+			p.put("company", purchasing.getCompany());
+			client.addOne("test", "purchasing", p);
+		}
+
+		// 供货计划
+		supplyList = orderOrContracts.getSupply();
+		for (Supply supply : supplyList) {
+			Document c = new Document();
+			c.put("p_id", _id);
+			c.put("material_code", supply.getMaterial_code());
+			c.put("material_name", supply.getMaterial_name());
+			c.put("specification", supply.getSpecification());
+			c.put("measurement", supply.getMeasurement());
+			c.put("num", supply.getNum());
+			c.put("supply_time", supply.getSupply_time());
+			c.put("address", supply.getAddress());
+			c.put("person", supply.getPerson());
+			client.addOne("test", "supply", c);
+		}
+		client.close();
 	}
 
 	/**
-	 * 按条件查询产品
+	 * 查询订单号/合同号列表
 	 * 
-	 * @param company_name
-	 *            企业名称
-	 * @param product_identify
-	 *            产品标识代码
-	 * @param product_name
-	 *            产品名称
-	 * @param specification
-	 *            specification
+	 * @author niyn
+	 * @param str
+	 * @param start
+	 * @param limit
 	 * @return
-	 * @author zhangyb
 	 */
-	public String queryProductInfo(String company_name,
-			String product_identify, String product_name, String specification) {
+	public String queryOrderOrContract(String contract_id,
+			String purchasing_company, String company_name, int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
-		if (company_name != null && !company_name.equals(""))
+		if (contract_id != null && !("").equals(contract_id))
+			condition.add(eq("contract_id", contract_id));
+		if (purchasing_company != null && !("").equals(purchasing_company))
+			condition.add(eq("purchasing_company", purchasing_company));
+		if (company_name != null && !("").equals(company_name))
 			condition.add(eq("company_name", company_name));
-		if (product_identify != null && !product_identify.equals(""))
-			condition.add(eq("product_identify", product_identify));
-		if (product_name != null && !product_name.equals(""))
-			condition.add(eq("product_name", product_name));
-		if (specification != null && !specification.equals(""))
-			condition.add(eq("specification", specification));
 		Bson filters = null;
 		if (condition.size() > 0)
 			filters = and(condition);
-		List<Document> productInfos = new ArrayList<Document>();
-		productInfos = client.queryList("test", "productInfo", filters,
-				new BasicDBObject()).into(new ArrayList<Document>());
-		int count = client.queryCount("test", "productInfo", filters);
+		int count = client.queryCount("test", "contract", filters);
+		List<Document> orderOrContractList = client.queryList("test",
+				"contract", filters, new BasicDBObject("_id", 0),
+				new BasicDBObject("add_time", -1), start, limit).into(
+				new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
-		data.put("productInfos", productInfos);
+		data.put("bzxx", orderOrContractList);
 		return data.toJson();
 	}
 
-	public String addCode(Code c) {
-		// TODO Auto-generated method stub
-		Document d = new Document();
-		d.put("code", c.getCode());
-		d.put("inner_id", c.getInner_id());
-		d.put("program_time", c.getProgram_time());
-		d.put("purchasing_company", c.getPurchasing_company());
-		d.put("contract_id", c.getContract_id());
-		d.put("product_code", c.getProduct_code());
-		d.put("materials_name", c.materials_name);
-		d.put("specifications_model", c.specifications_model);
-		d.put("materials_code", c.materials_code);
-		d.put("company", c.company);
-		client.addOne("test", "code", d);
-		return d.toJson();
+	/**
+	 * 查询订单号/合同号详情
+	 * 
+	 * @author niyn
+	 * @param _id
+	 * @return
+	 */
+	public String queryOrderOrContractDetail(String contract_id) {
+		Bson _idfilters = and(eq("contract_id", contract_id));
+		List<Document> contractList = client.queryList("test", "contract",
+				_idfilters, new BasicDBObject())
+				.into(new ArrayList<Document>());
+		ObjectId objectId = client.queryOne("test", "contract", _idfilters,
+				"_id", ObjectId.class);
+
+		Bson filters = and(eq("p_id", objectId));
+		List<Document> purchasingList = client.queryList("test", "purchasing",
+				filters, new BasicDBObject()).into(new ArrayList<Document>());
+		List<Document> supplyList = client.queryList("test", "supply", filters,
+				new BasicDBObject()).into(new ArrayList<Document>());
+
+		// 查询已编制序列号数量
+		for (Document d : supplyList) {
+			Bson codeFilters = and(eq("groupId", d.get("_id").toString()));
+			int codeCount = client.queryCount("test", "code", codeFilters);
+			d.put("code_num", codeCount);
+		}
+
+		Document data = new Document();
+		data.put("bzxx", contractList);
+		data.put("purchasing", purchasingList);
+		data.put("supply", supplyList);
+		return data.toJson();
+	}
+
+	/**
+	 * 查询订货详情
+	 * 
+	 * @author niyn
+	 * @param materialCode
+	 * @return
+	 */
+	public String queryPurchasingByCode(String materialCode) {
+		Bson filters = and(eq("material_code", materialCode));
+		List<Document> purchasingList = client.queryList("test", "purchasing",
+				filters, new BasicDBObject("material_code", 0)).into(
+				new ArrayList<Document>());
+		Document data = new Document();
+		data.put("bzxx", purchasingList);
+		return data.toJson();
+	}
+
+	/**
+	 * 查询供货详情
+	 * 
+	 * @author niyn
+	 * @param materialCode
+	 * @return
+	 */
+	public String querySupplyDetailByCode(String materialCode) {
+		Bson filters = and(eq("material_code", materialCode));
+		List<Document> supplyList = client.queryList("test", "supply", filters,
+				new BasicDBObject("material_code", 0)).into(
+				new ArrayList<Document>());
+		Document data = new Document();
+		data.put("bzxx", supplyList);
+		return data.toJson();
+	}
+
+	/**
+	 * 更新订单/合同(先删除再添加)
+	 * 
+	 * @author niyn
+	 * @param contract_id
+	 */
+	public void updateOrderOrContract(OrderOrContract contract) {
+		Bson filters = and(eq("contract_id", contract.getContract_id()));
+		ObjectId objectId = client.queryOne("test", "contract", filters, "_id",
+				ObjectId.class);
+		client.deleteOne("test", "contract", filters);
+		Bson paramFilters = and(eq("p_id", objectId));
+		client.deleteOne("test", "purchasing", paramFilters);
+		client.deleteOne("test", "supply", paramFilters);
+		addOrderOrContract(contract, null);
 	}
 
 }
