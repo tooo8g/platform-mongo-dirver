@@ -1029,15 +1029,14 @@ public class MongoDirver {
 		List<Supply> supplyList = null;
 		Bson _idfilters = and(eq("contract_id",orderOrContracts.getContract_id()));
 		ObjectId objectId = client.queryOne("test", "contract", _idfilters, "_id",ObjectId.class);
-		if(objectId!=null){
-			return ;
-		}
+//		if(objectId!=null){
+//			return ;
+//		}
 		ObjectId _id = new ObjectId();
 		d.put("_id", _id);
 		d.put("contract_id", orderOrContracts.getContract_id());
 		d.put("company_name", orderOrContracts.getCompany_name());
 		d.put("purchasing_company", orderOrContracts.getPurchasing_company());
-		d.put("user_id", orderOrContracts.getUser_id());
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
 		client.addOne("test", "contract", d);

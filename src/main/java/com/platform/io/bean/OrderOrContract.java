@@ -10,7 +10,6 @@ public class OrderOrContract {
 	private String contract_id;//订单、合同号
 	private String company_name;//企业名称
 	private String purchasing_company;//采购单位
-	private String user_id;//编制用户
 	private Date add_time;//增加时间
 	private String edit_time;//编辑时间
 	
@@ -57,14 +56,7 @@ public class OrderOrContract {
 		this.purchasing_company = purchasing_company;
 	}
 
-	public String getUser_id() {
-		return user_id;
-	}
-
-	public void setUser_id(String user_id) {
-		this.user_id = user_id;
-	}
-	public Date getAdd_time() {
+	public Date getAdd_time() {
 		return add_time;
 	}
 	public void setAdd_time(Date add_time) {
