@@ -11,9 +11,16 @@ public class Supply {
 	private String supply_time;//交货时间
 	private String address;//交货地点
 	private String person;//收货人
+	private String code_num;//已编制的序列号数量
 	
 	
 	
+	public String getCode_num() {
+		return code_num;
+	}
+	public void setCode_num(String code_num) {
+		this.code_num = code_num;
+	}
 	public String getNum() {
 		return num;
 	}

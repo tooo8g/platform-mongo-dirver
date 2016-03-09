@@ -1097,6 +1097,18 @@ public class MongoDirver {
 			filters = and(condition);
 		int count = client.queryCount("test", "contract", filters);
 		List<Document>  orderOrContractList = client.queryList("test", "contract", filters, new BasicDBObject("_id",0),new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());	
+		
+		//查询已编制序列号数量
+		Bson codeFilters = and(eq("contract_id", contract_id));
+		int codeCount = client.queryCount("test", "code", codeFilters);
+		//把已编制序列号数量封装到orderOrContractList数据集合中
+		for (Document d : orderOrContractList) {
+			if(d.get("contract_id").equals(contract_id)){
+				System.out.println("===============================================================");
+			}
+		}
+		
+		
 		Document data = new Document();
 		data.put("count", count);
 		data.put("bzxx",orderOrContractList);
