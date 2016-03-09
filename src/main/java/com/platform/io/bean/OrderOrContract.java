@@ -12,7 +12,15 @@ public class OrderOrContract {
 	private String purchasing_company;//采购单位
 	private Date add_time;//增加时间
 	private String edit_time;//编辑时间
+	private String user_id;//编制人员
 	
+	public String getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
+	}
+
 	private List<Purchasing> purchasing;
 	private List<Supply> supply;
 	

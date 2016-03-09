@@ -1023,7 +1023,7 @@ public class MongoDirver {
 	 * @author niyn
 	 * @param orderContracts
 	 */
-	public void addOrderOrContract(OrderOrContract orderOrContracts) {
+	public void addOrderOrContract(OrderOrContract orderOrContracts,String user_id) {
 		Document d = new Document();
 		List<Purchasing> purchasingList = null;
 		List<Supply> supplyList = null;
@@ -1037,6 +1037,7 @@ public class MongoDirver {
 		d.put("contract_id", orderOrContracts.getContract_id());
 		d.put("company_name", orderOrContracts.getCompany_name());
 		d.put("purchasing_company", orderOrContracts.getPurchasing_company());
+		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
 		client.addOne("test", "contract", d);
@@ -1097,18 +1098,9 @@ public class MongoDirver {
 			filters = and(condition);
 		int count = client.queryCount("test", "contract", filters);
 		List<Document>  orderOrContractList = client.queryList("test", "contract", filters, new BasicDBObject("_id",0),new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());	
-		
-		//查询已编制序列号数量
-		//把已编制序列号数量封装到orderOrContractList数据集合中
-		for (Document d : orderOrContractList) {
-			Bson codeFilters = and(eq("contract_id",(String) d.get("contract_id") ));
-			int codeCount = client.queryCount("test", "code", codeFilters);
-			d.put("code_num", codeCount);
-		}
 		Document data = new Document();
 		data.put("count", count);
 		data.put("bzxx",orderOrContractList);
-		System.out.println(data);
 		return data.toJson();
 	}
 	
@@ -1124,12 +1116,20 @@ public class MongoDirver {
 		ObjectId objectId = client.queryOne("test", "contract", _idfilters, "_id",ObjectId.class);
 		
 		Bson filters = and(eq("p_id",objectId));
-		List<Document> purchasingList = client.queryList("test", "purchasing", filters,  new BasicDBObject("material_code",0)).into(new ArrayList<Document>());
-		List<Document> supplyList = client.queryList("test","supply" , filters,new BasicDBObject("material_code",0)).into(new ArrayList<Document>());
+		List<Document> purchasingList = client.queryList("test", "purchasing", filters,  new BasicDBObject()).into(new ArrayList<Document>());
+		List<Document> supplyList = client.queryList("test","supply" , filters,new BasicDBObject()).into(new ArrayList<Document>());
+		
+		//查询已编制序列号数量
+			for (Document d : supplyList) {
+				Bson codeFilters = and(eq("groupId",d.get("_id").toString() ));
+				int codeCount = client.queryCount("test", "code", codeFilters);
+				d.put("code_num", codeCount);
+			}
+
 		Document data = new Document();
 		data.put("bzxx",contractList);
-		data.put("purchasingList", purchasingList);
-		data.put("supplyList", supplyList);
+		data.put("purchasing", purchasingList);
+		data.put("supply", supplyList);
 		return data.toJson();
 	}
 	/**
@@ -1172,7 +1172,7 @@ public class MongoDirver {
 		 Bson paramFilters = and( eq("p_id",objectId));
 		 client.deleteOne("test","purchasing", paramFilters);
 		 client.deleteOne("test","supply", paramFilters);
-		 addOrderOrContract(contract);
+		 addOrderOrContract(contract,null);
 	}
 	
 
