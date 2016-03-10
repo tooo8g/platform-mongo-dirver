@@ -480,7 +480,7 @@ public class MongoDao {
 	
 	/**
 	 * 删除数据
-	 * @author niyn、zhangyb
+	 * @author niyn
 	 * @param db
 	 * @param collection
 	 * @param filters
