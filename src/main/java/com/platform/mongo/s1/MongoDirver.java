@@ -1125,7 +1125,7 @@ public class MongoDirver {
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
 		productInfos = client.queryList("test", "productInfo", filters, null,
-				new BasicDBObject("add_time",-1), start, limit).into(
+				new BasicDBObject("add_time", -1), start, limit).into(
 				new ArrayList<Document>());
 
 		int count = client.queryCount("test", "productInfo", filters);
@@ -1154,8 +1154,8 @@ public class MongoDirver {
 		d.put("specification", c.getSpecification());
 		d.put("material_code", c.getMaterial_code());
 		d.put("company_name", c.getCompany_name());
-		d.put("groupId", c.getGroupId());
-		d.put("branchId", c.getBranchId());
+		d.put("group_id", c.getGroup_id());
+		d.put("branch_id", c.getBranch_id());
 		d.put("add_time", c.getAdd_time());
 		client.addOne("test", "code", d);
 	}
@@ -1167,12 +1167,12 @@ public class MongoDirver {
 	 * @param groupId
 	 * @return
 	 */
-	public String queryCodes(ObjectId groupId, int start, int limit) {
+	public String queryCodes(ObjectId group_id, int start, int limit) {
 		// TODO Auto-generated method stub
-		Bson filters = eq("groupId", groupId.toString());
+		Bson filters = eq("group_id", group_id);
 		List<Document> codes = new ArrayList<Document>();
 		codes = client.queryList("test", "code", filters, null,
-				new BasicDBObject("add_time",-1), start, limit).into(
+				new BasicDBObject("add_time", -1), start, limit).into(
 				new ArrayList<Document>());
 
 		int count = client.queryCount("test", "code", filters);
@@ -1188,9 +1188,10 @@ public class MongoDirver {
 	 * @author zhangyb
 	 * @param groupId
 	 */
-	public void deleteByGroupId(String groupId) {
+	public void deleteByGroupId(String group_id) {
 		// TODO Auto-generated method stub
-		Bson filters = eq("groupId", groupId);
+		ObjectId groupId = new ObjectId(group_id);
+		Bson filters = eq("group_id", groupId);
 		client.deleteMany("test", "code", filters);
 	}
 
@@ -1198,12 +1199,12 @@ public class MongoDirver {
 	 * 查询code
 	 * 
 	 * @author zhangyb
-	 * @param branchId
+	 * @param branch_id
 	 * @return
 	 */
-	public String querySingleCode(String branchId) {
+	public String querySingleCode(String branch_id) {
 		// TODO Auto-generated method stub
-		ObjectId _id = new ObjectId(branchId);
+		ObjectId _id = new ObjectId(branch_id);
 		Bson filter = eq("_id", _id);
 		Document d = client.querySingle("test", "productInfo", filter,
 				new BasicDBObject());
@@ -1238,7 +1239,8 @@ public class MongoDirver {
 		if (state != null && !state.equals(""))
 			condition.add(eq("state", state));
 		if (program_time != null && !program_time.equals(""))
-			condition.add(eq("program_time", program_time));
+			condition
+					.add(eq("program_time", TimeUtil.parserTime(program_time)));
 		if (purchasing_company != null && !purchasing_company.equals(""))
 			condition.add(eq("purchasing_company", purchasing_company));
 		if (company_name != null && !company_name.equals(""))
@@ -1248,7 +1250,7 @@ public class MongoDirver {
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
 		codes = client.queryList("test", "code", filters, null,
-				new BasicDBObject("add_time",-1), start, limit).into(
+				new BasicDBObject("inner_id", -1), start, limit).into(
 				new ArrayList<Document>());
 		int count = client.queryCount("test", "code", filters);
 		Document d = new Document();
