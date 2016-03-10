@@ -181,14 +181,14 @@ public class IMP {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if (args[0] != null && args[0].equals("imp")) {
-			if (args[1] != null && args[1].equals("pb")) {
-				IMP imp = new IMP();
-				imp.impPurchaseBidding(args[2]);
-			}
-		}
-		// IMP imp = new IMP();
-		// imp.impProductInfo("d://test//company.csv");
+//		if (args[0] != null && args[0].equals("imp")) {
+//			if (args[1] != null && args[1].equals("pb")) {
+//				IMP imp = new IMP();
+//				imp.impPurchaseBidding(args[2]);
+//			}
+//		}
+		IMP imp = new IMP();
+		imp.impProductInfo("d://test//productInfo.csv");
 	}
 
 }

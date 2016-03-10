@@ -1392,7 +1392,7 @@ public class MongoDirver {
 		// TODO Auto-generated method stub
 		ObjectId groupId = new ObjectId(group_id);
 		Bson filters = eq("group_id", groupId);
-//		client.deleteMany("test", "code", filters);
+		client.deleteMany("test", "code", filters);
 	}
 
 	/**
