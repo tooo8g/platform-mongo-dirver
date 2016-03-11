@@ -16,7 +16,7 @@ public class Code {
 	public String company_name;// 企业名称.
 	public String groupId;// 组Id
 	public String branchId;// 关联Id
-	public String state;// 状态
+	public String state;// 状态  0-未打印 1-已打印（默认是未打印）
 	public Date add_time;
 
 	public String getCode() {

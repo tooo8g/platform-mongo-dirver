@@ -12,9 +12,15 @@ public class Supply {
 	private String address;//交货地点
 	private String person;//收货人
 	private String code_num;//已编制的序列号数量
+	private String product_identify;//产品标识代码
 	
 	
-	
+	public String getProduct_identify() {
+		return product_identify;
+	}
+	public void setProduct_identify(String product_identify) {
+		this.product_identify = product_identify;
+	}
 	public String getCode_num() {
 		return code_num;
 	}

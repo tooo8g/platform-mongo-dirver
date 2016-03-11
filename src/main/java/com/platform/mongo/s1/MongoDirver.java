@@ -1074,6 +1074,7 @@ public class MongoDirver {
 			c.put("supply_time", supply.getSupply_time());
 			c.put("address", supply.getAddress());
 			c.put("person", supply.getPerson());
+			c.put("product_identify", supply.getProduct_identify());
 			client.addOne("test", "supply",c);
 		}
 		client.close();
@@ -1123,7 +1124,7 @@ public class MongoDirver {
 		
 		//查询已编制序列号数量
 			for (Document d : supplyList) {
-				Bson codeFilters = and(eq("groupId",d.get("_id").toString() ));
+				Bson codeFilters = and(eq("branchId",d.get("_id").toString() ));
 				int codeCount = client.queryCount("test", "code", codeFilters);
 				d.put("code_num", codeCount);
 			}
