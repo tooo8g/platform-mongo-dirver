@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.bson.types.ObjectId;
 
-public class Code {
+public class Code implements Cloneable{
 
 	public String code;// 编码
 	public int inner_id;// 内部排序码
