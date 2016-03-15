@@ -18,10 +18,11 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.platform.io.bean.Certification;
 import com.platform.io.bean.Certification_Detail;
 import com.platform.io.bean.Code;
+import com.platform.io.bean.Good;
+import com.platform.io.bean.Logistic;
 import com.platform.io.bean.OrderOrContract;
 import com.platform.io.bean.Price;
 import com.platform.io.bean.Product;
@@ -30,6 +31,7 @@ import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Purchasing;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.Supply;
+import com.platform.io.bean.WaybillInfo;
 import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.TimeUtil;
 
@@ -1354,6 +1356,126 @@ public class MongoDirver {
 		d.put("codes", codes);
 		return d.toJson();
 	}
+
+	/**
+	 * 新增运单信息
+	 * @author niyn
+	 * @param waybillInfo
+	 */
+	public void addWaybillInfo(WaybillInfo waybillInfo) {
+		Document d = new Document();
+		List<Good>  goodsList= null;
+		List<Logistic> logisticsList = null;
+		ObjectId _id = new ObjectId();
+		d.put("_id", _id);
+		d.put("logistics_id",waybillInfo.getLogistics_id());
+		d.put("logistics_company", waybillInfo.getLogistics_company());
+		d.put("car_license", waybillInfo.getCar_license());
+		d.put("good_num", waybillInfo.getGood_num());
+		d.put("send_duty", waybillInfo.getSend_duty());
+		d.put("send_company", waybillInfo.getSend_company());
+		d.put("send_phone_num",waybillInfo.getSend_phone_num());
+		d.put("send_addr", waybillInfo.getSend_addr());
+		d.put("receive_duty", waybillInfo.getReceive_duty());
+		d.put("receive_company", waybillInfo.getReceive_company());
+		d.put("receive_phone_num", waybillInfo.getReceive_phone_num());
+		d.put("receive_addr", waybillInfo.getReceive_addr());
+		d.put("logistics_stats", waybillInfo.getLogistics_stats());
+		d.put("send_time", waybillInfo.getSend_time());
+		d.put("pre_send_time", waybillInfo.getPre_send_time());
+		d.put("add_time", new Date());
+		client.addOne("test", "waybillInfo", d);
+		
+		// 货物信息
+		goodsList = waybillInfo.getGoods();
+		for (Good good: goodsList) {
+			Document p = new Document();
+			p.put("p_id", _id);
+			p.put("code",good.getCode());
+			p.put("contract_id", good.getContract_id());
+			p.put("product_code", good.getProduct_code());
+			p.put("materials_name", good.getMaterials_name());
+			p.put("specifications_model", good.getSpecifications_model());
+			p.put("materials_code", good.getMaterials_code());
+			client.addOne("test","goods", p);
+		}
+
+		// 物流信息
+		logisticsList = waybillInfo.getLogistics();
+		for (Logistic  logistic: logisticsList) {
+			Document c = new Document();
+			c.put("p_id", _id);
+			c.put("send_location",logistic.getSend_location());
+			c.put("receive_location", logistic.getReceive_location());
+			c.put("op_time", new Date());
+			c.put("op_situation", logistic.getOp_situation());
+			c.put("point_situation", logistic.getPoint_situation());
+			c.put("op_person", logistic.getOp_person());
+			client.addOne("test", "logistics",c);
+		}
+		client.close();
+	}
+
+	public String queryWaybillInfo(String logistics_id, String logistics_company, String car_license,
+			String contract_id, String logistics_stats, String good_num, int start, int limit) {
+		List<Bson> condition = new ArrayList<Bson>();
+		if (logistics_id != null && !("").equals(logistics_id))
+			condition.add(eq("logistics_id", logistics_id));
+		if (logistics_company != null && !("").equals(logistics_company))
+			condition.add(eq("logistics_company", logistics_company));
+		if (car_license != null && !("").equals(car_license))
+			condition.add(eq("car_license", car_license));
+		if (logistics_stats != null && !("").equals(logistics_stats))
+			condition.add(eq("logistics_stats", logistics_stats));
+		if (good_num != null && !("").equals(good_num))
+			condition.add(eq("good_num", good_num));
+		if (contract_id != null && !("").equals(contract_id))	{
+			Bson cfilters = eq("contract_id", contract_id);
+			ObjectId _id =  client.queryOne("test", "waybillInfo", cfilters, "_id", ObjectId.class);
+			condition.add(eq("_id",_id));
+		}
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		int count = client.queryCount("test", "waybillInfo", filters);
+		List<Document>  waybillInfoList = client.queryList("test", "waybillInfo", filters, new BasicDBObject(),new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());	
+		Document data = new Document();
+		data.put("count", count);
+		data.put("waybillInfo",waybillInfoList);
+		return data.toJson();
+	}
+	
+	/**
+	 * 查询物流信息
+	 * @author niyn
+	 * @return
+	 */
+	public String queryGoodsInfo(String _id,Integer start,Integer limit){
+		Bson f= and(eq("p_id",new ObjectId(_id)));
+		int count = client.queryCount("test", "goods", f);
+		List<Document> goodsList = client.queryList("test", "goods", f,  new BasicDBObject(),start,limit).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("goodsList",goodsList);
+		return data.toJson();
+	} 
+	
+	
+	/**
+	 * 查询物流信息
+	 * @author niyn
+	 * @return
+	 */
+	public String queryLogisticsInfo(String _id){
+		Bson f= and(eq("p_id",new ObjectId(_id)));
+		int count = client.queryCount("test", "logistics", f);
+		List<Document> logisticsList = client.queryList("test","logistics" , f,new BasicDBObject()).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("count", count);
+		data.put("logisticsList",logisticsList);
+		return data.toJson();
+	} 
+	
 
 }
 
