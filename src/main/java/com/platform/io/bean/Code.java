@@ -2,11 +2,13 @@ package com.platform.io.bean;
 
 import java.util.Date;
 
-public class Code {
+import org.bson.types.ObjectId;
+
+public class Code implements Cloneable{
 
 	public String code;// 编码
-	public String inner_id;// 内部排序码
-	public String program_time;// 编制时间
+	public int inner_id;// 内部排序码
+	public Date program_time;// 编制时间
 	public String purchasing_company;// 采购单位
 	public String contract_id;// 订单合同编号
 	public String product_identify;// 产品标示代码
@@ -14,8 +16,8 @@ public class Code {
 	public String specification;// 规格型号.
 	public String material_code;// 物资编码
 	public String company_name;// 企业名称.
-	public String groupId;// 组Id
-	public String branchId;// 关联Id
+	public ObjectId group_id;// 组Id
+	public ObjectId branch_id;// 关联Id
 	public String state;// 状态  0-未打印 1-已打印（默认是未打印）
 	public Date add_time;
 
@@ -27,20 +29,12 @@ public class Code {
 		this.code = code;
 	}
 
-	public String getInner_id() {
+	public int getInner_id() {
 		return inner_id;
 	}
 
-	public void setInner_id(String inner_id) {
+	public void setInner_id(int inner_id) {
 		this.inner_id = inner_id;
-	}
-
-	public String getProgram_time() {
-		return program_time;
-	}
-
-	public void setProgram_time(String program_time) {
-		this.program_time = program_time;
 	}
 
 	public String getPurchasing_company() {
@@ -99,22 +93,6 @@ public class Code {
 		this.company_name = company_name;
 	}
 
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
-
-	public String getBranchId() {
-		return branchId;
-	}
-
-	public void setBranchId(String branchId) {
-		this.branchId = branchId;
-	}
-
 	public String getState() {
 		return state;
 	}
@@ -138,6 +116,30 @@ public class Code {
 		} catch (CloneNotSupportedException e) {
 			return null;
 		}
+	}
+
+	public Date getProgram_time() {
+		return program_time;
+	}
+
+	public void setProgram_time(Date program_time) {
+		this.program_time = program_time;
+	}
+
+	public ObjectId getGroup_id() {
+		return group_id;
+	}
+
+	public void setGroup_id(ObjectId group_id) {
+		this.group_id = group_id;
+	}
+
+	public ObjectId getBranch_id() {
+		return branch_id;
+	}
+
+	public void setBranch_id(ObjectId branch_id) {
+		this.branch_id = branch_id;
 	}
 
 }
