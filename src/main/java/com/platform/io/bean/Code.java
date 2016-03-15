@@ -21,6 +21,7 @@ public class Code implements Cloneable{
 	public String state;// 状态
 	public Date add_time;
 
+	
 	public String getCode() {
 		return code;
 	}
