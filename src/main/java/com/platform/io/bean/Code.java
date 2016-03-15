@@ -108,16 +108,7 @@ public class Code implements Cloneable{
 	public void setAdd_time(Date add_time) {
 		this.add_time = add_time;
 	}
-
-	@Override
-	public Object clone() {
-		try {
-			return super.clone();
-		} catch (CloneNotSupportedException e) {
-			return null;
-		}
-	}
-
+	
 	public Date getProgram_time() {
 		return program_time;
 	}
@@ -140,6 +131,15 @@ public class Code implements Cloneable{
 
 	public void setBranch_id(ObjectId branch_id) {
 		this.branch_id = branch_id;
+	}
+
+	@Override
+	public Object clone() {
+		try {
+			return super.clone();
+		} catch (CloneNotSupportedException e) {
+			return null;
+		}
 	}
 
 }

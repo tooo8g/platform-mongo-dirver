@@ -491,7 +491,7 @@ public class MongoDao {
 		mongocol.deleteOne(filters);
 	}
 	/**
-	 * 删除多个
+	 * 根据条件删除多个
 	 * @author zhangyb
 	 * @param db
 	 * @param collection
