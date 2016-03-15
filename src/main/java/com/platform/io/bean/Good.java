@@ -11,8 +11,6 @@ public class Good {
 	private String  measurement;//计量单位
 	private String  remarks;//备注
 	
-	
-	
 	public String getMeasurement() {
 		return measurement;
 	}
