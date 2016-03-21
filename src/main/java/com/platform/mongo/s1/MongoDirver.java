@@ -1271,12 +1271,20 @@ public class MongoDirver {
 	 * @param groupId
 	 * @return
 	 */
-	public String queryCodes(ObjectId group_id, int start, int limit) {
+	public String queryCodes(ObjectId gId, ObjectId bId,int start, int limit) {
 		// TODO Auto-generated method stub
-		Bson filters = eq("groupId", group_id.toString());
+		List<Bson> condition = new ArrayList<Bson>();
+		if (gId != null && !gId.equals(""))
+			condition.add(eq("group_id", gId));
+		if (bId != null && !bId.equals(""))
+			condition.add(eq("branch_id", bId));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
-		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
-				.into(new ArrayList<Document>());
+		codes = client.queryList("test", "code", filters, null,
+				new BasicDBObject("add_time", -1), start, limit).into(
+				new ArrayList<Document>());
 
 		int count = client.queryCount("test", "code", filters);
 		Document d = new Document();
