@@ -1258,8 +1258,8 @@ public class MongoDirver {
 		d.put("specification", c.getSpecification());
 		d.put("material_code", c.getMaterial_code());
 		d.put("company_name", c.getCompany_name());
-		d.put("group_id", c.getGroup_id());
-		d.put("branch_id", c.getBranch_id());
+		d.put("groupId", c.getGroup_id());
+		d.put("branchId", c.getBranch_id());
 		d.put("add_time", c.getAdd_time());
 		client.addOne("test", "code", d);
 	}
@@ -1273,7 +1273,7 @@ public class MongoDirver {
 	 */
 	public String queryCodes(ObjectId group_id, int start, int limit) {
 		// TODO Auto-generated method stub
-		Bson filters = eq("group_id", group_id);
+		Bson filters = eq("groupId", group_id.toString());
 		List<Document> codes = new ArrayList<Document>();
 		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
 				.into(new ArrayList<Document>());
@@ -1291,10 +1291,9 @@ public class MongoDirver {
 	 * @author zhangyb
 	 * @param groupId
 	 */
-	public void deleteByGroupId(String group_id) {
+	public void deleteByGroupId(String groupId) {
 		// TODO Auto-generated method stub
-		ObjectId groupId = new ObjectId(group_id);
-		Bson filters = eq("group_id", groupId);
+		Bson filters = eq("groupId", groupId);
 		client.deleteMany("test", "code", filters);
 	}
 
@@ -1302,12 +1301,12 @@ public class MongoDirver {
 	 * 查询code
 	 * 
 	 * @author zhangyb
-	 * @param branch_id
+	 * @param branchId
 	 * @return
 	 */
-	public String querySingleCode(String branch_id) {
+	public String querySingleCode(String branchId) {
 		// TODO Auto-generated method stub
-		ObjectId _id = new ObjectId(branch_id);
+		ObjectId _id = new ObjectId(branchId);
 		Bson filter = eq("_id", _id);
 		Document d = client.querySingle("test", "productInfo", filter, new BasicDBObject());
 		// List<Document> d = new ArrayList<Document>();
@@ -1340,8 +1339,7 @@ public class MongoDirver {
 		if (state != null && !state.equals(""))
 			condition.add(eq("state", state));
 		if (program_time != null && !program_time.equals(""))
-			condition
-					.add(eq("program_time", TimeUtil.parserTime(program_time)));
+			condition.add(eq("program_time", program_time));
 		if (purchasing_company != null && !purchasing_company.equals(""))
 			condition.add(eq("purchasing_company", purchasing_company));
 		if (company_name != null && !company_name.equals(""))
@@ -1350,9 +1348,8 @@ public class MongoDirver {
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
-		codes = client.queryList("test", "code", filters, null,
-				new BasicDBObject("inner_id", -1), start, limit).into(
-				new ArrayList<Document>());
+		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
+				.into(new ArrayList<Document>());
 		int count = client.queryCount("test", "code", filters);
 		Document d = new Document();
 		d.put("count", count);
