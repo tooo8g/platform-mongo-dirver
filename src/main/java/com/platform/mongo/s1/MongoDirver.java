@@ -8,6 +8,7 @@ import static com.mongodb.client.model.Filters.lte;
 import static com.mongodb.client.model.Filters.or;
 import static com.mongodb.client.model.Filters.regex;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,8 +32,10 @@ import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Purchasing;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.Supply;
+import com.platform.io.bean.Account;
 import com.platform.io.bean.WaybillInfo;
 import com.platform.mongo.s1.dao.MongoDao;
+import com.platform.mongo.util.DBObjectToJavaBean;
 import com.platform.mongo.util.TimeUtil;
 
 public class MongoDirver {
@@ -1482,6 +1485,28 @@ public class MongoDirver {
 		data.put("count", count);
 		data.put("logisticsList",logisticsList);
 		return data.toJson();
+	}
+
+	/**
+	 * 查询用户信息
+	 * @author niyn
+	 * @param name
+	 * @param password
+	 * @return
+	 * @throws NoSuchMethodException 
+	 * @throws InvocationTargetException 
+	 * @throws IllegalAccessException 
+	 */
+	public Account login(String name, String password) throws Exception {
+		Bson filters = and (eq("username",name),eq("password",password));
+		Document data = client.querySingle("test", "user", filters, null);
+		Account a = new Account();
+		a  = DBObjectToJavaBean.propertySetter(data, Account.class);
+		System.out.println(a);
+		if(data==null){
+			System.out.println("数据为空");
+		}
+		return a;
 	} 
 	
 
