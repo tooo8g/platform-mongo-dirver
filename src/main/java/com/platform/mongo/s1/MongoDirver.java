@@ -1261,8 +1261,8 @@ public class MongoDirver {
 		d.put("specification", c.getSpecification());
 		d.put("material_code", c.getMaterial_code());
 		d.put("company_name", c.getCompany_name());
-		d.put("groupId", c.getGroup_id());
-		d.put("branchId", c.getBranch_id());
+		d.put("group_id", c.getGroup_id());
+		d.put("branch_id", c.getBranch_id());
 		d.put("add_time", c.getAdd_time());
 		client.addOne("test", "code", d);
 	}
@@ -1302,9 +1302,9 @@ public class MongoDirver {
 	 * @author zhangyb
 	 * @param groupId
 	 */
-	public void deleteByGroupId(String groupId) {
+	public void deleteByGroupId(String group_id) {
 		// TODO Auto-generated method stub
-		Bson filters = eq("groupId", groupId);
+		Bson filters = eq("group_id", group_id);
 		client.deleteMany("test", "code", filters);
 	}
 
@@ -1359,7 +1359,7 @@ public class MongoDirver {
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
-		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
+		codes = client.queryList("test", "code", filters, null, new BasicDBObject("inner_id", -1), start, limit)
 				.into(new ArrayList<Document>());
 		int count = client.queryCount("test", "code", filters);
 		Document d = new Document();
