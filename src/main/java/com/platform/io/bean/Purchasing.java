@@ -1,5 +1,7 @@
 package com.platform.io.bean;
 
+import java.util.List;
+
 //订货明细
 public class Purchasing {
 
@@ -21,8 +23,6 @@ public class Purchasing {
 	private String total_price;
 	// 生产厂家
 	private String company;
-
-	
 	
 	public String getMeasurement() {
 		return measurement;

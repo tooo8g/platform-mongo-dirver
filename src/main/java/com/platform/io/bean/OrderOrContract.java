@@ -13,7 +13,14 @@ public class OrderOrContract {
 	private Date add_time;//增加时间
 	private String edit_time;//编辑时间
 	private String user_id;//编制人员
+	private List<Integer>  filed;//权限字段
 	
+	public List<Integer> getFiled() {
+		return filed;
+	}
+	public void setFiled(List<Integer> filed) {
+		this.filed = filed;
+	}
 	public String getUser_id() {
 		return user_id;
 	}

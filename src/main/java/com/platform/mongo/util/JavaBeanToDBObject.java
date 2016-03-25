@@ -13,8 +13,7 @@ public class JavaBeanToDBObject {
 	 * 将实体Bean对象转换成DBObject
 	 * 
 	 */
-	public static <T> Document beanToDBObject(T bean)
-			throws IllegalArgumentException, IllegalAccessException {
+	public static <T> Document beanToDBObject(T bean) throws IllegalArgumentException, IllegalAccessException {
 		if (bean == null)
 			return null;
 		Document dbObject = new Document();
@@ -55,12 +54,21 @@ public class JavaBeanToDBObject {
 				dbObject.put(varName, value);
 			} else if (param instanceof List) {
 				List l = (List) param;
-				List<Document> value = new ArrayList<Document>();
-				for (Object obj : l) {
-					Document d = beanToDBObject(obj);
-					value.add(d);
+				if (!l.get(0).getClass().getName().startsWith("java.lang")) {
+					List<Document> value = new ArrayList<Document>();
+					for (Object obj : l) {
+						Document d = null;
+						d = beanToDBObject(obj);
+						value.add(d);
+					}
+					dbObject.put(varName, value);
+				} else {
+					List<Object> value = new ArrayList<Object>();
+					for (Object obj : l) {
+						value.add(obj);
+					}
+					dbObject.put(varName, value);
 				}
-				dbObject.put(varName, value);
 			} else {
 				Document value = beanToDBObject(param);
 				dbObject.put(varName, value);
@@ -70,4 +78,5 @@ public class JavaBeanToDBObject {
 		}
 		return dbObject;
 	}
+
 }

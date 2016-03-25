@@ -1,10 +1,11 @@
 package com.platform.io.bean;
 
 import java.util.Date;
+import java.util.List;
 
 import org.bson.types.ObjectId;
 
-public class Code implements Cloneable{
+public class Code implements Cloneable {
 
 	public String code;// 编码
 	public int inner_id;// 内部排序码
@@ -18,9 +19,16 @@ public class Code implements Cloneable{
 	public String company_name;// 企业名称.
 	public ObjectId group_id;// 组Id
 	public ObjectId branch_id;// 关联Id
-	public String state;// 状态  0-未打印 1-已打印（默认是未打印）
+	public String state;// 状态 0-未打印 1-已打印（默认是未打印）
 	public Date add_time;
+	private List<Integer> filed;// 权限字段
 
+	public List<Integer> getFiled() {
+		return filed;
+	}
+	public void setFiled(List<Integer> filed) {
+		this.filed = filed;
+	}
 	public String getCode() {
 		return code;
 	}
@@ -108,7 +116,7 @@ public class Code implements Cloneable{
 	public void setAdd_time(Date add_time) {
 		this.add_time = add_time;
 	}
-	
+
 	public Date getProgram_time() {
 		return program_time;
 	}

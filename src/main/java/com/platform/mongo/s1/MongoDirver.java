@@ -1217,7 +1217,7 @@ public class MongoDirver {
 	 * @author zhangyb
 	 */
 	public String queryProductInfo(String company_name, String product_identify, String product_name,
-			String specification, int start, int limit) {
+			String specification, List<Integer> list,int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
@@ -1228,6 +1228,7 @@ public class MongoDirver {
 		if (specification != null && !specification.equals(""))
 			condition.add(eq("specification", specification));
 		Bson filters = null;
+		condition.add(in("filed",list));
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
@@ -1264,6 +1265,7 @@ public class MongoDirver {
 		d.put("groupId", c.getGroup_id());
 		d.put("branchId", c.getBranch_id());
 		d.put("add_time", c.getAdd_time());
+		d.put("filed",c.getFiled());
 		client.addOne("test", "code", d);
 	}
 
@@ -1274,7 +1276,7 @@ public class MongoDirver {
 	 * @param groupId
 	 * @return
 	 */
-	public String queryCodes(ObjectId gId, ObjectId bId,int start, int limit) {
+	public String queryCodes(ObjectId gId, ObjectId bId,List<Integer> list,int start, int limit) {
 		// TODO Auto-generated method stub
 		List<Bson> condition = new ArrayList<Bson>();
 		if (gId != null && !gId.equals(""))
@@ -1282,6 +1284,7 @@ public class MongoDirver {
 		if (bId != null && !bId.equals(""))
 			condition.add(eq("branch_id", bId));
 		Bson filters = null;
+		condition.add(in("filed",list));
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
@@ -1302,9 +1305,9 @@ public class MongoDirver {
 	 * @author zhangyb
 	 * @param groupId
 	 */
-	public void deleteByGroupId(String groupId) {
+	public void deleteByGroupId(String groupId,List<Integer> list) {
 		// TODO Auto-generated method stub
-		Bson filters = eq("groupId", groupId);
+		Bson filters = and(eq("groupId", groupId),in("filed",list));
 		client.deleteMany("test", "code", filters);
 	}
 
@@ -1315,10 +1318,10 @@ public class MongoDirver {
 	 * @param branchId
 	 * @return
 	 */
-	public String querySingleCode(String branchId) {
+	public String querySingleCode(String branchId,List<Integer> list) {
 		// TODO Auto-generated method stub
 		ObjectId _id = new ObjectId(branchId);
-		Bson filter = eq("_id", _id);
+		Bson filter = and(eq("_id", _id),in("filed",list));
 		Document d = client.querySingle("test", "productInfo", filter, new BasicDBObject());
 		// List<Document> d = new ArrayList<Document>();
 		// d = client.queryList("test", "productInfo", filter,
@@ -1342,7 +1345,7 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryAllCode(String contract_id, String state, String program_time, String purchasing_company,
-			String company_name, int start, int limit) {
+			String company_name, List<Integer> list,int start, int limit) {
 		// TODO Auto-generated method stub
 		List<Bson> condition = new ArrayList<Bson>();
 		if (contract_id != null && !contract_id.equals(""))
@@ -1356,6 +1359,7 @@ public class MongoDirver {
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
 		Bson filters = null;
+		condition.add(in("filed",list));
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();

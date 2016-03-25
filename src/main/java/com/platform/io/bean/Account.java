@@ -1,11 +1,6 @@
 package com.platform.io.bean;
 
-import java.util.Date;
 import java.util.List;
-
-import org.apache.poi.ss.formula.functions.T;
-
-import com.mongodb.BasicDBObject;
 
 public class Account {
 	
@@ -13,7 +8,7 @@ public class Account {
 	private String password;
 	
 	private Person person;
-	private List<String> field;
+	private List<Integer> field;//权限字段
 	private String add_time;
 	
 	public Person getPerson() {
@@ -22,10 +17,10 @@ public class Account {
 	public void setPerson(Person person) {
 		this.person = person;
 	}
-	public List<String> getField() {
+	public List<Integer> getField() {
 		return field;
 	}
-	public void setField(List<String> field) {
+	public void setField(List<Integer> field) {
 		this.field = field;
 	}
 	public String getUsername() {
