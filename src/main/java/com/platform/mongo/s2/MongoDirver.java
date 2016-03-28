@@ -2,15 +2,10 @@ package com.platform.mongo.s2;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.gte;
 import static com.mongodb.client.model.Filters.in;
-import static com.mongodb.client.model.Filters.lte;
-import static com.mongodb.client.model.Filters.or;
-import static com.mongodb.client.model.Filters.regex;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -19,26 +14,14 @@ import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.model.Filters;
-import com.platform.io.bean.Certification;
-import com.platform.io.bean.Certification_Detail;
-import com.platform.io.bean.Code;
-import com.platform.io.bean.Good;
-import com.platform.io.bean.Logistic;
-import com.platform.io.bean.OrderOrContract;
-import com.platform.io.bean.Price;
-import com.platform.io.bean.Product;
-import com.platform.io.bean.ProductInfo;
-import com.platform.io.bean.PurchaseBidding;
-import com.platform.io.bean.Purchasing;
-import com.platform.io.bean.Standardization;
-import com.platform.io.bean.Supply;
 import com.platform.io.bean.Account;
+import com.platform.io.bean.Code;
+import com.platform.io.bean.OrderOrContract;
+import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.WaybillInfo;
 import com.platform.mongo.s2.dao.MongoDao;
 import com.platform.mongo.util.DBObjectToJavaBean;
 import com.platform.mongo.util.JavaBeanToDBObject;
-import com.platform.mongo.util.TimeUtil;
 
 public class MongoDirver {
 
@@ -54,10 +37,11 @@ public class MongoDirver {
 
 
 	/**
-	 * 新增合同/订单
-	 * 
+	 * 新增合同/订单号
 	 * @author niyn
-	 * @param orderContracts
+	 * @param orderOrContracts 合同/订单号
+	 * @param user_id 用户名
+	 * @throws Exception
 	 */
 	public void addOrderOrContract(OrderOrContract orderOrContracts,String user_id) throws Exception{
 		List<Integer> fList =  orderOrContracts.getFiled();
@@ -80,14 +64,17 @@ public class MongoDirver {
 		client.close();
 	}
 
-    /**
-     * 查询订单号/合同号列表	
-     * @author niyn
-     * @param str
-     * @param start
-     * @param limit
-     * @return
-     */
+	/**
+	 * 查询订单号/合同号列表	
+	 * @author niyn
+	 * @param contract_id 合同/订单号
+	 * @param purchasing_company 采购单位
+	 * @param company_name 企业名称
+	 * @param list 权限域集合
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
 	public String queryOrderOrContract(String contract_id,String purchasing_company,String company_name,List<Integer>list,int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (contract_id != null && !("").equals(contract_id))
@@ -111,7 +98,8 @@ public class MongoDirver {
 	/**
 	 * 查询订单号/合同号详情
 	 * @author niyn
-	 * @param _id
+	 * @param contract_id 合同/订单号
+	 * @param list 权限域集合
 	 * @return
 	 */
 	public String queryOrderOrContractDetail(String contract_id,List<Integer> list) {
@@ -139,7 +127,7 @@ public class MongoDirver {
 	/**
 	 * 查询订货详情
 	 * @author niyn
-	 * @param materialCode
+	 * @param materialCode  物资编号
 	 * @return
 	 */
 	public String queryPurchasingByCode(String materialCode) {
@@ -153,7 +141,7 @@ public class MongoDirver {
 	/**
 	 * 查询供货详情
 	 * @author niyn
-	 * @param materialCode
+	 * @param materialCode  物资编号
 	 * @return
 	 */
 	public String querySupplyDetailByCode(String materialCode) {
@@ -167,7 +155,7 @@ public class MongoDirver {
 	/**
 	 * 更新订单/合同(先删除再添加)
 	 * @author niyn
-	 * @param contract_id
+	 * @param contract_id  合同/订单号
 	 * @throws Exception 
 	 */
 	public void  updateOrderOrContract(OrderOrContract contract) throws Exception{
@@ -181,21 +169,21 @@ public class MongoDirver {
 	}
 	/**
 	 * 增加产品
-	 * 
-	 * @param productInfo
+	 * @param productInfo 
 	 * @author zhangyb
 	 */
-	public void addProductInfo(ProductInfo productInfo) {
+	public void addProductInfo(ProductInfo productInfo) throws Exception {
 		// TODO Auto-generated method stub
-		Document d = new Document();
-		d.put("company_name", productInfo.getCompany_name());
-		d.put("product_identify", productInfo.getProduct_identify());
-		d.put("product_name", productInfo.getProduct_name());
-		d.put("specification", productInfo.getSpecification());
-		d.put("measurement", productInfo.getMeasurement());
-		d.put("material_code", productInfo.getMaterial_code());
-		d.put("purchasing_company", productInfo.getPurchasing_company());
-		d.put("add_time", productInfo.getAdd_time());
+//		Document d = new Document();
+//		d.put("company_name", productInfo.getCompany_name());
+//		d.put("product_identify", productInfo.getProduct_identify());
+//		d.put("product_name", productInfo.getProduct_name());
+//		d.put("specification", productInfo.getSpecification());
+//		d.put("measurement", productInfo.getMeasurement());
+//		d.put("material_code", productInfo.getMaterial_code());
+//		d.put("purchasing_company", productInfo.getPurchasing_company());
+		Document d  = JavaBeanToDBObject.beanToDBObject(productInfo);
+		d.put("add_time", new Date());
 		client.addOne("test", "productInfo", d);
 	}
 
@@ -209,12 +197,13 @@ public class MongoDirver {
 	 * @param product_name
 	 *            产品名称
 	 * @param specification
-	 *            specification
+	 *            规格型号
+	 * @param list  权限域集合
 	 * @return
 	 * @author zhangyb
 	 */
 	public String queryProductInfo(String company_name, String product_identify, String product_name,
-			String specification, int start, int limit) {
+			String specification, List<Integer> list,int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
@@ -225,6 +214,7 @@ public class MongoDirver {
 		if (specification != null && !specification.equals(""))
 			condition.add(eq("specification", specification));
 		Bson filters = null;
+		condition.add(in("filed",list));
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> productInfos = new ArrayList<Document>();
@@ -306,9 +296,9 @@ public class MongoDirver {
 
 	/**
 	 * 查询code
-	 * 
 	 * @author zhangyb
-	 * @param branchId
+	 * @param branchId 
+	 * @param list  权限域集合
 	 * @return
 	 */
 	public String querySingleCode(String branchId,List<Integer> list) {
@@ -328,11 +318,12 @@ public class MongoDirver {
 	 * 序列号信息查询
 	 * 
 	 * @author zhangyb
-	 * @param contract_id
-	 * @param state
-	 * @param program_time
-	 * @param purchasing_company
-	 * @param company_name
+	 * @param contract_id 合同订单编号
+	 * @param state 状态 0-未打印 1-已打印（默认是未打印）
+	 * @param program_time 编制时间
+	 * @param purchasing_company采购单位
+	 * @param company_name 企业名称.
+	 * @param list 权限域集合
 	 * @param start
 	 * @param limit
 	 * @return
@@ -393,6 +384,20 @@ public class MongoDirver {
 		client.close();
 	}
 
+	/**
+	 * 查询运单【条件查询】
+	 * @author niyn
+	 * @param logistics_id  运单号
+	 * @param logistics_company  承运公司
+	 * @param car_license 车牌号
+	 * @param contract_id 订单合同编号
+	 * @param logistics_stats 物流状态 ( 未发货 已发货 物流运输中 已收货)
+	 * @param good_num 货号 
+	 * @param list 权限域集合
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
 	public String queryWaybillInfo(String logistics_id, String logistics_company, String car_license,
 			String contract_id, String logistics_stats, String good_num, List<Integer> list,int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
@@ -424,8 +429,12 @@ public class MongoDirver {
 	}
 	
 	/**
-	 * 查询物流信息
+	 * 查询货物信息
 	 * @author niyn
+	 * @param _id
+	 * @param list 权限域集合
+	 * @param start
+	 * @param limit
 	 * @return
 	 */
 	public String queryGoodsInfo(String _id,List<Integer>  list,Integer start,Integer limit){
@@ -442,6 +451,8 @@ public class MongoDirver {
 	/**
 	 * 查询物流信息
 	 * @author niyn
+	 * @param _id
+	 * @param list 权限域集合
 	 * @return
 	 */
 	public String queryLogisticsInfo(String _id,List<Integer>  list){
@@ -457,12 +468,9 @@ public class MongoDirver {
 	/**
 	 * 查询用户信息
 	 * @author niyn
-	 * @param name
-	 * @param password
+	 * @param name 用户名
+	 * @param password 密码
 	 * @return
-	 * @throws NoSuchMethodException 
-	 * @throws InvocationTargetException 
-	 * @throws IllegalAccessException 
 	 */
 	public Account login(String name, String password) throws Exception {
 		Bson filters = and (eq("username",name),eq("password",password));
