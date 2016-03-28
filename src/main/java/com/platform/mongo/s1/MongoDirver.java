@@ -1276,7 +1276,7 @@ public class MongoDirver {
 	 * @param groupId
 	 * @return
 	 */
-	public String queryCodes(ObjectId gId, ObjectId bId,List<Integer> list,int start, int limit) {
+	public String queryCodes(ObjectId gId, ObjectId bId,int start, int limit) {
 		// TODO Auto-generated method stub
 		List<Bson> condition = new ArrayList<Bson>();
 		if (gId != null && !gId.equals(""))
@@ -1284,7 +1284,6 @@ public class MongoDirver {
 		if (bId != null && !bId.equals(""))
 			condition.add(eq("branch_id", bId));
 		Bson filters = null;
-		condition.add(in("filed",list));
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
@@ -1298,6 +1297,8 @@ public class MongoDirver {
 		d.put("codes", codes);
 		return d.toJson();
 	}
+	
+	
 
 	/**
 	 * 根据组id(groupId)清空数据
@@ -1305,8 +1306,9 @@ public class MongoDirver {
 	 * @author zhangyb
 	 * @param groupId
 	 */
-	public void deleteByGroupId(String groupId,List<Integer> list) {
-		Bson filters = and(eq("groupId", groupId),in("filed",list));
+	public void deleteByGroupId(String groupId) {
+		// TODO Auto-generated method stub
+		Bson filters = eq("groupId", groupId);
 		client.deleteMany("test", "code", filters);
 	}
 
@@ -1317,10 +1319,10 @@ public class MongoDirver {
 	 * @param branchId
 	 * @return
 	 */
-	public String querySingleCode(String branchId,List<Integer> list) {
+	public String querySingleCode(String branchId) {
 		// TODO Auto-generated method stub
 		ObjectId _id = new ObjectId(branchId);
-		Bson filter = and(eq("_id", _id),in("filed",list));
+		Bson filter = eq("_id", _id);
 		Document d = client.querySingle("test", "productInfo", filter, new BasicDBObject());
 		// List<Document> d = new ArrayList<Document>();
 		// d = client.queryList("test", "productInfo", filter,
@@ -1344,7 +1346,7 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryAllCode(String contract_id, String state, String program_time, String purchasing_company,
-			String company_name, List<Integer> list,int start, int limit) {
+			String company_name, int start, int limit) {
 		// TODO Auto-generated method stub
 		List<Bson> condition = new ArrayList<Bson>();
 		if (contract_id != null && !contract_id.equals(""))
@@ -1358,11 +1360,10 @@ public class MongoDirver {
 		if (company_name != null && !company_name.equals(""))
 			condition.add(eq("company_name", company_name));
 		Bson filters = null;
-		condition.add(in("filed",list));
 		if (condition.size() > 0)
 			filters = and(condition);
 		List<Document> codes = new ArrayList<Document>();
-		codes = client.queryList("test", "code", filters, null, new BasicDBObject("inner_id", -1), start, limit)
+		codes = client.queryList("test", "code", filters, null, new BasicDBObject("add_time", -1), start, limit)
 				.into(new ArrayList<Document>());
 		int count = client.queryCount("test", "code", filters);
 		Document d = new Document();
