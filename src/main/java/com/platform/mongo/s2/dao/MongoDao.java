@@ -27,6 +27,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndUpdateOptions;
+import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
@@ -508,6 +510,23 @@ public class MongoDao {
 	 */
 	public void close() {
 		client.close();
+	}
+	
+	/**
+	 * 获得表自增长序列
+	 * @auth zhanglei
+	 * @param collection 需要自增长的集合名称
+	 * @return
+	 */
+	public int incrementing(String db,String collection){
+		MongoDatabase database = client.getDatabase(db);
+		MongoCollection<Document> mongocol = database.getCollection(collection);
+		FindOneAndUpdateOptions option = new FindOneAndUpdateOptions();
+		option.upsert(true);
+		option.returnDocument(ReturnDocument.AFTER);
+		Document r = mongocol.findOneAndUpdate(eq("_id", collection), new Document("$inc", new Document("seq", 1)),option);
+			
+		return r.getInteger("seq");
 	}
 
 }
