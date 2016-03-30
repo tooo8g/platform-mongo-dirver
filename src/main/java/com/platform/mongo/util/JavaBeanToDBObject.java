@@ -54,7 +54,7 @@ public class JavaBeanToDBObject {
 				dbObject.put(varName, value);
 			} else if (param instanceof List) {
 				List l = (List) param;
-				if (!l.get(0).getClass().getName().startsWith("java.lang")) {
+				if (l.isEmpty()||!l.get(0).getClass().getName().startsWith("java.lang")) {
 					List<Document> value = new ArrayList<Document>();
 					for (Object obj : l) {
 						Document d = null;

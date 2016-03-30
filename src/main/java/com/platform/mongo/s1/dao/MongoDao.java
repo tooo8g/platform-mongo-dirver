@@ -520,7 +520,7 @@ public class MongoDao {
 	 */
 	public int incrementing(String db,String collection){
 		MongoDatabase database = client.getDatabase(db);
-		MongoCollection<Document> mongocol = database.getCollection(collection);
+		MongoCollection<Document> mongocol = database.getCollection("counters");
 		FindOneAndUpdateOptions option = new FindOneAndUpdateOptions();
 		option.upsert(true);
 		option.returnDocument(ReturnDocument.AFTER);

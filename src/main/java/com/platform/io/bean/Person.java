@@ -1,19 +1,19 @@
 package com.platform.io.bean;
 
 public class Person {
-	 private String name;
-	 private String age;
-	 private String company;
-	 private String tel;
-	 private String email;
-	 private String address;
+	 private String username;//姓名
+	 private String age;//年龄
+	 private String company;//公司
+	 private String tel;//电话
+	 private String email;//邮箱
+	 private String address;//地址 
 	 
 	 
-	public String getName() {
-		return name;
+	public String getUsername() {
+		return username;
 	}
-	public void setName(String name) {
-		this.name = name;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	public String getAge() {
 		return age;
