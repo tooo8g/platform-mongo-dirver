@@ -579,9 +579,8 @@ public class MongoDirver {
 	 */
 	public String queryAuthorityInfo(String _id) throws Exception{
 		Bson filters = and(eq("_id",new ObjectId(_id)));
-		int count = client.queryCount("test", "account", filters);
 		//用户持有的公司权限
-		Document com = client.querySingle("test", "account", null, null);
+		Document com = client.querySingle("test", "account", filters, null);
 		List<Integer> accountFiledList = (List<Integer>) com.get("filed");
 		//所有公司
 		List<Document> companyList = client.queryList("test", "company", null,new BasicDBObject(), 0, 100).into(new ArrayList<Document>());
