@@ -56,17 +56,18 @@ public class MongoDirver {
 		Document purchasing = new Document();
 		purchasing.put("purchasing", d.remove("purchasing"));
 		purchasing.put("p_id", _id);
-		purchasing.put("field", fList);
+		purchasing.put("filed", fList);
 		client.addOne("test","purchasing", purchasing);
 		Document supply = new Document();
 		supply.put("supply", d.remove("supply"));
 		supply.put("p_id", _id);
-		supply.put("field",fList);
+		supply.put("filed",fList);
 		client.addOne("test", "supply",supply);
 		d.put("_id", _id);
 		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
+		client.addOne("test", "contract", d);
 		client.close();
 	}
 
@@ -128,6 +129,7 @@ public class MongoDirver {
 		data.put("bzxx",contractList);
 		data.put("purchasing", purchasingList);
 		data.put("supply", supplyList);
+		System.out.println(data.toJson());
 		return data.toJson();
 	}
 	/**

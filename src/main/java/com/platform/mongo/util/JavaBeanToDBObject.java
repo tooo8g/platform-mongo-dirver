@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 public class JavaBeanToDBObject {
 
@@ -30,7 +31,10 @@ public class JavaBeanToDBObject {
 			Object param = field.get(bean);
 			if (param == null) {
 				continue;
-			} else if (param instanceof Integer) {
+			}else if(param instanceof ObjectId){
+				ObjectId value = (ObjectId) param;
+				dbObject.put(varName, value);
+			}else if (param instanceof Integer) {
 				// 判断变量的类型
 				int value = ((Integer) param).intValue();
 				dbObject.put(varName, value);
