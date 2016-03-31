@@ -53,20 +53,25 @@ public class MongoDirver {
 		List<Integer> fList =  orderOrContracts.getFiled();
 		ObjectId _id = new ObjectId();
 		Document d= JavaBeanToDBObject.beanToDBObject(orderOrContracts);
-		Document purchasing = new Document();
-		purchasing.put("purchasing", d.remove("purchasing"));
-		purchasing.put("p_id", _id);
-		purchasing.put("filed", fList);
-		client.addOne("test","purchasing", purchasing);
-		Document supply = new Document();
-		supply.put("supply", d.remove("supply"));
-		supply.put("p_id", _id);
-		supply.put("filed",fList);
-		client.addOne("test", "supply",supply);
+		List<Document> purchasing = (List<Document>)d.remove("purchasing");
+		for (Document doc : purchasing) {
+			doc.put("p_id", _id);
+			doc.put("filed", fList);
+			System.out.println("新增的purchasing"+doc);
+			client.addOne("test","purchasing", doc);
+		}
+		List<Document>  supply = (List<Document>)d.remove("supply");
+		for (Document doc : supply) {
+			doc.put("p_id", _id);
+			doc.put("filed",fList);
+			System.out.println("新增的supply"+doc);
+			client.addOne("test", "supply",doc);
+		}
 		d.put("_id", _id);
 		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
+		System.out.println("新增的contract"+d);
 		client.addOne("test", "contract", d);
 		client.close();
 	}
@@ -99,6 +104,7 @@ public class MongoDirver {
 		Document data = new Document();
 		data.put("count", count);
 		data.put("bzxx",orderOrContractList);
+		System.out.println("查询订单合同json："+data.toJson());
 		return data.toJson();
 	}
 	
@@ -123,13 +129,13 @@ public class MongoDirver {
 				Bson codeFilters = and(eq("branchId",d.get("_id").toString() ));
 				int codeCount = client.queryCount("test", "code", codeFilters);
 				d.put("code_num", codeCount);
+				System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!"+d.toJson());
 			}
-
 		Document data = new Document();
 		data.put("bzxx",contractList);
 		data.put("purchasing", purchasingList);
 		data.put("supply", supplyList);
-		System.out.println(data.toJson());
+		System.out.println("订单合同详情json："+data.toJson());
 		return data.toJson();
 	}
 	/**
@@ -375,17 +381,19 @@ public class MongoDirver {
 		System.out.println("======================"+d.toJson());
 		ObjectId _id = new ObjectId();
 		d.put("_id", _id);
-		Document goods = new Document();
-		goods.put("goods", d.remove("goods"));
-		goods.put("p_id", _id);
-		goods.put("filed", wList);
-		client.addOne("test","goods", goods);
-		Document logistics = new Document();
-		logistics.put("logistics", d.remove("logistics"));
-		logistics.put("p_id", _id);
-		logistics.put("op_time", new Date());
-		logistics.put("filed", wList);
-		client.addOne("test","logistics", logistics);
+		List<Document>  goods =(List<Document>)d.remove("goods");
+		for (Document doc : goods) {
+			doc.put("p_id", _id);
+			doc.put("filed", wList);
+			client.addOne("test","goods", doc);
+		}
+//		List<Document>  logistics =  (List<Document> )d.remove("logistics");
+//		for (Document doc : logistics) {
+//			doc.put("p_id", _id);
+//			doc.put("op_time", new Date());
+//			doc.put("filed", wList);
+//			client.addOne("test","logistics", doc);
+//		}
 		d.put("add_time", new Date());
 		d.put("filed",wList);
 		client.addOne("test", "waybillInfo", d);
@@ -433,6 +441,7 @@ public class MongoDirver {
 		Document data = new Document();
 		data.put("count", count);
 		data.put("waybillInfo",waybillInfoList);
+		System.out.println("运单列表json："+data.toJson());
 		return data.toJson();
 	}
 	
