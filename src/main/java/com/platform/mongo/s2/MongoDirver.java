@@ -67,6 +67,7 @@ public class MongoDirver {
 		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
+		System.out.println("=========="+d.toJson());
 		client.addOne("test", "contract", d);
 		client.close();
 	}
