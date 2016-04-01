@@ -71,7 +71,6 @@ public class MongoDirver {
 		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
-		System.out.println("新增的contract"+d);
 		client.addOne("test", "contract", d);
 		client.close();
 	}
