@@ -14,7 +14,7 @@ import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.TreeStruct;
-import com.platform.mongo.s1.MongoDirver;
+import com.platform.mongo.s1.MongoDirverS1;
 import com.platform.mongo.util.Tree;
 
 public class IMP {
@@ -42,7 +42,7 @@ public class IMP {
 
 		List<TreeStruct> list = pids.get("0");
 		Tree.findChild(root, list, pids, false);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		md.addSuppliers_menu_tz(root);
 		System.out.println(root.toJson());
 		md.close();
@@ -55,7 +55,7 @@ public class IMP {
 	 */
 	public void impStandard(String fileName) {
 		List<Standardization> stands = MSIO.readStandardizations(fileName);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (Standardization stand : stands) {
 			md.addLatestStandards(stand);
 		}
@@ -69,7 +69,7 @@ public class IMP {
 	 */
 	public void impCertification(String fileName) {
 		List<Certification> certs = MSIO.readCertification(fileName);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (Certification cert : certs) {
 			md.addCertification(cert);
 		}
@@ -85,7 +85,7 @@ public class IMP {
 	 */
 	public void impPurchaseBidding(String fileName) {
 		List<PurchaseBidding> purchaseBiddings = CSVIO.readPurchaseBidding(fileName);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (PurchaseBidding pb : purchaseBiddings) {
 			md.addPurchaseBidding(pb);
 		}
@@ -99,7 +99,7 @@ public class IMP {
 	 */
 	public void impPrice(String fileName) {
 		List<Price> prices = CSVIO.readPrice(fileName);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (Price sp : prices) {
 			md.addPrice(sp);
 		}
@@ -127,7 +127,7 @@ public class IMP {
 		Document root = new Document();
 		root.put(c.getName(), c.getValue());
 		Tree.findChild(root, pids.get(c.getId()), pids);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		md.addCertification_menu_tz(root);
 		md.close();
 	}
@@ -139,7 +139,7 @@ public class IMP {
 	 */
 	public void impCompany_name(String fileName) {
 		List<Certification> list = MSIO.readCompany_name(fileName);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (int i = 0; i < list.size(); i++) {
 			md.addCompany_name(list.get(i));
 		}
@@ -154,7 +154,7 @@ public class IMP {
 	 */
 	public void impProduct(String fileName) {
 		List<Product> list = MSIO.readProduct(fileName);		
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (int i = 0; i < list.size(); i++) {
 			md.addProduct(list.get(i));
 		}
@@ -170,7 +170,7 @@ public class IMP {
 	 */
 	public void impProductInfo(String fileName) {
 		List<ProductInfo> list = CSVIO.readProductInfo(fileName);
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		for (int i = 0; i < list.size(); i++) {
 			md.addProductInfo(list.get(i));
 		}

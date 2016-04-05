@@ -38,11 +38,11 @@ import com.platform.mongo.s1.dao.MongoDao;
 import com.platform.mongo.util.DBObjectToJavaBean;
 import com.platform.mongo.util.TimeUtil;
 
-public class MongoDirver {
+public class MongoDirverS1 {
 
 	private MongoDao client;
 
-	public MongoDirver() {
+	public MongoDirverS1() {
 		client = new MongoDao();
 	}
 
@@ -51,7 +51,7 @@ public class MongoDirver {
 	}
 
 	public static void main(String[] args) {
-		MongoDirver md = new MongoDirver();
+		MongoDirverS1 md = new MongoDirverS1();
 		// md.test2();
 		// md.test3();
 		// md.test4();
