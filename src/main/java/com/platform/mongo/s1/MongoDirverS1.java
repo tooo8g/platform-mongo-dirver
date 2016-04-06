@@ -110,8 +110,8 @@ public class MongoDirverS1 {
 			// .queryPrice("普通硅酸盐水泥", null, null, null, 0, 20));
 			// System.out.println(md.queryCompanyForPrice("高线", "Φ6.5"));
 			// md.queryPriceHistory("56a1d82e4d462a2b1476acfc");
-			String s = md.queryPurchaseBidding("", 0, 3);
-			System.out.println(s);
+//			String s = md.queryPurchaseBidding("", 0, 3);
+//			System.out.println(s);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -491,6 +491,8 @@ public class MongoDirverS1 {
 		doc.put("purchaserFileGetTime", TimeUtil.parserTime(pb.getPurchaserFileGetTime()));
 		doc.put("dataSource", pb.getDataSource());
 		doc.put("publishTime", TimeUtil.parserTime(pb.getPublishTime()));
+		doc.put("address", pb.getAddress());
+		doc.put("industry", pb.getIndustry());
 		doc.put("add_time", new Date());
 		doc.put("edit_time", TimeUtil.parserTime(pb.getEditTime()));
 		client.addOne("test", "purchase_bidding", doc);
@@ -505,7 +507,7 @@ public class MongoDirverS1 {
 	 * @param limit
 	 * @return
 	 */
-	public String queryPurchaseBidding(String str, int skip, int limit) {
+	public String queryPurchaseBidding(String  str,String industry, int skip, int limit) {
 		Bson filters = null;
 		if (str != null && !str.equals(""))
 			filters = or(regex("purchaseOrderNo", "^.*" + str + ".*$"), regex("purchaserName", "^.*" + str + ".*$"),
@@ -513,7 +515,12 @@ public class MongoDirverS1 {
 					regex("purchaserArea", "^.*" + str + ".*$"), regex("announcementType", "^.*" + str + ".*$"),
 					regex("purchaserFileGetTime", "^.*" + str + ".*$"), regex("publishTime", "^.*" + str + ".*$"),
 					regex("dataSource", "^.*" + str + ".*$"));
-
+		List<Bson> condition = new ArrayList<Bson>();
+		if (industry != null && !industry.equals(""))
+			condition.add(eq("industry", industry));
+//		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
 		int count = client.queryCount("test", "purchase_bidding", filters);
 		List<Document> zbcg = client.queryList("test", "purchase_bidding", filters, new BasicDBObject("_id", 0),
 				new BasicDBObject("publishTime", -1), skip, limit).into(new ArrayList<Document>());

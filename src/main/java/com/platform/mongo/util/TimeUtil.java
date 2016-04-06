@@ -32,7 +32,7 @@ public class TimeUtil {
 	private static Pattern p5 = Pattern
 			.compile("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}");
 	private static Pattern p6 = Pattern
-			.compile("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}");
+			.compile("[0-9]{4}/[0-9]{1,2}/[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}");
 
 	// public static Date parserDate(String date) {
 	// if (date != null && !date.equals("")) {

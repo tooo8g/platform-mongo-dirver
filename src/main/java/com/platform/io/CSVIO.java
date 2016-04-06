@@ -36,6 +36,8 @@ public class CSVIO {
 				purchaseBidding.setPurchaserArea(r.get("PAREA"));
 				purchaseBidding.setPurchaserFileGetTime(r.get("PFGTIME"));
 				purchaseBidding.setPublishTime(r.get("PTIME"));
+				purchaseBidding.setAddress(r.get("PADDR"));//地址
+				purchaseBidding.setIndustry(r.get("PINDUS"));//所属行业
 				purchaseBidding.setDataSource(r.get("DSOURCE"));
 				pb.add(purchaseBidding);
 			}

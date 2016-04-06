@@ -28,13 +28,34 @@ public class PurchaseBidding {
 
 	//数据来源   
 	private String dataSource;
-
+	
+	//地址
+	private String address;
+	
+	//所属行业
+	private String industry;
 	
 	private String addTime;
 	
 	private String editTime;
 	
 	
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getIndustry() {
+		return industry;
+	}
+
+	public void setIndustry(String industry) {
+		this.industry = industry;
+	}
+
 	public String getAddTime() {
 		return addTime;
 	}

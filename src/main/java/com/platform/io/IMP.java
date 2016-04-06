@@ -183,6 +183,7 @@ public class IMP {
 	 */
 	public static void main(String[] args) {
 		IMP imp = new IMP();
-		imp.impProductInfo("d://test//productInfo.csv");
+//		imp.impProductInfo("d://test//productInfo.csv");
+		imp.impPurchaseBidding("E://test//123123.csv");
 	}
 }
