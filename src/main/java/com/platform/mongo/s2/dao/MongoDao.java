@@ -5,7 +5,11 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
 import static java.util.Arrays.asList;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -426,12 +430,12 @@ public class MongoDao {
 	 * @param fileName
 	 * @param data
 	 */
-	public void saveFile(String db, String collection, String fileName,
+	public void saveFile(String db, String collection, String filename,
 			byte[] data) {
 		DB database = client.getDB(db);
 		GridFS gf = new GridFS(database, collection);
 		GridFSInputFile gfsFile = gf.createFile(data);
-		gfsFile.setFilename(fileName);
+		gfsFile.setFilename(filename);//以pdf四位数字文件名【不要重复】作为id入库
 		gfsFile.save();
 	}
 
@@ -466,13 +470,14 @@ public class MongoDao {
 	 * @param collection
 	 * @param fileName
 	 * @param path
+	 * @throws Exception 
 	 */
-	public void writeFile(String db, String collection, String fileName,
-			String path) {
+	public GridFSDBFile writeFile(String db, String collection, String fileName,
+			String path) throws Exception {
 		DB database = client.getDB(db);
 		GridFS gf = new GridFS(database, collection);
 		GridFSDBFile gfFile = gf.findOne(fileName);
-		System.out.println(gfFile);
+		return gfFile;
 		// try {
 		// gfFile.writeTo(path);
 		// } catch (IOException e) {
@@ -529,5 +534,21 @@ public class MongoDao {
 		return r.getInteger("seq");
 	}
 
+	public static void main(String[] args) throws Exception {
+		MongoDao md = new MongoDao();
+		String  fileName = "4902";
+		String s = "123456";
+		byte[] data = s.getBytes();
+//		md.saveFile("niyn","pdf", fileName, data);
+		
+//		byte[] d = md.getFile("test", "pdf", fileName);
+//		String ss = d.toString();
+//		System.out.println(ss);
+		
+		String path = "E://test//3.pdf";
+		md.writeFile("test", "pdf", fileName, path);
+	}
+	
+	
 }
 

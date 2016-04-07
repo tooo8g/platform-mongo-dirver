@@ -15,6 +15,8 @@ import com.platform.io.bean.PurchaseBidding;
 import com.platform.io.bean.Standardization;
 import com.platform.io.bean.TreeStruct;
 import com.platform.mongo.s1.MongoDirverS1;
+import com.platform.mongo.s2.MongoDirver;
+import com.platform.mongo.util.FileUtils;
 import com.platform.mongo.util.Tree;
 
 public class IMP {
@@ -49,7 +51,7 @@ public class IMP {
 	}
 
 	/**
-	 * 认证
+	 * 认证标准
 	 * 
 	 * @param fileName
 	 */
@@ -177,13 +179,32 @@ public class IMP {
 
 		md.close();
 	}
-
+	/**
+	 * 导入PDF
+	 * @author niyn
+	 * @throws Exception 
+	 */
+	public void impPDF(String pathname) throws Exception{
+		String filename  = FileUtils.getFileName(pathname);
+		System.out.println(filename);
+		byte[]  fileByte = FILEIO.toByteArray(pathname);
+		MongoDirver  md = new MongoDirver();
+		md.addPDF(filename, fileByte);
+	}
+	
+	
+	
+	
 	/**
 	 * @param args
+	 * @throws Exception 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		IMP imp = new IMP();
 //		imp.impProductInfo("d://test//productInfo.csv");
-		imp.impPurchaseBidding("E://test//123123.csv");
+//		imp.impPurchaseBidding("E://test//123123.csv");
+		String filename = "E://test//pdf//4855.pdf";
+		imp.impPDF(filename);
+//		imp.impStandard(filename);
 	}
 }

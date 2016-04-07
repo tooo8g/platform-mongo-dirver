@@ -545,6 +545,7 @@ public class MongoDirverS1 {
 		ls.put("execute_date", TimeUtil.parserTime(standard.getExecute_date()));
 		ls.put("standard_status", standard.getStandard_status());
 		ls.put("special_subject", standard.getSpecial_subject());
+		ls.put("file_name",standard.getFile_name());
 		ls.put("add_time", new Date());
 		ObjectId _id = client.queryOne("test", "standardization", eq("standard_id", standard.getStandard_id()), "_id",
 				ObjectId.class);

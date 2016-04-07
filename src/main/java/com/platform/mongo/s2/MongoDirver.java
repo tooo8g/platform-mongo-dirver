@@ -16,6 +16,7 @@ import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
+import com.mongodb.gridfs.GridFSDBFile;
 import com.platform.io.bean.Account;
 import com.platform.io.bean.Code;
 import com.platform.io.bean.Company;
@@ -646,6 +647,22 @@ public class MongoDirver {
 		}
 		System.out.println(filedList);
 		client.updateField("test", "account", f, "filed", filedList);
+	}
+	/**
+	 * 存储PDF入库 
+	 * @author niyn
+	 */
+	public void addPDF(String filename,byte[] data){
+		client.saveFile("test", "pdf",filename,data);
+	}
+	
+	/**
+	 * 下载PDF文件
+	 * @author niyn
+	 * @throws Exception 
+	 */
+	public GridFSDBFile downloadPDF(String filename,String path) throws Exception{
+		return client.writeFile("test", "pdf", filename, path);
 	}
 	
 	

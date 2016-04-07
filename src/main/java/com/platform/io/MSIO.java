@@ -180,8 +180,7 @@ public class MSIO {
 				while (rowIterator.hasNext()) {
 					Row row = rowIterator.next();
 					Standardization standard = new Standardization();
-					standard.setStandard_group(row.getCell(0)
-							.getStringCellValue().trim());
+					standard.setStandard_group(row.getCell(0).getStringCellValue().trim());
 					standard.setStandard_id(row.getCell(1).getStringCellValue()
 							.trim());
 					standard.setStandard_name(row.getCell(2)
@@ -195,6 +194,8 @@ public class MSIO {
 					standard.setStandard_status(row.getCell(6)
 							.getStringCellValue().trim());
 					standard.setSpecial_subject(row.getCell(7)
+							.getStringCellValue().trim());
+					standard.setFile_name(row.getCell(8)
 							.getStringCellValue().trim());
 					standardizations.add(standard);
 				}

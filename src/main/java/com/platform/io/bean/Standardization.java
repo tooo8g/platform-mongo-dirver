@@ -26,6 +26,9 @@ public class Standardization {
 	// 专业分类
 	public String special_subject;
 
+	//文件名称
+	public String file_name;
+	
 	@Override
 	public String toString() {
 		return "Standardization [standard_group=" + standard_group
@@ -34,6 +37,16 @@ public class Standardization {
 				+ ", publish_date=" + publish_date + ", execute_date="
 				+ execute_date + ", standard_status=" + standard_status
 				+ ", special_subject=" + special_subject + "]";
+	}
+	
+
+	
+	public String getFile_name() {
+		return file_name;
+	}
+
+	public void setFile_name(String file_name) {
+		this.file_name = file_name;
 	}
 
 	public String getStandard_group() {
