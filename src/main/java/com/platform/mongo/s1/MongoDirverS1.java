@@ -630,7 +630,13 @@ public class MongoDirverS1 {
 		System.out.println(str);
 		Bson filters = null;
 		if (str != null && !str.equals(""))
-			filters = or(regex("product_range", "^.*" + str + ".*$"), regex("cert_name", "^.*" + str + ".*$"));
+			filters = or(
+					regex("cert_status", "^.*" + str + ".*$"), regex("cert_unit", "^.*" + str + ".*$"),
+					regex("company_name", "^.*" + str + ".*$"), regex("product_range", "^.*" + str + ".*$"),
+					regex("cert_num", "^.*" + str + ".*$"), regex("issue_organization", "^.*" + str + ".*$"),
+					regex("cert_standards", "^.*" + str + ".*$"), regex("publish_date", "^.*" + str + ".*$"),
+					regex("valid_date", "^.*" + str + ".*$")
+					);
 		int count = client.queryCount("test", "certification", filters);
 		List<Document> rzxx = client
 				.queryList("test", "certification", filters, null, new BasicDBObject("publish_date", -1), skip, limit)

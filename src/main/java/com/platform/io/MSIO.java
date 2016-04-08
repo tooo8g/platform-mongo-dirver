@@ -183,9 +183,9 @@ public class MSIO {
 					standard.setStandard_group(row.getCell(0).getStringCellValue().trim());
 					standard.setStandard_id(row.getCell(1).getStringCellValue()
 							.trim());
-					standard.setStandard_name(row.getCell(2)
+					standard.setStandard_name(row.getCell(3)
 							.getStringCellValue().trim());
-					standard.setReplace_id(row.getCell(3).getStringCellValue()
+					standard.setReplace_id(row.getCell(2).getStringCellValue()
 							.trim());
 					standard.setPublish_date(row.getCell(4)
 							.getStringCellValue().trim());

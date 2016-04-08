@@ -18,12 +18,12 @@ import com.platform.io.bean.Account;
 import com.platform.io.bean.Code;
 import com.platform.io.bean.Company;
 import com.platform.io.bean.OrderOrContract;
-import com.platform.io.bean.Person;
 import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.WaybillInfo;
 import com.platform.mongo.s2.dao.MongoDao;
 import com.platform.mongo.util.DBObjectToJavaBean;
 import com.platform.mongo.util.JavaBeanToDBObject;
+import com.platform.mongo.util.TimeUtil;
 
 public class MongoDirver {
 
@@ -182,15 +182,6 @@ public class MongoDirver {
 	 * @author zhangyb
 	 */
 	public void addProductInfo(ProductInfo productInfo) throws Exception {
-		// TODO Auto-generated method stub
-//		Document d = new Document();
-//		d.put("company_name", productInfo.getCompany_name());
-//		d.put("product_identify", productInfo.getProduct_identify());
-//		d.put("product_name", productInfo.getProduct_name());
-//		d.put("specification", productInfo.getSpecification());
-//		d.put("measurement", productInfo.getMeasurement());
-//		d.put("material_code", productInfo.getMaterial_code());
-//		d.put("purchasing_company", productInfo.getPurchasing_company());
 		Document d  = JavaBeanToDBObject.beanToDBObject(productInfo);
 		d.put("add_time", new Date());
 		client.addOne("test", "productInfo", d);
@@ -245,20 +236,6 @@ public class MongoDirver {
 	 * @param c
 	 */
 	public void addCode(Code c) throws Exception {
-//		Document d = new Document();
-//		d.put("code", c.getCode());
-//		d.put("inner_id", c.getInner_id());
-//		d.put("program_time", c.getProgram_time());
-//		d.put("purchasing_company", c.getPurchasing_company());
-//		d.put("contract_id", c.getContract_id());
-//		d.put("product_identify", c.getProduct_identify());
-//		d.put("product_name", c.getProduct_name());
-//		d.put("specification", c.getSpecification());
-//		d.put("material_code", c.getMaterial_code());
-//		d.put("company_name", c.getCompany_name());
-//		d.put("groupId", c.getGroup_id());
-//		d.put("branchId", c.getBranch_id());
-//		d.put("add_time", c.getAdd_time());
 		Document d = JavaBeanToDBObject.beanToDBObject(c);
 		client.addOne("test", "code", d);
 	}
@@ -311,15 +288,9 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String querySingleCode(String branchId,List<Integer> list) {
-		// TODO Auto-generated method stub
 		ObjectId _id = new ObjectId(branchId);
 		Bson filter = and(eq("_id", _id),in("filed",list));
 		Document d = client.querySingle("test", "productInfo", filter, new BasicDBObject());
-		// List<Document> d = new ArrayList<Document>();
-		// d = client.queryList("test", "productInfo", filter,
-		// new BasicDBObject()).into(new ArrayList<Document>());
-		// Document data = new Document();
-		// data.put("productInfo", d);
 		return d.toJson();
 	}
 
@@ -339,14 +310,13 @@ public class MongoDirver {
 	 */
 	public String queryAllCode(String contract_id, String state, String program_time, String purchasing_company,
 			String company_name, List<Integer> list,int start, int limit) {
-		// TODO Auto-generated method stub
 		List<Bson> condition = new ArrayList<Bson>();
 		if (contract_id != null && !contract_id.equals(""))
 			condition.add(eq("contract_id", contract_id));
 		if (state != null && !state.equals(""))
 			condition.add(eq("state", state));
 		if (program_time != null && !program_time.equals(""))
-			condition.add(eq("program_time", program_time));
+			condition.add(eq("program_time", TimeUtil.parserTime(program_time)));
 		if (purchasing_company != null && !purchasing_company.equals(""))
 			condition.add(eq("purchasing_company", purchasing_company));
 		if (company_name != null && !company_name.equals(""))
@@ -382,13 +352,6 @@ public class MongoDirver {
 			doc.put("filed", wList);
 			client.addOne("test","goods", doc);
 		}
-//		List<Document>  logistics =  (List<Document> )d.remove("logistics");
-//		for (Document doc : logistics) {
-//			doc.put("p_id", _id);
-//			doc.put("op_time", new Date());
-//			doc.put("filed", wList);
-//			client.addOne("test","logistics", doc);
-//		}
 		d.put("add_time", new Date());
 		d.put("filed",wList);
 		client.addOne("test", "waybillInfo", d);
@@ -505,7 +468,6 @@ public class MongoDirver {
 		Document  d = JavaBeanToDBObject.beanToDBObject(company);
 		int i = client.incrementing("test","company");
 		d.put("com_filed",i);
-//		Bson codefilters = and(eq("org_code",company.getOrg_code()));
 		d.put("add_time", new Date());
 		System.out.println(d.toJson());
 		client.addOne("test","company", d);
@@ -658,69 +620,6 @@ public class MongoDirver {
 	 */
 	public GridFSDBFile downloadPDF(String filename,String path) throws Exception{
 		return client.writeFile("test", "pdf", filename, path);
-	}
-	
-	
-	
-	public static void main(String[] args) throws Exception {
-		MongoDirver m = new MongoDirver();
-		Company c = new Company();
-//		Person p = new  Person();
-//		p.setAddress(null);
-//		p.setAge(age);
-//		p.setCompany(company);
-//		p.setEmail(email);
-//		p.setName(name);
-//		p.setTel(tel);
-		
-//		公司名称  组织机构代码 公司地址 联系人 联系方式
-		c.setCom_name("中国");
-		c.setCom_addr("北京");
-		c.setCon_way("123456789");
-		c.setCon_person("联系人test");
-		c.setOrg_code("001");
-//		m.addCompany(c);
-		
-		String _id = "56fa466c0c5880c110a25a3b";
-//		m.queryAuthorityInfo(_id);
-		
-		
-		String com_name = "";
-		String org_code = "";
-		List<Integer> list = new ArrayList<Integer>();
-		Integer skip = 0;
-		Integer limit = 2;
-//		m.queryCompany(com_name, org_code, skip, limit);
-		
-		String name = "";
-		String username = "";
-		String company = "";
-		
-//		m.queryAccount(name, username, company, skip, limit);
-		
-		
-		Account a = new Account();
-		Person p = new  Person();
-		p.setAddress("北京");
-		p.setAge("10");
-		p.setCompany("中铁");
-		p.setEmail("123qq.com");
-		p.setUsername("niyn");
-		p.setTel("123456789");
-		List<Integer> filed = new ArrayList<Integer>();
-		filed.add(3);
-		filed.add(1);
-		filed.add(2);
-		a.setName("niyn");
-		a.setPassword("123");
-		a.setPerson(p);
-		a.setFiled(filed);
-		
-		m.addAccount(a);
-		
-		String[] fileds = {"5","6"};
-		
-//		m.assign(fileds, "56fa466c0c5880c110a25a3b");
 	}
 	
 }
