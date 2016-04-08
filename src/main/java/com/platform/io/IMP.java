@@ -20,7 +20,7 @@ import com.platform.mongo.util.FileUtils;
 import com.platform.mongo.util.Tree;
 
 public class IMP {
-	
+
 	/**
 	 * 供应商菜单录入
 	 * 
@@ -31,7 +31,7 @@ public class IMP {
 		Map<String, List<TreeStruct>> pids = new HashMap<String, List<TreeStruct>>();
 		Document root = new Document();
 		for (TreeStruct cert : certs) {
-			if(cert.getId().equals("0")){
+			if (cert.getId().equals("0")) {
 				root.put(cert.getName(), cert.getValue());
 			}
 			List<TreeStruct> col = pids.get(cert.getPid());
@@ -78,15 +78,14 @@ public class IMP {
 		md.close();
 	}
 
-	
-	
 	/**
 	 * 招标信息
 	 * 
 	 * @param fileName
 	 */
 	public void impPurchaseBidding(String fileName) {
-		List<PurchaseBidding> purchaseBiddings = CSVIO.readPurchaseBidding(fileName);
+		List<PurchaseBidding> purchaseBiddings = CSVIO
+				.readPurchaseBidding(fileName);
 		MongoDirverS1 md = new MongoDirverS1();
 		for (PurchaseBidding pb : purchaseBiddings) {
 			md.addPurchaseBidding(pb);
@@ -155,7 +154,7 @@ public class IMP {
 	 * @param fileName
 	 */
 	public void impProduct(String fileName) {
-		List<Product> list = MSIO.readProduct(fileName);		
+		List<Product> list = MSIO.readProduct(fileName);
 		MongoDirverS1 md = new MongoDirverS1();
 		for (int i = 0; i < list.size(); i++) {
 			md.addProduct(list.get(i));
@@ -179,32 +178,70 @@ public class IMP {
 
 		md.close();
 	}
+
 	/**
 	 * 导入PDF
+	 * 
 	 * @author niyn
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public void impPDF(String pathname) throws Exception{
-		String filename  = FileUtils.getFileName(pathname);
-		System.out.println(filename);
-		byte[]  fileByte = FILEIO.toByteArray(pathname);
-		MongoDirver  md = new MongoDirver();
-		md.addPDF(filename, fileByte);
+	public void impPDF(String path) throws Exception {
+		String[] files = FileUtils.getFilesFormDirectory(path, "pdf");
+		if (files != null) {
+			MongoDirver md = new MongoDirver();
+			for (int i = 0; i < files.length; i++) {
+				byte[] data = FILEIO.toByteArray(path + files[i]);
+				md.addPDF(FileUtils.getFileName(files[i]), data);
+			}
+			md.close();
+		}
 	}
-	
-	
-	
-	
+
 	/**
 	 * @param args
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-		IMP imp = new IMP();
-//		imp.impProductInfo("d://test//productInfo.csv");
-//		imp.impPurchaseBidding("E://test//123123.csv");
-		String filename = "E://test//pdf//4855.pdf";
-		imp.impPDF(filename);
-//		imp.impStandard(filename);
+		if (args == null || args.length == 0 || args[0] == null
+				|| args[0].equals("")) {
+			System.out.println("------------------------------");
+			System.out.println("1 : 供应商菜单");
+			System.out.println("2 : 认证标准");
+			System.out.println("3 : 资质");
+			System.out.println("4 : 招标信息");
+			System.out.println("5 : 价格");
+			System.out.println("6 : 资质-铁路总公司铁路专用产品认证采信菜单");
+			System.out.println("7 : 企业");
+			System.out.println("8 : 产品");
+			System.out.println("9 : 产品标识代码");
+			System.out.println("10 : PDF");
+			System.out.println("------------------------------");
+		} else {
+			if (args[1] != null && !args[1].equals("")) {
+				IMP imp = new IMP();
+				String fileName = args[1];
+				if (args[0].equals("1")) {
+					imp.impSuppliers_menu_tzs(fileName);
+				} else if (args[0].equals("2")) {
+					imp.impStandard(fileName);
+				} else if (args[0].equals("3")) {
+					imp.impCertification(fileName);
+				} else if (args[0].equals("4")) {
+					imp.impPurchaseBidding(fileName);
+				} else if (args[0].equals("5")) {
+					imp.impPrice(fileName);
+				} else if (args[0].equals("6")) {
+					imp.impCertification_menu_tz(fileName);
+				} else if (args[0].equals("7")) {
+					imp.impCompany_name(fileName);
+				} else if (args[0].equals("8")) {
+					imp.impProduct(fileName);
+				} else if (args[0].equals("9")) {
+					imp.impProductInfo(fileName);
+				} else if (args[0].equals("10")) {
+					imp.impPDF(fileName);
+				}
+			}
+		}
 	}
 }
