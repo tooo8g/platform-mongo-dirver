@@ -191,9 +191,9 @@ public class MSIO {
 							.getStringCellValue().trim());
 					standard.setExecute_date(row.getCell(5)
 							.getStringCellValue().trim());
-					standard.setStandard_status(row.getCell(6)
+					standard.setStandard_status(row.getCell(7)
 							.getStringCellValue().trim());
-					standard.setSpecial_subject(row.getCell(7)
+					standard.setSpecial_subject(row.getCell(6)
 							.getStringCellValue().trim());
 					standard.setFile_name(row.getCell(8)
 							.getStringCellValue().trim());
