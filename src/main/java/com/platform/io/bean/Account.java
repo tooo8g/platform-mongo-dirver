@@ -8,9 +8,16 @@ public class Account {
 	private String password;//密码
 	private String confirm_pwd;//确认密码
 	private Person person;
-	private List<Integer> filed;//权限字段
+	private List<Integer> filed;//数据权限字段
+	private List<Integer> oper_filed;//操作权限字段
 	private String add_time;//注册时间
 	
+	public List<Integer> getOper_filed() {
+		return oper_filed;
+	}
+	public void setOper_filed(List<Integer> oper_filed) {
+		this.oper_filed = oper_filed;
+	}
 	public String getConfirm_pwd() {
 		return confirm_pwd;
 	}

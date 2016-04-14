@@ -540,7 +540,7 @@ public class MongoDirver {
 	}
 	
 	/**
-	 * 查询用户的权限信息
+	 * 查询用户的权限信息[filed]
 	 * @throws Exception 
 	 */
 	public String queryAuthorityInfo(String _id) throws Exception{
@@ -587,7 +587,7 @@ public class MongoDirver {
 	}
 	
 	/**
-	 * 分配权限
+	 * 分配权限[filed]
 	 * @author niyn
 	 * @param fileds 权限数组
 	 * @param user_id 用户id
@@ -622,6 +622,74 @@ public class MongoDirver {
 		return client.writeFile("test", "pdf", filename, path);
 	}
 	
+	/**
+	 * 查询用户的操作信息[operation]
+	 * @throws Exception 
+	 */
+	public String queryOperationInfo(String _id) throws Exception{
+		Bson filters = and(eq("_id",new ObjectId(_id)));
+		//用户持有的公司权限
+		Document com = client.querySingle("test", "account", filters, null);
+		List<Integer> accountOperFiledList = (List<Integer>) com.get("oper_filed");
+		//所有公司
+		List<Document> operationList = client.queryList("test", "operation", null,new BasicDBObject(), 0, 100).into(new ArrayList<Document>());
+		List<Object> allComList = new ArrayList<Object>();
+		for (Document doc : operationList) {
+			allComList.add(doc.get("oper_num"));
+		}
+		allComList.removeAll(accountOperFiledList);
+		//未分配的公司的权限
+		List<Object> unassignedComList = allComList;
+		Document data = new Document();
+		List<Document>  assignedList = new ArrayList<Document>();
+		List<Document> unassignedList = new ArrayList<Document>();
+		for (Integer o : accountOperFiledList) {
+				Bson f = and(eq("oper_num",o));
+				Document doc = client.querySingle("test", "operation", f, null);
+				if(doc!=null){
+					Document assignedDoc = new Document();
+					assignedDoc.put("oper_num", o.toString());
+					assignedDoc.put("oper_code",(String)doc.get("oper_code"));
+					assignedDoc.put("oper_name",(String)doc.get("oper_name"));
+					assignedList.add(assignedDoc);
+				}
+		}
+		for (Object o : unassignedComList) {
+			Bson f2 = and(eq("oper_num",o));
+			Document doc = client.querySingle("test", "operation", f2, null);
+			if(doc!=null){
+				Document unassignedDoc = new Document();
+				unassignedDoc.put("oper_num", o.toString());
+				unassignedDoc.put("oper_code",(String)doc.get("oper_code"));
+				unassignedDoc.put("oper_name",(String)doc.get("oper_name"));
+				unassignedList.add(unassignedDoc);
+			}  
+		}
+		data.put("assignedList", assignedList);
+		data.put("unassignedList", unassignedList);
+		System.out.println(data.toJson());
+		return data.toJson();
+	}
+	
+	/**
+	 * 分配权限[operation]
+	 * @author niyn
+	 * @param fileds 权限数组
+	 * @param user_id 用户id
+	 */
+	public void assignOperation(String[] oper_fileds,String user_id){
+		Bson f = and(eq("_id",new ObjectId(user_id)));
+		Document doc = client.querySingle("test", "account", f, null);
+		List<Integer>  operFiledsList = (List<Integer>) doc.get("oper_filed");
+		operFiledsList.clear();
+		if((oper_fileds.length>0)&&oper_fileds!=null){
+			for (String filed : oper_fileds) {//右-->左
+				operFiledsList.add(Integer.valueOf(filed));
+			}
+		}
+		System.out.println(operFiledsList);
+		client.updateField("test", "account", f, "oper_filed", operFiledsList);
+	}
 }
 
 
