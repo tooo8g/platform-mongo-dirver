@@ -15,6 +15,8 @@ public class Purchasing {
 	private String specification;
 	// 计量单位
 	private String measurement;
+	//产品表示代码
+	private String product_code;
 	// 订购数量
 	private String num;
 	// 单价
@@ -24,7 +26,7 @@ public class Purchasing {
 	// 生产厂家
 	private String company;
 	//生产厂家所在域
-	private int company_field;
+	private Integer company_field;
 	
 	public String getMeasurement() {
 		return measurement;
@@ -96,6 +98,22 @@ public class Purchasing {
 
 	public void setCompany(String company) {
 		this.company = company;
+	}
+
+	public Integer getCompany_field() {
+		return company_field;
+	}
+
+	public void setCompany_field(Integer company_field) {
+		this.company_field = company_field;
+	}
+
+	public String getProduct_code() {
+		return product_code;
+	}
+
+	public void setProduct_code(String product_code) {
+		this.product_code = product_code;
 	}
 
 }
