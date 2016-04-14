@@ -15,6 +15,8 @@ public class Material {
 	public String specification;
 	//计量单位
 	public String measurement;
+	//是否为重要物资
+	public int isPrecious;
 	
 	public String getMaterial_code() {
 		return material_code;
@@ -39,5 +41,11 @@ public class Material {
 	}
 	public void setMeasurement(String measurement) {
 		this.measurement = measurement;
+	}
+	public int getIsPrecious() {
+		return isPrecious;
+	}
+	public void setIsPrecious(int isPrecious) {
+		this.isPrecious = isPrecious;
 	}
 }
