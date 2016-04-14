@@ -23,6 +23,8 @@ public class Purchasing {
 	private String total_price;
 	// 生产厂家
 	private String company;
+	//生产厂家所在域
+	private int company_field;
 	
 	public String getMeasurement() {
 		return measurement;

@@ -7,6 +7,7 @@ public class Company {
 	private String com_addr;//公司地址 
 	private String con_person;//联系人
 	private String con_way;//联系方式
+	private int field;//域
 //	private String add_time;//注册时间
 	
 	
@@ -51,6 +52,12 @@ public class Company {
 	}
 	public void setCon_way(String con_way) {
 		this.con_way = con_way;
+	}
+	public int getField() {
+		return field;
+	}
+	public void setField(int field) {
+		this.field = field;
 	}
 	
 }

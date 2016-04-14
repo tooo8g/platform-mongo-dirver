@@ -9,6 +9,7 @@ public class OrderOrContract {
 	private String _id;//_id
 	private String contract_id;//订单、合同号
 	private String company_name;//企业名称
+	private int company_field;//供应商所属域
 	private String purchasing_company;//采购单位
 	private Date add_time;//增加时间
 	private String edit_time;//编辑时间
@@ -91,6 +92,12 @@ public class OrderOrContract {
 
 	public void setSupply(List<Supply> supply) {
 		this.supply = supply;
+	}
+	public int getCompany_field() {
+		return company_field;
+	}
+	public void setCompany_field(int company_field) {
+		this.company_field = company_field;
 	}
 	
 
