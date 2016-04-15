@@ -3,6 +3,7 @@ package com.platform.mongo.s2;
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.or;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,27 +47,43 @@ public class MongoDirver {
 	 * @throws Exception
 	 */
 	public void addOrderOrContract(OrderOrContract orderOrContracts,String user_id) throws Exception{
-		List<Integer> fList =  orderOrContracts.getFiled();
 		ObjectId _id = new ObjectId();
 		Document d= JavaBeanToDBObject.beanToDBObject(orderOrContracts);
+		List<Integer> ower =  (List<Integer>)d.remove("filed");
 		List<Document> purchasing = (List<Document>)d.remove("purchasing");
+		//合同订单的读写权限(无实际意义,只是在查询界面区分操作是 查看 或 编制序列号)
+		List<Integer> contract_write = new ArrayList<Integer>();
+		List<Integer> contract_read = new ArrayList<Integer>();
+		Integer r1 = (Integer)d.remove("company_field");
+		Integer r2 = ower.get(0);
+		contract_read.add(r1);
+		contract_read.add(r2);
 		for (Document doc : purchasing) {
+			/**
+			 * 增加合同订单明细中关于订货明细的读写权限
+			 */
+			Document access = new Document();
+			Integer w = (Integer)doc.remove("company_field");
+			contract_write.add(w);
+			access.put("write", new ArrayList<Integer>().add(w));
+			access.put("read", contract_read);
+			access.put("access", new Document("access",access));
+			
 			doc.put("p_id", _id);
-			doc.put("filed", fList);
-			System.out.println("新增的purchasing"+doc);
 			client.addOne("test","purchasing", doc);
 		}
 		List<Document>  supply = (List<Document>)d.remove("supply");
 		for (Document doc : supply) {
 			doc.put("p_id", _id);
-			doc.put("filed",fList);
-			System.out.println("新增的supply"+doc);
 			client.addOne("test", "supply",doc);
 		}
+		
+		
 		d.put("_id", _id);
 		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
+		d.put("access", new Document("access",new Document().put("write", contract_write)).put("read", contract_read));
 		client.addOne("test", "contract", d);
 		client.close();
 	}
@@ -83,6 +100,10 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryOrderOrContract(String contract_id,String purchasing_company,String company_name,List<Integer>list,int start, int limit) {
+		/**
+		 * 只取账号第一个域作为识别
+		 */
+		Integer key = list.get(0);
 		List<Bson> condition = new ArrayList<Bson>();
 		if (contract_id != null && !("").equals(contract_id))
 			condition.add(eq("contract_id", contract_id));
@@ -91,11 +112,28 @@ public class MongoDirver {
 		if (company_name != null && !("").equals(company_name))
 			condition.add(eq("company_name", company_name));
 		Bson filters = null;
-		condition.add(in("filed", list));
+		/**
+		 * 将有读写权限的订单合同一并查出
+		 */
+		condition.add(or(in("access.write", key),in("access.read", key)));
 		if (condition.size() > 0)
 			filters = and(condition);
 		int count = client.queryCount("test", "contract", filters);
-		List<Document>  orderOrContractList = client.queryList("test", "contract", filters, null,new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());	
+		List<Document>  orderOrContractList = client.queryList("test", "contract", filters, null,new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());
+		/**
+		 * 将取出的订单合同区分出查看或编制序列号(read or write)
+		 */
+		for(Document d : orderOrContractList){
+			Document access = (Document)d.remove("access");
+			List<Integer> write = access.get("write",new ArrayList<Integer>().getClass());
+			if(write.contains(key)){
+				d.put("access", "write");
+			}else{
+				d.put("access", "read");
+			}
+		}
+		
+		
 		Document data = new Document();
 		data.put("count", count);
 		data.put("bzxx",orderOrContractList);
