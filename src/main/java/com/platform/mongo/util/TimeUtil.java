@@ -21,6 +21,9 @@ public class TimeUtil {
 	private static SimpleDateFormat ymd_format6 = new SimpleDateFormat(
 			"yyyy/MM/dd HH:mm");
 
+	private static SimpleDateFormat yy = new SimpleDateFormat("yy");
+	private static SimpleDateFormat mm = new SimpleDateFormat("MM");
+
 	private static Pattern p1 = Pattern
 			.compile("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}");
 	private static Pattern p2 = Pattern
@@ -33,20 +36,6 @@ public class TimeUtil {
 			.compile("[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}");
 	private static Pattern p6 = Pattern
 			.compile("[0-9]{4}/[0-9]{1,2}/[0-9]{1,2} [0-9]{1,2}:[0-9]{1,2}");
-
-	// public static Date parserDate(String date) {
-	// if (date != null && !date.equals("")) {
-	// Date r = null;
-	// try {
-	// r = new Date(ymd_format.parse(date).getTime());
-	// } catch (ParseException e) {
-	// r = new Date(0l);
-	// }
-	// return r;
-	// }
-	//
-	// return null;
-	// }
 
 	public static Date parserTime(String date) {
 		if (date != null && !date.equals("")) {
@@ -94,18 +83,17 @@ public class TimeUtil {
 		return now;
 	}
 
-	// public static Date now() {
-	// return new Date(Calendar.getInstance().getTimeInMillis());
-	// }
-	//
-	// public static String pointDay(int amount) {
-	// Calendar now = Calendar.getInstance();
-	// now.add(Calendar.DAY_OF_MONTH, -amount);
-	// return ymd_format3.format(now.getTime()) + " 00:00:00";
-	// }
+	public static String YY(Date date) {
+		return yy.format(date);
+	}
+
+	public static String MM(Date date) {
+		return mm.format(date);
+	}
 
 	public static void main(String[] args) {
-		Date d = TimeUtil.parserTime("2016-01-03");
-		System.out.println(d.toString());
+		System.out.println(TimeUtil.YY(new Date()));
+		System.out.println(TimeUtil.MM(new Date()));
+		System.out.println(Format.format5(100));
 	}
 }
