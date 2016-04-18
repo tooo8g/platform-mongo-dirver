@@ -4,6 +4,7 @@ import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Filters.or;
+import static com.mongodb.client.model.Filters.regex;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -553,9 +554,9 @@ public class MongoDirver {
 	public String queryCompany(String com_name,String org_code,int skip,int limit){
 		List<Bson> condition = new ArrayList<Bson>();
 		if (com_name != null && !("").equals(com_name))
-			condition.add(eq("com_name", com_name));
+			condition.add(regex("com_name", "^.*" + com_name + ".*$"));
 		if (org_code != null && !("").equals(org_code))
-			condition.add(eq("org_code", org_code));
+			condition.add(regex("org_code", "^.*" + org_code + ".*$"));
 		Bson filters = null;
 		if (condition.size() > 0)
 			filters = and(condition);
@@ -575,6 +576,8 @@ public class MongoDirver {
 	public void addAccount(Account account) throws Exception{
 		Document d = JavaBeanToDBObject.beanToDBObject(account);
 		d.put("add_time", new Date());
+	    List<Integer> oper_filedList = new ArrayList<Integer>();
+		d.put("oper_filed", oper_filedList);
 		System.out.println("新增用户的json："+d.toJson());
 		client.addOne("test","account", d);
 	}
