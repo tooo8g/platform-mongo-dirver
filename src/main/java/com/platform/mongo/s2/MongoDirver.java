@@ -49,12 +49,13 @@ public class MongoDirver {
 	public void addOrderOrContract(OrderOrContract orderOrContracts,String user_id) throws Exception{
 		ObjectId _id = new ObjectId();
 		Document d= JavaBeanToDBObject.beanToDBObject(orderOrContracts);
-		List<Integer> ower =  (List<Integer>)d.remove("filed");
+		System.out.println("转换后的document："+d.toJson());
+		List<Integer> ower =  (List<Integer>)d.get("filed");
 		List<Document> purchasing = (List<Document>)d.remove("purchasing");
 		//合同订单的读写权限(无实际意义,只是在查询界面区分操作是 查看 或 编制序列号)
 		List<Integer> contract_write = new ArrayList<Integer>();
 		List<Integer> contract_read = new ArrayList<Integer>();
-		Integer r1 = (Integer)d.remove("company_field");
+		Integer r1 = (Integer)d.get("company_field");//供应商所属域
 		Integer r2 = ower.get(0);
 		contract_read.add(r1);
 		contract_read.add(r2);
@@ -63,13 +64,17 @@ public class MongoDirver {
 			 * 增加合同订单明细中关于订货明细的读写权限
 			 */
 			Document access = new Document();
-			Integer w = (Integer)doc.remove("company_field");
+			Integer w = (Integer)doc.get("company_field");
 			contract_write.add(w);
-			access.put("write", new ArrayList<Integer>().add(w));
+			List<Integer> contract_writeList = new ArrayList<Integer>();
+			contract_writeList.add(w);
+			access.put("write",contract_writeList);
 			access.put("read", contract_read);
-			access.put("access", new Document("access",access));
-			
 			doc.put("p_id", _id);
+			//TODO
+			doc.put("access", access);
+			System.out.println("新增订货明细json：:"+doc.toJson());
+			
 			client.addOne("test","purchasing", doc);
 		}
 		List<Document>  supply = (List<Document>)d.remove("supply");
@@ -83,7 +88,14 @@ public class MongoDirver {
 		d.put("user_id", user_id);
 		d.put("add_time", new Date());
 		d.put("edit_time", new Date());
-		d.put("access", new Document("access",new Document().put("write", contract_write)).put("read", contract_read));
+		
+		//TODO
+		Document access = new Document();
+		access.put("write", contract_write);
+		access.put("read", contract_read);
+		d.put("access",access);
+		
+		System.out.println("新增合同订单号的json--contract:"+d.toJson());
 		client.addOne("test", "contract", d);
 		client.close();
 	}
@@ -149,13 +161,31 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryOrderOrContractDetail(String contract_id,List<Integer> list) {
+		/**
+		 * 只取账号第一个域作为识别
+		 */
+		Integer key = list.get(0);
 		Bson _idfilters = and(eq("contract_id",contract_id));
 		List<Document> contractList = client.queryList("test", "contract", _idfilters, new BasicDBObject()).into(new ArrayList<Document>());
 		ObjectId objectId = client.queryOne("test", "contract", _idfilters, "_id",ObjectId.class);
-		
-		Bson filters = and(eq("p_id",objectId),in("filed", list));
+		/**
+		 * 将有读写权限的订单合同一并查出
+		 */
+		Bson filters = and(eq("p_id",objectId),or(in("access.write", key),in("access.read", key)));
 		List<Document> purchasingList = client.queryList("test", "purchasing", filters,  new BasicDBObject()).into(new ArrayList<Document>());
 		List<Document> supplyList = client.queryList("test","supply" , filters,new BasicDBObject()).into(new ArrayList<Document>());
+		/**
+		 * 将取出的订单合同区分出查看或编制序列号(read or write)
+		 */
+		for(Document d : purchasingList){
+			Document access = (Document)d.remove("access");
+			List<Integer> write = access.get("write",new ArrayList<Integer>().getClass());
+			if(write.contains(key)){
+				d.put("access", "write");
+			}else{
+				d.put("access", "read");
+			}
+		}
 		
 		//查询已编制序列号数量
 			for (Document d : supplyList) {
@@ -179,9 +209,9 @@ public class MongoDirver {
 	 */
 	public String queryPurchasingByCode(String materialCode) {
 		Bson filters = and(eq("material_code",materialCode));
-		List<Document> purchasingList = client.queryList("test", "purchasing", filters,  new BasicDBObject("material_code",0)).into(new ArrayList<Document>());
+		List<Document> purchasingList = client.queryList("test", "material", filters,null).into(new ArrayList<Document>());
 		Document data = new Document();
-		data.put("bzxx", purchasingList);
+		data.put("wzxx", purchasingList);
 		return data.toJson();
 	}
 	
@@ -286,7 +316,6 @@ public class MongoDirver {
 	 * @return
 	 */
 	public String queryCodes(ObjectId gId, ObjectId bId,List<Integer> list,int start, int limit) {
-		// TODO Auto-generated method stub
 		List<Bson> condition = new ArrayList<Bson>();
 		if (gId != null && !gId.equals(""))
 			condition.add(eq("group_id", gId));
@@ -727,6 +756,13 @@ public class MongoDirver {
 		}
 		System.out.println(operFiledsList);
 		client.updateField("test", "account", f, "oper_filed", operFiledsList);
+	}
+	
+	public static void main(String[] args) {
+		MongoDirver m = new MongoDirver();
+		String a = "800000215002";
+		a = m.queryPurchasingByCode(a);
+		System.out.println(a);
 	}
 }
 
