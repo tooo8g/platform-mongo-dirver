@@ -161,20 +161,20 @@ public class MongoDirver {
 	 * @param list 权限域集合
 	 * @return
 	 */
-	public String queryOrderOrContractDetail(String contract_id,List<Integer> list) {
+	public String queryOrderOrContractDetail(String _id,List<Integer> list) {
 		/**
 		 * 只取账号第一个域作为识别
 		 */
 		Integer key = list.get(0);
-		Bson _idfilters = and(eq("contract_id",contract_id));
-		List<Document> contractList = client.queryList("test", "contract", _idfilters, new BasicDBObject()).into(new ArrayList<Document>());
-		ObjectId objectId = client.queryOne("test", "contract", _idfilters, "_id",ObjectId.class);
+		ObjectId objectId = new ObjectId(_id);
+		Bson _idfilters = and(eq("_id",objectId));
+		Document contractList = client.queryOne("test", "contract", _idfilters, null);
 		/**
 		 * 将有读写权限的订单合同一并查出
 		 */
 		Bson filters = and(eq("p_id",objectId),or(in("access.write", key),in("access.read", key)));
-		List<Document> purchasingList = client.queryList("test", "purchasing", filters,  new BasicDBObject()).into(new ArrayList<Document>());
-		List<Document> supplyList = client.queryList("test","supply" , filters,new BasicDBObject()).into(new ArrayList<Document>());
+		List<Document> purchasingList = client.queryList("test", "purchasing", filters,  null).into(new ArrayList<Document>());
+		List<Document> supplyList = client.queryList("test","supply" , filters,null).into(new ArrayList<Document>());
 		/**
 		 * 将取出的订单合同区分出查看或编制序列号(read or write)
 		 */
