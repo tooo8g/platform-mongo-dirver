@@ -1276,7 +1276,7 @@ public class MongoDirverS1 {
 		d.put("specification", c.getSpecification());
 		d.put("material_code", c.getMaterial_code());
 		d.put("company_name", c.getCompany_name());
-		d.put("group_id", c.getGroup_id());
+//		d.put("group_id", c.getGroup_id());
 		d.put("branch_id", c.getBranch_id());
 		d.put("add_time", c.getAdd_time());
 		d.put("filed",c.getFiled());

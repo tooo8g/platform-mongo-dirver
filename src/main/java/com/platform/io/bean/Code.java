@@ -17,7 +17,6 @@ public class Code implements Cloneable {
 	public String specification;// 规格型号.
 	public String material_code;// 物资编码
 	public String company_name;// 企业名称.
-	public ObjectId group_id;// 组Id
 	public ObjectId branch_id;// 关联Id
 	public String state;// 状态 0-未打印 1-已打印（默认是未打印）
 	public Date add_time;
@@ -123,14 +122,6 @@ public class Code implements Cloneable {
 
 	public void setProgram_time(Date program_time) {
 		this.program_time = program_time;
-	}
-
-	public ObjectId getGroup_id() {
-		return group_id;
-	}
-
-	public void setGroup_id(ObjectId group_id) {
-		this.group_id = group_id;
 	}
 
 	public ObjectId getBranch_id() {

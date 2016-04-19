@@ -330,10 +330,8 @@ public class MongoDirver {
 	 * @param groupId
 	 * @return
 	 */
-	public String queryCodes(ObjectId gId, ObjectId bId,List<Integer> list,int start, int limit) {
+	public String queryCodes(ObjectId bId,List<Integer> list,int start, int limit) {
 		List<Bson> condition = new ArrayList<Bson>();
-		if (gId != null && !gId.equals(""))
-			condition.add(eq("group_id", gId));
 		if (bId != null && !bId.equals(""))
 			condition.add(eq("branch_id", bId));
 		Bson filters = null;
