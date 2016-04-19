@@ -51,7 +51,7 @@ public class MongoDirver {
 		ObjectId _id = new ObjectId();
 		Document d= JavaBeanToDBObject.beanToDBObject(orderOrContracts);
 		System.out.println("转换后的document："+d.toJson());
-		List<Integer> ower =  (List<Integer>)d.get("filed");
+		List<Integer> ower =  (List<Integer>)d.remove("filed");
 		List<Document> purchasing = (List<Document>)d.remove("purchasing");
 		//合同订单的读写权限(无实际意义,只是在查询界面区分操作是 查看 或 编制序列号)
 		List<Integer> contract_write = new ArrayList<Integer>();
