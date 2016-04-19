@@ -204,13 +204,27 @@ public class MongoDirver {
 	}
 	/**
 	 * 查询订货详情
-	 * @author niyn
-	 * @param materialCode  物资编号
+	 * @author niyn 
+	 * @param materialCode  [material] 物资编号
 	 * @return
 	 */
 	public String queryPurchasingByCode(String materialCode) {
 		Bson filters = and(eq("material_code",materialCode));
 		List<Document> purchasingList = client.queryList("test", "material", filters,null).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("wzxx", purchasingList);
+		return data.toJson();
+	}
+	
+	/**
+	 * 查询订货详情
+	 * @author niyn
+	 * @param _id   id  [purchasing]
+	 * @return
+	 */
+	public String queryPurchasingId(String _id) {
+		Bson filters = and(eq("_id",new ObjectId(_id)));
+		List<Document> purchasingList = client.queryList("test", "purchasing", filters,null).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("wzxx", purchasingList);
 		return data.toJson();
