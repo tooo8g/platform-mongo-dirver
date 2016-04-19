@@ -222,9 +222,9 @@ public class MongoDirver {
 	 * @param _id   id  [purchasing]
 	 * @return
 	 */
-	public String queryPurchasingId(String _id) {
+	public String queryPurchasingById(String _id) {
 		Bson filters = and(eq("_id",new ObjectId(_id)));
-		List<Document> purchasingList = client.queryList("test", "purchasing", filters,null).into(new ArrayList<Document>());
+		Document purchasingList = client.queryOne("test", "purchasing", filters,null);
 		Document data = new Document();
 		data.put("wzxx", purchasingList);
 		return data.toJson();
@@ -777,8 +777,8 @@ public class MongoDirver {
 	
 	public static void main(String[] args) {
 		MongoDirver m = new MongoDirver();
-		String a = "800000215002";
-		a = m.queryPurchasingByCode(a);
+		String a = "5714cb0b38d23f1420e989a9";
+		a = m.queryPurchasingById(a);
 		System.out.println(a);
 	}
 }
