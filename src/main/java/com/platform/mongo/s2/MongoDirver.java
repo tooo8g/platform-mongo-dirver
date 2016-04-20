@@ -116,7 +116,10 @@ public class MongoDirver {
 		/**
 		 * 只取账号第一个域作为识别
 		 */
-		Integer key = list.get(0);
+		Integer key  = null;
+		if(list!=null && !list.isEmpty()){
+			key = list.get(0);
+		}
 		List<Bson> condition = new ArrayList<Bson>();
 		if (contract_id != null && !("").equals(contract_id))
 			condition.add(eq("contract_id", contract_id));
@@ -165,7 +168,10 @@ public class MongoDirver {
 		/**
 		 * 只取账号第一个域作为识别
 		 */
-		Integer key = list.get(0);
+		Integer key  = null;
+		if(list!=null && !list.isEmpty()){
+			key = list.get(0);
+		}
 		ObjectId objectId = new ObjectId(_id);
 		Bson _idfilters = and(eq("_id",objectId));
 		Document contractList = client.queryOne("test", "contract", _idfilters, null);
