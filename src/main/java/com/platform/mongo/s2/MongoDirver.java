@@ -475,7 +475,7 @@ public class MongoDirver {
 		if (condition.size() > 0)
 			filters = and(condition);
 		int count = client.queryCount("test", "waybillInfo", filters);
-		List<Document>  waybillInfoList = client.queryList("test", "waybillInfo", filters, new BasicDBObject(),new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());	
+		List<Document>  waybillInfoList = client.queryList("test", "waybillInfo", filters, null,new BasicDBObject("add_time",-1),start,limit).into(new ArrayList<Document>());	
 		Document data = new Document();
 		data.put("count", count);
 		data.put("waybillInfo",waybillInfoList);
@@ -495,7 +495,7 @@ public class MongoDirver {
 	public String queryGoodsInfo(String _id,List<Integer>  list,Integer start,Integer limit){
 		Bson f= and(eq("p_id",new ObjectId(_id)),in("filed",list));
 		int count = client.queryCount("test", "goods", f);
-		List<Document> goodsList = client.queryList("test", "goods", f,  new BasicDBObject(),start,limit).into(new ArrayList<Document>());
+		List<Document> goodsList = client.queryList("test", "goods", f,  null,start,limit).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
 		data.put("goodsList",goodsList);
@@ -513,7 +513,7 @@ public class MongoDirver {
 	public String queryLogisticsInfo(String _id,List<Integer>  list){
 		Bson f= and(eq("p_id",new ObjectId(_id)),in("filed",list));
 		int count = client.queryCount("test", "logistics", f);
-		List<Document> logisticsList = client.queryList("test","logistics" , f,new BasicDBObject()).into(new ArrayList<Document>());
+		List<Document> logisticsList = client.queryList("test","logistics" , f,null).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("count", count);
 		data.put("logisticsList",logisticsList);
@@ -643,24 +643,24 @@ public class MongoDirver {
 		List<Document>  assignedList = new ArrayList<Document>();
 		List<Document> unassignedList = new ArrayList<Document>();
 		for (Integer o : accountFiledList) {
-				Bson f = and(eq("com_filed",o));
-				Document doc = client.querySingle("test", "company", f, null);
-				if(doc!=null){
-					Document assignedDoc = new Document();
-					assignedDoc.put("com_filed", o.toString());
-					assignedDoc.put("com_name",(String)doc.get("com_name"));
-					assignedList.add(assignedDoc);
+				for (Document comDoc : companyList) {
+					if(comDoc != null && (comDoc.get("com_filed").equals(o))){
+						Document assignedDoc = new Document();
+						assignedDoc.put("com_filed", o.toString());
+						assignedDoc.put("com_name",(String)comDoc.get("com_name"));
+						assignedList.add(assignedDoc);
+					}
 				}
 		}
 		for (Object o : unassignedComList) {
-			Bson f2 = and(eq("com_filed",o));
-			Document doc = client.querySingle("test", "company", f2, null);
-			if(doc!=null){
-				Document unassignedDoc = new Document();
-				unassignedDoc.put("com_filed", o.toString());
-				unassignedDoc.put("com_name",(String)doc.get("com_name"));
-				unassignedList.add(unassignedDoc);
-			}  
+			for (Document comDoc : companyList) {
+				if(comDoc != null && (comDoc.get("com_filed").equals(o))){
+					Document unassignedDoc = new Document();
+					unassignedDoc.put("com_filed", o.toString());
+					unassignedDoc.put("com_name",(String)comDoc.get("com_name"));
+					unassignedList.add(unassignedDoc);
+				}
+			}
 		}
 		data.put("assignedList", assignedList);
 		data.put("unassignedList", unassignedList);
@@ -726,26 +726,26 @@ public class MongoDirver {
 		List<Document>  assignedList = new ArrayList<Document>();
 		List<Document> unassignedList = new ArrayList<Document>();
 		for (Integer o : accountOperFiledList) {
-				Bson f = and(eq("oper_num",o));
-				Document doc = client.querySingle("test", "operation", f, null);
-				if(doc!=null){
+			for (Document operDoc : operationList) {
+				if(operDoc !=null &&( operDoc.get("oper_num").equals(o))){
 					Document assignedDoc = new Document();
 					assignedDoc.put("oper_num", o.toString());
-					assignedDoc.put("oper_code",(String)doc.get("oper_code"));
-					assignedDoc.put("oper_name",(String)doc.get("oper_name"));
+					assignedDoc.put("oper_code",(String)operDoc.get("oper_code"));
+					assignedDoc.put("oper_name",(String)operDoc.get("oper_name"));
 					assignedList.add(assignedDoc);
 				}
+			}
 		}
 		for (Object o : unassignedComList) {
-			Bson f2 = and(eq("oper_num",o));
-			Document doc = client.querySingle("test", "operation", f2, null);
-			if(doc!=null){
-				Document unassignedDoc = new Document();
-				unassignedDoc.put("oper_num", o.toString());
-				unassignedDoc.put("oper_code",(String)doc.get("oper_code"));
-				unassignedDoc.put("oper_name",(String)doc.get("oper_name"));
-				unassignedList.add(unassignedDoc);
-			}  
+			for (Document operDoc : operationList) {
+				if(operDoc !=null&&(operDoc.get("oper_num").equals(o))){
+					Document unassignedDoc = new Document();
+					unassignedDoc.put("oper_num", o.toString());
+					unassignedDoc.put("oper_code",(String)operDoc.get("oper_code"));
+					unassignedDoc.put("oper_name",(String)operDoc.get("oper_name"));
+					unassignedList.add(unassignedDoc);
+				}
+			}
 		}
 		data.put("assignedList", assignedList);
 		data.put("unassignedList", unassignedList);
