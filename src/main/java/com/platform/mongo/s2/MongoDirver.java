@@ -721,7 +721,7 @@ public class MongoDirver {
 		Document com = client.querySingle("test", "account", filters, null);
 		List<Integer> accountOperFiledList = (List<Integer>) com.get("oper_filed");
 		//所有公司
-		List<Document> operationList = client.queryList("test", "operation", null,new BasicDBObject(), 0, 100).into(new ArrayList<Document>());
+		List<Document> operationList = client.queryList("test", "operation", null,null).into(new ArrayList<Document>());
 		List<Object> allComList = new ArrayList<Object>();
 		for (Document doc : operationList) {
 			allComList.add(doc.get("oper_num"));
