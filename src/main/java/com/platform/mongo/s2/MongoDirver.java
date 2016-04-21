@@ -19,6 +19,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.platform.io.bean.Account;
 import com.platform.io.bean.Code;
 import com.platform.io.bean.Company;
+import com.platform.io.bean.Material;
 import com.platform.io.bean.OrderOrContract;
 import com.platform.io.bean.ProductInfo;
 import com.platform.io.bean.WaybillInfo;
@@ -779,12 +780,57 @@ public class MongoDirver {
 		client.updateField("test", "account", f, "oper_filed", operFiledsList);
 	}
 	
-	public static void main(String[] args) {
-		MongoDirver m = new MongoDirver();
-		String a = "5714cb0b38d23f1420e989a9";
-		a = m.queryPurchasingById(a);
-		System.out.println(a);
+	/**
+	 * 新增物资
+	 * @author niyn
+	 */
+	public void addMaterial(Material material) throws Exception{
+		Document d = JavaBeanToDBObject.beanToDBObject(material);
+		client.addOne("test", "material", d);
 	}
+	
+	/**
+	 * 查询物资列表
+	 * @author niyn
+	 * @return
+	 */
+	public String queryMaterial(int skip,int limit){
+		Bson sort = and(eq("add_time",-1));
+		List<Document> result = client.queryList("test", "material", null, null, sort, skip, limit).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("data", result);
+		System.out.println("物资列表："+data.toJson());
+		return data.toJson();
+	}
+	
+	/**
+	 * 根据id查询物资（修改物资）
+	 * @author niyn
+	 * @param _id
+	 * @throws Exception
+	 */
+	public String queryMaterialById(String _id) throws Exception{
+		Bson filters = and(eq("_id",new ObjectId(_id)));
+		Document d = client.queryOne("test","material", filters, null);
+		Document data = new Document();
+		data.put("data", d);
+		System.out.println("根据id ："+_id+"查询到的物资 ："+data.toJson());
+		return data.toJson();
+	}
+	
+	/**
+	 * 修改物资[保存]
+	 * @author niyn
+	 * @param _id
+	 * @param material
+	 * @throws Exception
+	 */
+	public void updateMaterial(String _id,Material material) throws Exception{
+		Bson filters = and(eq("_id",new ObjectId(_id)));
+		Document values = JavaBeanToDBObject.beanToDBObject(material);
+		client.updateOne("test", "material", filters, values);
+	}
+	
 }
 
 

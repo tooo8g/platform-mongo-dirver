@@ -1,5 +1,7 @@
 package com.platform.io.bean;
 
+import java.util.Date;
+
 /**
  * 物资
  * @author zhanglei
@@ -15,9 +17,24 @@ public class Material {
 	public String specification;
 	//计量单位
 	public String measurement;
-	//是否为重要物资
+	//是否为重要物资(0-否，,1-是)
 	public int isPrecious;
 	
+	public Date add_time;
+	public Date update_time;
+	
+	public Date getUpdate_time() {
+		return update_time;
+	}
+	public void setUpdate_time(Date update_time) {
+		this.update_time = update_time;
+	}
+	public Date getAdd_time() {
+		return add_time;
+	}
+	public void setAdd_time(Date add_time) {
+		this.add_time = add_time;
+	}
 	public String getMaterial_code() {
 		return material_code;
 	}
