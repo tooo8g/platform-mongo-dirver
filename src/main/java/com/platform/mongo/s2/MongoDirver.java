@@ -786,6 +786,9 @@ public class MongoDirver {
 	 */
 	public void addMaterial(Material material) throws Exception{
 		Document d = JavaBeanToDBObject.beanToDBObject(material);
+		d.put("add_time", new Date());
+		d.put("update_time", new Date());
+		System.out.println("新增物资Material的json ："+d.toJson());
 		client.addOne("test", "material", d);
 	}
 	
@@ -794,11 +797,21 @@ public class MongoDirver {
 	 * @author niyn
 	 * @return
 	 */
-	public String queryMaterial(int skip,int limit){
-		Bson sort = and(eq("add_time",-1));
-		List<Document> result = client.queryList("test", "material", null, null, sort, skip, limit).into(new ArrayList<Document>());
+	public String queryMaterial(String material_code,String material_name,int skip,int limit){
+		List<Bson> condition = new ArrayList<Bson>();
+		if (material_code != null && !("").equals(material_code))
+			condition.add(regex("com_name", "^.*" + material_code + ".*$"));
+		if (material_name != null && !("").equals(material_name))
+			condition.add(regex("org_code", "^.*" + material_name + ".*$"));
+		Bson filters = null;
+		if (condition.size() > 0)
+			filters = and(condition);
+		int count = client.queryCount("test", "material", filters);
+		Bson sort = and(eq("update_time",-1));
+		List<Document> result = client.queryList("test", "material", filters, null, sort, skip, limit).into(new ArrayList<Document>());
 		Document data = new Document();
 		data.put("data", result);
+		data.put("count", count);
 		System.out.println("物资列表："+data.toJson());
 		return data.toJson();
 	}
@@ -828,9 +841,31 @@ public class MongoDirver {
 	public void updateMaterial(String _id,Material material) throws Exception{
 		Bson filters = and(eq("_id",new ObjectId(_id)));
 		Document values = JavaBeanToDBObject.beanToDBObject(material);
+		values.put("update_time", new Date());
 		client.updateOne("test", "material", filters, values);
 	}
+	/**
+	 * 删除物资
+	 * @param _id
+	 * @author niyn
+	 */
+	public  void  deleteMaterial(String _id){
+		Bson filters = and(eq("_id",new ObjectId(_id)));
+		client.deleteOne("test", "material", filters);
+	}
 	
+	public static void main(String[] args) throws Exception {
+		MongoDirver md = new MongoDirver();
+		Material m = new Material();
+		m.setMaterial_code("test1");
+		m.setMaterial_name("test1");
+		m.setMeasurement("kg");
+		m.setSpecification("GB-19");
+		m.setIsPrecious(0);
+		m.setUpdate_time(new Date());
+		m.setAdd_time(new Date());
+		md.addMaterial(m);
+	}
 }
 
 
