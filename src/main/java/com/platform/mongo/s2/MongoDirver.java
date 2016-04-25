@@ -784,12 +784,14 @@ public class MongoDirver {
 	 * 新增物资
 	 * @author niyn
 	 */
-	public void addMaterial(Material material) throws Exception{
-		Document d = JavaBeanToDBObject.beanToDBObject(material);
-		d.put("add_time", new Date());
-		d.put("update_time", new Date());
-		System.out.println("新增物资Material的json ："+d.toJson());
-		client.addOne("test", "material", d);
+	public void addMaterial(List<Material> material) throws Exception{
+		for (Material m : material) {
+			Document d = JavaBeanToDBObject.beanToDBObject(m);
+			d.put("add_time", new Date());
+			d.put("update_time", new Date());
+			System.out.println("新增物资Material的json ："+d.toJson());
+			client.addOne("test", "material", d);
+		}
 	}
 	
 	/**
@@ -800,9 +802,9 @@ public class MongoDirver {
 	public String queryMaterial(String material_code,String material_name,int skip,int limit){
 		List<Bson> condition = new ArrayList<Bson>();
 		if (material_code != null && !("").equals(material_code))
-			condition.add(regex("com_name", "^.*" + material_code + ".*$"));
+			condition.add(regex("material_code", "^.*" + material_code + ".*$"));
 		if (material_name != null && !("").equals(material_name))
-			condition.add(regex("org_code", "^.*" + material_name + ".*$"));
+			condition.add(regex("material_name", "^.*" + material_name + ".*$"));
 		Bson filters = null;
 		if (condition.size() > 0)
 			filters = and(condition);
@@ -852,19 +854,6 @@ public class MongoDirver {
 	public  void  deleteMaterial(String _id){
 		Bson filters = and(eq("_id",new ObjectId(_id)));
 		client.deleteOne("test", "material", filters);
-	}
-	
-	public static void main(String[] args) throws Exception {
-		MongoDirver md = new MongoDirver();
-		Material m = new Material();
-		m.setMaterial_code("test1");
-		m.setMaterial_name("test1");
-		m.setMeasurement("kg");
-		m.setSpecification("GB-19");
-		m.setIsPrecious(0);
-		m.setUpdate_time(new Date());
-		m.setAdd_time(new Date());
-		md.addMaterial(m);
 	}
 }
 
