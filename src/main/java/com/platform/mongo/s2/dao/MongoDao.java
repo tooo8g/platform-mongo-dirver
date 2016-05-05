@@ -3,13 +3,10 @@ package com.platform.mongo.s2.dao;
 import static com.mongodb.client.model.Filters.elemMatch;
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
+import static com.mongodb.client.model.Filters.where;
 import static java.util.Arrays.asList;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,7 +19,6 @@ import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.DBCursor;
 import com.mongodb.DBRef;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
@@ -30,14 +26,14 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
-import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
+import com.platform.io.bean.Word;
 import com.platform.mongo.util.Constant;
+import com.platform.mongo.util.JSUtil;
 
 public class MongoDao {
 
@@ -163,6 +159,7 @@ public class MongoDao {
 				.into(new ArrayList<Document>());
 		return cp_detail;
 	}
+
 	/**
 	 * select from where
 	 * 
@@ -422,6 +419,7 @@ public class MongoDao {
 		MongoCollection<Document> mongocol = database.getCollection(collection);
 		mongocol.updateOne(filters, new Document("$set", values));
 	}
+
 	/**
 	 * 存储文件
 	 * 
@@ -435,7 +433,7 @@ public class MongoDao {
 		DB database = client.getDB(db);
 		GridFS gf = new GridFS(database, collection);
 		GridFSInputFile gfsFile = gf.createFile(data);
-		gfsFile.setFilename(filename);//以pdf四位数字文件名【不要重复】作为id入库
+		gfsFile.setFilename(filename);// 以pdf四位数字文件名【不要重复】作为id入库
 		gfsFile.save();
 	}
 
@@ -470,10 +468,10 @@ public class MongoDao {
 	 * @param collection
 	 * @param fileName
 	 * @param path
-	 * @throws Exception 
+	 * @throws Exception
 	 */
-	public GridFSDBFile writeFile(String db, String collection, String fileName,
-			String path) throws Exception {
+	public GridFSDBFile writeFile(String db, String collection,
+			String fileName, String path) throws Exception {
 		DB database = client.getDB(db);
 		GridFS gf = new GridFS(database, collection);
 		GridFSDBFile gfFile = gf.findOne(fileName);
@@ -484,30 +482,33 @@ public class MongoDao {
 		// e.printStackTrace();
 		// }
 	}
-	
+
 	/**
 	 * 删除数据
+	 * 
 	 * @author niyn
 	 * @param db
 	 * @param collection
 	 * @param filters
 	 */
-	public void deleteOne(String db,String collection,Bson filters){
+	public void deleteOne(String db, String collection, Bson filters) {
 		MongoDatabase database = client.getDatabase(db);
 		MongoCollection<Document> mongocol = database.getCollection(collection);
 		mongocol.deleteOne(filters);
 	}
+
 	/**
 	 * 删除多个
+	 * 
 	 * @author zhangyb
 	 * @param db
 	 * @param collection
 	 * @param groupId
 	 */
-	public void deleteMany(String db, String collection,Bson filters) {
+	public void deleteMany(String db, String collection, Bson filters) {
 		MongoDatabase database = client.getDatabase(db);
 		MongoCollection<Document> mongocol = database.getCollection(collection);
-		mongocol.deleteMany(filters);		
+		mongocol.deleteMany(filters);
 	}
 
 	/**
@@ -516,39 +517,58 @@ public class MongoDao {
 	public void close() {
 		client.close();
 	}
-	
+
 	/**
 	 * 获得表自增长序列
+	 * 
 	 * @auth zhanglei
-	 * @param collection 需要自增长的集合名称
+	 * @param collection
+	 *            需要自增长的集合名称
 	 * @return
 	 */
-	public int incrementing(String db,String collection){
+	public int incrementing(String db, String collection) {
 		MongoDatabase database = client.getDatabase(db);
 		MongoCollection<Document> mongocol = database.getCollection("counters");
 		FindOneAndUpdateOptions option = new FindOneAndUpdateOptions();
 		option.upsert(true);
 		option.returnDocument(ReturnDocument.AFTER);
-		Document r = mongocol.findOneAndUpdate(eq("_id", collection), new Document("$inc", new Document("seq", 1)),option);
-			
+		Document r = mongocol.findOneAndUpdate(eq("_id", collection),
+				new Document("$inc", new Document("seq", 1)), option);
+
 		return r.getInteger("seq");
+	}
+
+	/**
+	 * 匹配字符串
+	 * @auth zhanglei
+	 * @param db
+	 * @param collection
+	 * @param words 关键字列表
+	 * @param field 目标字段
+	 * @param projected
+	 * @param skip
+	 * @param limit
+	 * @return
+	 */
+	public FindIterable<Document> matchWord(String db, String collection,
+			List<Word> words, String field, Bson projected, int skip, int limit) {
+		MongoDatabase database = client.getDatabase(db);
+		MongoCollection<Document> mongocol = database.getCollection(collection);
+		Bson filters = where(JSUtil.wordMatchJS(words, field));
+		return mongocol.find(filters).projection(projected).skip(skip)
+				.limit(limit);
 	}
 
 	public static void main(String[] args) throws Exception {
 		MongoDao md = new MongoDao();
-		String  fileName = "4902";
-		String s = "123456";
-		byte[] data = s.getBytes();
-//		md.saveFile("niyn","pdf", fileName, data);
-		
-//		byte[] d = md.getFile("test", "pdf", fileName);
-//		String ss = d.toString();
-//		System.out.println(ss);
-		
-		String path = "E://test//3.pdf";
-		md.writeFile("test", "pdf", fileName, path);
+		List<Word> words = new ArrayList<Word>();
+		words.add(new Word("大"));
+		words.add(new Word("联合1"));
+		words.add(new Word("及北"));
+		List<Document> r = md.matchWord("test", "wordtest", words, "text", null, 0, 10000).into(new ArrayList<Document>());
+		for(Document d:r){
+			System.out.println(d.toJson());
+		}
 	}
-	
-	
-}
 
+}
