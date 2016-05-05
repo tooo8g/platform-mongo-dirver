@@ -33,6 +33,7 @@ public class JSUtil {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		List<Word> words = new ArrayList<Word>();
 		words.add(new Word("大"));
 		words.add(new Word("联合1"));
