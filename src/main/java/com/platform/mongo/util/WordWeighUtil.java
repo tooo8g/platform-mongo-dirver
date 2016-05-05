@@ -3,7 +3,7 @@ package com.platform.mongo.util;
 
 public class WordWeighUtil {
 
-	private static final double x = 100.0;
+	private static final double x = 39.002;
 
 	/**
 	 * 获取词的权重

@@ -819,6 +819,39 @@ public class MongoDirver {
 	}
 	
 	/**
+	 * 查询物资列表【匹配规则】
+	 * @author niyn
+	 * @return
+	 */
+	public String queryMaterial(List<String> names,int skip,int limit){
+		List<Bson> condition = new ArrayList<Bson>();
+		for (String name : names) {
+			condition.add(regex("material_name", "^.*" + name + ".*$"));
+		}
+		Bson filters = null;
+		filters = or(condition);
+		int count = client.queryCount("test", "material", filters);
+		Bson sort = and(eq("update_time",-1));
+		List<Document> result = client.queryList("test", "material", filters, null, sort, skip, limit).into(new ArrayList<Document>());
+		Document data = new Document();
+		data.put("data", result);
+		data.put("count", count);
+		System.out.println("物资列表："+data.toJson());
+		return data.toJson();
+	}
+	
+	/**
+	 * 查询物资列表【count数】
+	 * @author niyn
+	 * @return
+	 */
+	public String queryC(String name){
+		Bson filters = null;
+		filters = regex("material_name", "^.*" + name + ".*$");
+		int count = client.queryCount("test", "material", filters);
+		return String.valueOf(count);
+	}
+	/**
 	 * 根据id查询物资（修改物资）
 	 * @author niyn
 	 * @param _id
@@ -855,6 +888,7 @@ public class MongoDirver {
 		Bson filters = and(eq("_id",new ObjectId(_id)));
 		client.deleteOne("test", "material", filters);
 	}
+	
 }
 
 

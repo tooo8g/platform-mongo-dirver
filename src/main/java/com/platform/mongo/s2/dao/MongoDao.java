@@ -562,10 +562,11 @@ public class MongoDao {
 	public static void main(String[] args) throws Exception {
 		MongoDao md = new MongoDao();
 		List<Word> words = new ArrayList<Word>();
-		words.add(new Word("大"));
-		words.add(new Word("联合1"));
-		words.add(new Word("及北"));
-		List<Document> r = md.matchWord("test", "wordtest", words, "text", null, 0, 10000).into(new ArrayList<Document>());
+//		扣件#112,绝缘#13089,垫片#4493
+		words.add(new Word("扣件#112"));
+		words.add(new Word("绝缘#13089"));
+		words.add(new Word("垫片#4493"));
+		List<Document> r = md.matchWord("test", "material", words, "material_name", null, 0, 10000).into(new ArrayList<Document>());
 		for(Document d:r){
 			System.out.println(d.toJson());
 		}
