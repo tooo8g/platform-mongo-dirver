@@ -34,9 +34,9 @@ public class JSUtil {
 	 */
 	public static void main(String[] args) {
 		List<Word> words = new ArrayList<Word>();
-		words.add(new Word("大"));
-		words.add(new Word("联合1"));
-		words.add(new Word("及北"));
+		words.add(new Word("大","1.0"));
+		words.add(new Word("联合1","1.0"));
+		words.add(new Word("及北","1.0"));
 		System.out.println(JSUtil.wordMatchJS(words, "text"));
 	}
 
