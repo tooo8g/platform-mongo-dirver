@@ -34,6 +34,7 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 import com.platform.io.bean.Material;
 import com.platform.io.bean.Word;
+import com.platform.io.bean.Words;
 import com.platform.mongo.util.Constant;
 import com.platform.mongo.util.JSUtil;
 
@@ -572,14 +573,22 @@ public class MongoDao {
 	public static void main(String[] args) throws Exception {
 		MongoDao md = new MongoDao();
 		List<Word> words = new ArrayList<Word>();
-//		扣件#112,绝缘#13089,垫片#4493
-		words.add(new Word("扣件#112"));
-		words.add(new Word("绝缘#13089"));
-		words.add(new Word("垫片#4493"));
-		List<Document> r = md.matchWord("test", "material", words, "material_name", null, 0, 10000).into(new ArrayList<Document>());
-		for(Document d:r){
-			System.out.println(d.toJson());
-		}
+//		软横跨#131,支撑#1793,固定#3094,装置#8164,夹环#11
+		words.add(new Word("动车组","187"));
+		words.add(new Word("支撑","1793"));
+		words.add(new Word("固定","3094"));
+		words.add(new Word("装置","8164"));
+		words.add(new Word("夹环","11"));
+		long b = System.currentTimeMillis();
+		List<Word> wordList = Words.make(words);
+		for (Word word : wordList)
+			System.out.println(word);
+//		List<Document> r = md.matchWord("test", "material",wordList , "material_name", null, 0, 10000).into(new ArrayList<Document>());
+		long e = System.currentTimeMillis();
+//		for(Document d:r){
+//			System.out.println(d.toJson());
+//		}
+//		System.out.println("用时"+((e-b)/1000)+"秒,取出"+r.size()+"条");
 	}
 
 }

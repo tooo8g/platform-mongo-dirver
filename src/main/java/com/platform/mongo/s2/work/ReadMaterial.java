@@ -1,4 +1,4 @@
-package com.platform.mongo.util;
+package com.platform.mongo.s2.work;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.platform.io.bean.Material;
 import com.platform.mongo.s2.MongoDirver;  
+import com.platform.mongo.util.FileUtils;
 public class ReadMaterial {
 	
 	    /**
@@ -37,7 +38,7 @@ public class ReadMaterial {
 		
 		
 		public static void main(String[] args) throws Exception {
-			readMaterial("E:/test/xls/","xls");
+			readMaterial("D:/test/data/xls/","xls");
 		}
 		/**
 		 * 读取物资
