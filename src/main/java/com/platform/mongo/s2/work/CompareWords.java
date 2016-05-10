@@ -44,25 +44,25 @@ public class CompareWords {
 				}
 				List<Word> wordList = Words.make(words);
 				long b = System.currentTimeMillis();
-				List<Document> resultList = md.matchWord("test", "material",wordList , "material_name", null, 0, 10000).into(new ArrayList<Document>());
+				List<Document> resultList = md.matchWord("test", "distinctmaterial",wordList , "names", null, 0, 10000).into(new ArrayList<Document>());
 				long e = System.currentTimeMillis();
 				System.out.println("用时"+((e-b)/1000)+"秒,取出"+resultList.size()+"条");
-				String[] resultcsv = new String[3];
+				String[] resultcsv = new String[2];
 				if(resultList.size()>0){
 					resultcsv[0] = csvs[0];
-					resultcsv[1] = resultList.get(0).getString("material_name");
-					resultcsv[2] = resultList.get(0).getString("specification");
+					resultcsv[1] = resultList.get(0).getString("names");
+//					resultcsv[2] = resultList.get(0).getString("specification");
 					w.writeRecord(resultcsv);
 					resultcsv[0] = "";
 					for(int j = 1; j < resultList.size(); j++){
-						resultcsv[1] = resultList.get(j).getString("material_name");
-						resultcsv[2] = resultList.get(j).getString("specification");
+						resultcsv[1] = resultList.get(j).getString("names");
+//						resultcsv[2] = resultList.get(j).getString("specification");
 						w.writeRecord(resultcsv);
 					}
 				}else{
 					resultcsv[0] = csvs[0];
 					resultcsv[1] = "";
-					resultcsv[2] = "";
+//					resultcsv[2] = "";
 					w.writeRecord(resultcsv);
 				}
 				w.flush();
@@ -81,7 +81,7 @@ public class CompareWords {
 	public static void main(String[] args) {
 //		词频
 		String outfilename = "D:/test/word/result.csv";
-		readS("D:/test/word/test.csv",outfilename);
+		readS("D:/test/word/product_sp_10_count.csv",outfilename);
 	}
 	
 }
