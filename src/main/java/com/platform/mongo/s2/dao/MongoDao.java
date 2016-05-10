@@ -22,6 +22,7 @@ import com.mongodb.DB;
 import com.mongodb.DBRef;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
+import com.mongodb.client.DistinctIterable;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
@@ -31,6 +32,7 @@ import com.mongodb.client.model.ReturnDocument;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
+import com.platform.io.bean.Material;
 import com.platform.io.bean.Word;
 import com.platform.io.bean.Words;
 import com.platform.mongo.util.Constant;
@@ -150,6 +152,14 @@ public class MongoDao {
 		return cp_detail;
 	}
 
+//	public <T>  List<T> queryDistinc(String db, String collection,
+//			Bson filters, String fieldName,Class<T> clazz) {
+//		MongoDatabase database = client.getDatabase(db);
+//		MongoCollection<Document> mongocol = database.getCollection(collection);
+//		List<T>  cp_detail= mongocol.distinct(fieldName, filters, clazz).into(new ArrayList<T>());
+//		return cp_detail;
+//	}
+	
 	public List<Document> queryBysTandard(String db, String table,
 			Bson filters, String string) {
 		// TODO Auto-generated method stub

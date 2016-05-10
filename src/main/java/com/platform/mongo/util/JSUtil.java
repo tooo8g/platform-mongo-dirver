@@ -25,7 +25,6 @@ public class JSUtil {
 		}
 		js.append("if(w>1.0) return 1;else return 0;");
 		js.append("}");
-		System.out.println(js.toString());
 		return js.toString();
 	}
 
