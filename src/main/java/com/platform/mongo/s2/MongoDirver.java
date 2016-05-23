@@ -61,7 +61,7 @@ public class MongoDirver {
 		List<Integer> contract_write = new ArrayList<Integer>();
 		List<Integer> contract_read = new ArrayList<Integer>();
 		Integer r1 = (Integer) d.get("company_field");// 供应商所属域
-		Integer r2 = ower.get(0);
+		Integer r2  = ower.get(0);
 		contract_read.add(r1);
 		contract_read.add(r2);
 		for (Document doc : purchasing) {
@@ -79,11 +79,21 @@ public class MongoDirver {
 			// TODO
 			doc.put("access", access);
 			System.out.println("新增订货明细json：:" + doc.toJson());
-
 			client.addOne("test", "purchasing", doc);
 		}
 		List<Document> supply = (List<Document>) d.remove("supply");
 		for (Document doc : supply) {
+			/**
+			 * 增加合同订单明细中关于供货计划的读写权限
+			 */
+			Document access = new Document();
+			Integer w = (Integer) doc.get("company_field");
+			contract_write.add(w);
+			List<Integer> contract_writeList = new ArrayList<Integer>();
+			contract_writeList.add(w);
+			access.put("write", contract_writeList);
+			access.put("read", contract_read);
+			doc.put("access", access);
 			doc.put("p_id", _id);
 			client.addOne("test", "supply", doc);
 		}
@@ -198,7 +208,9 @@ public class MongoDirver {
 				or(in("access.write", key), in("access.read", key)));
 		List<Document> purchasingList = client.queryList("test", "purchasing",
 				filters, null).into(new ArrayList<Document>());
-		List<Document> supplyList = client.queryList("test", "supply", filters,
+		Bson supplyFilter =  and(eq("p_id", objectId),
+				or(in("access.write", key), in("access.read", key)));//暂时不管write过滤条件
+		List<Document> supplyList = client.queryList("test", "supply", supplyFilter,
 				null).into(new ArrayList<Document>());
 		/**
 		 * 将取出的订单合同区分出查看或编制序列号(read or write)
